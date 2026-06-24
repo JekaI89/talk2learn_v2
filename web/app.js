@@ -1,5 +1,5 @@
 // ── Состояние ──
-let userId = 0, userEmail = '';
+let userId = 0, userEmail = '', isAdmin = false;
 let userNativeLang = 'ru', userTargetLang = 'en';
 let currentLevel = 'A1', currentCategory = 'lessons';
 let popupWord = '', popupContext = '';
@@ -218,6 +218,7 @@ async function loadUserData() {
     const streak = p.streak ?? 0;
     const xp = p.xp ?? 0;
     currentLevel = p.level || 'A1';
+    isAdmin = !!p.is_admin;
 
     document.getElementById('sidebar-name').textContent = name;
     document.getElementById('sidebar-streak').textContent = streak;
@@ -225,6 +226,11 @@ async function loadUserData() {
     document.getElementById('sidebar-avatar').textContent = name[0].toUpperCase();
     document.getElementById('mobile-avatar').textContent = name[0].toUpperCase();
     document.getElementById('mobile-xp').textContent = `⭐ ${xp} XP`;
+
+    // Показываем кнопки для админов
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = isAdmin ? '' : 'none';
+    });
   } catch(e) {}
 }
 
@@ -755,6 +761,9 @@ async function loadProfile() {
       <button onclick="showLangSettings()" class="w-full py-3 bg-surface-container text-on-surface-variant font-label font-bold text-sm rounded-xl hover:bg-surface-container-high transition-colors mb-3">
         ⚙️ Настройки языка
       </button>
+      ${isAdmin ? `<a href="/admin" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:13px;font-weight:700;border-radius:12px;text-decoration:none;box-sizing:border-box">
+        <span class="material-symbols-outlined filled" style="font-size:18px">admin_panel_settings</span> Панель администратора
+      </a>` : ''}
       <div id="account-links-section"></div>
       <button onclick="logout()" class="w-full py-3 bg-red-50 text-red-600 border border-red-200 font-label font-bold text-sm rounded-xl hover:bg-red-100 transition-colors mt-3">
         Выйти из аккаунта
