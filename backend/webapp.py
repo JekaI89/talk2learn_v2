@@ -1143,7 +1143,8 @@ async def serve_admin():
 
 
 # ====================== САЙТ (не мини-апп) ======================
-SITE_DIR = os.path.join(STATIC_DIR, "site")
+WEB_DIR = os.path.join(BASE_DIR, "..", "web")
+app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
 
 @app.get("/site")
 @app.get("/site/")
@@ -1153,7 +1154,7 @@ SITE_DIR = os.path.join(STATIC_DIR, "site")
 @app.get("/site/word")
 @app.get("/site/profile")
 async def serve_site():
-    return FileResponse(os.path.join(SITE_DIR, "app.html"))
+    return FileResponse(os.path.join(WEB_DIR, "app.html"))
 
 
 if __name__ == "__main__":
