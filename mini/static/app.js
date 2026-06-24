@@ -48,16 +48,25 @@ const SCREENS = [
 // Header back-button stack
 let backStack = [];
 
+// Экраны которые используют flex (не block)
+const FLEX_SCREENS = new Set([
+  'screen-club','screen-sentence-builder','screen-vocab-cards','screen-situation-chat'
+]);
+
 function showScreen(screenId, pushBack = null) {
   SCREENS.forEach(s => {
     const el = document.getElementById(s);
-    if (el) el.classList.add('hidden');
+    if (el) el.style.display = 'none';
   });
-  document.getElementById(screenId)?.classList.remove('hidden');
+  const target = document.getElementById(screenId);
+  if (target) {
+    target.style.display = FLEX_SCREENS.has(screenId) ? 'flex' : 'block';
+  }
   hideWordPopup();
   updateHeader(screenId, pushBack);
-  // Bottom nav only on main
-  document.getElementById('bottom-nav').classList.toggle('hidden', screenId !== 'screen-main');
+  // Bottom nav
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.style.display = screenId === 'screen-main' ? 'flex' : 'none';
 }
 
 function updateHeader(screenId, backTarget) {

@@ -253,7 +253,7 @@ tailwind.config = {
   <main class="flex-1 relative">
 
     <!-- ══════════ ОНБОРДИНГ ══════════ -->
-    <div id="screen-onboarding" class="hidden screen-body px-md pt-xl pb-32">
+    <div id="screen-onboarding" class="screen-body px-md pt-xl pb-32" style="display:none">
 
       <!-- Шаг 0: Целевой язык -->
       <div id="ob-step-0" class="space-y-lg">
@@ -390,7 +390,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ НЕТ УРОКОВ ══════════ -->
-    <div id="screen-no-content" class="hidden screen-body px-md pt-xl pb-32">
+    <div id="screen-no-content" class="screen-body px-md pt-xl pb-32" style="display:none">
       <div class="flex flex-col items-center text-center gap-lg py-xl">
         <div class="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center">
           <span class="material-symbols-outlined text-outline" style="font-size:40px">construction</span>
@@ -411,7 +411,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ MAIN MENU ══════════ -->
-    <div id="screen-main" class="screen-body px-md pt-lg pb-32 space-y-lg">
+    <div id="screen-main" class="screen-body px-md pt-lg pb-32 space-y-lg" style="display:block">
 
       <!-- Hero CTA card -->
       <section class="relative overflow-hidden rounded-[1.5rem] bg-primary-container p-lg flex flex-col justify-center min-h-[140px] active:scale-[0.99] transition-transform cursor-pointer shadow-[0px_4px_20px_rgba(0,0,0,0.08)]" onclick="chooseCategory('lessons')">
@@ -509,18 +509,18 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ LEVELS ══════════ -->
-    <div id="screen-levels" class="hidden screen-body px-md pt-lg pb-32 space-y-md">
+    <div id="screen-levels" class="screen-body px-md pt-lg pb-32 space-y-md" style="display:none">
       <h1 class="font-headline font-extrabold text-on-surface text-2xl" data-i18n="title_choose_level"><span data-i18n="title_choose_level">Выберите уровень</span></h1>
       <div id="levels-grid" class="grid grid-cols-2 gap-sm"></div>
     </div>
 
     <!-- ══════════ LESSON ══════════ -->
-    <div id="screen-lesson" class="hidden screen-body px-md pt-lg pb-36">
+    <div id="screen-lesson" class="screen-body px-md pt-lg pb-36" style="display:none">
       <div id="lesson-data"></div>
     </div>
 
     <!-- ══════════ LEVEL COMPLETE ══════════ -->
-    <div id="screen-level-complete" class="hidden screen-body px-md pt-xl pb-32">
+    <div id="screen-level-complete" class="screen-body px-md pt-xl pb-32" style="display:none">
       <div class="flex flex-col items-center text-center gap-lg py-xl">
         <div class="w-24 h-24 rounded-full bg-gradient-to-br from-[#f59e0b] to-[#d97706] flex items-center justify-center shadow-lg">
           <span class="material-symbols-outlined filled text-white" style="font-size:48px">emoji_events</span>
@@ -542,7 +542,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ SENTENCE BUILDER ══════════ -->
-    <div id="screen-sentence-builder" class="hidden flex flex-col" style="height:calc(100dvh - 52px)">
+    <div id="screen-sentence-builder" class="flex-col" style="display:none">
       <!-- Исходное предложение -->
       <div class="px-md pt-lg pb-sm flex-shrink-0">
         <div class="flex items-center justify-between mb-md">
@@ -589,7 +589,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ ПРАКТИКА — ВЫБОР РЕЖИМА ══════════ -->
-    <div id="screen-practice-mode" class="hidden screen-body px-md pt-lg pb-32 space-y-md">
+    <div id="screen-practice-mode" class="screen-body px-md pt-lg pb-32 space-y-md" style="display:none">
       <h1 class="font-headline font-extrabold text-on-surface text-2xl">Практика · <span id="pm-level-badge">A1</span></h1>
       <p class="font-body text-on-surface-variant text-sm">Выберите тип задания:</p>
       <button onclick="startPracticeMode('multiple_choice')"
@@ -613,7 +613,7 @@ tailwind.config = {
         </div>
       </button>
     </div>
-    <div id="screen-practice-task" class="hidden screen-body px-md pt-lg pb-36 space-y-lg">
+    <div id="screen-practice-task" class="screen-body px-md pt-lg pb-36 space-y-lg" style="display:none">
       <section class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-lg shadow-sm">
         <p class="font-label text-xs text-outline uppercase tracking-wider mb-sm">Вопрос · <span id="practice-level-badge" class="text-primary">A1</span></p>
         <p id="practice-question-text" class="font-headline font-bold text-on-surface text-xl leading-snug"></p>
@@ -623,7 +623,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ SITUATIONS LIST ══════════ -->
-    <div id="screen-situations" class="hidden screen-body px-md pt-lg pb-32 space-y-md">
+    <div id="screen-situations" class="screen-body px-md pt-lg pb-32 space-y-md" style="display:none">
       <div>
         <h1 class="font-headline font-extrabold text-on-surface text-2xl">Ситуации</h1>
         <p class="font-body text-on-surface-variant text-sm mt-xs">Войдите в роль — AI сыграет сотрудника</p>
@@ -699,7 +699,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ SITUATION CHAT ══════════ -->
-    <div id="screen-situation-chat" class="hidden flex flex-col" style="height:calc(100dvh - 52px)">
+    <div id="screen-situation-chat" class="flex-col" style="display:none">
       <div id="situation-hint-bar" class="px-md py-sm bg-[#fffbeb] border-b border-[#fde68a] text-xs text-[#92400e] font-label"></div>
       <div id="situation-chat-box" class="flex-1 overflow-y-auto p-md space-y-sm bg-surface"></div>
       <!-- Input -->
@@ -720,7 +720,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ SPEAKING CLUB ══════════ -->
-    <div id="screen-club" class="hidden flex flex-col" style="height:calc(100dvh - 52px)">
+    <div id="screen-club" class="flex-col" style="display:none">
       <div class="px-md py-sm bg-surface-container-low border-b border-surface-variant flex items-center gap-sm">
         <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
           <span class="material-symbols-outlined filled text-on-primary text-sm">smart_toy</span>
@@ -752,7 +752,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ PROFILE ══════════ -->
-    <div id="screen-profile" class="hidden screen-body px-md pt-lg pb-32">
+    <div id="screen-profile" class="screen-body px-md pt-lg pb-32" style="display:none">
       <div class="flex items-center justify-between mb-lg">
         <h1 class="font-headline font-extrabold text-on-surface text-2xl">Мой профиль</h1>
         <button onclick="showLangSettings()"
@@ -765,7 +765,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ НАСТРОЙКИ ЯЗЫКА ══════════ -->
-    <div id="screen-lang-settings" class="hidden screen-body px-md pt-lg pb-32 space-y-lg">
+    <div id="screen-lang-settings" class="screen-body px-md pt-lg pb-32 space-y-lg" style="display:none">
       <h1 class="font-headline font-extrabold text-on-surface text-2xl">🌍 Языки</h1>
 
       <div>
@@ -802,7 +802,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ DICTIONARY TOPICS ══════════ -->
-    <div id="screen-dictionary" class="hidden screen-body px-md pt-lg pb-32 space-y-md">
+    <div id="screen-dictionary" class="screen-body px-md pt-lg pb-32 space-y-md" style="display:none">
       <h1 class="font-headline font-extrabold text-on-surface text-2xl">Словарь</h1>
       <!-- Level filter chips -->
       <div class="flex gap-xs flex-wrap items-center" id="vocab-level-filter">
@@ -817,7 +817,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ VOCABULARY FLASHCARDS ══════════ -->
-    <div id="screen-vocab-cards" class="hidden flex flex-col" style="height:calc(100dvh - 52px)">
+    <div id="screen-vocab-cards" class="flex-col" style="display:none">
 
       <!-- Прогресс-хедер -->
       <div class="px-md pt-md pb-sm flex-shrink-0 border-b border-surface-variant">
@@ -940,7 +940,7 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ PERSONAL DICTIONARY ══════════ -->
-    <div id="screen-personal-dict" class="hidden screen-body px-md pt-lg pb-32 space-y-md">
+    <div id="screen-personal-dict" class="screen-body px-md pt-lg pb-32 space-y-md" style="display:none">
       <div class="flex items-center justify-between">
         <h1 class="font-headline font-extrabold text-on-surface text-2xl">📒 Мой блокнот</h1>
         <span id="dict-count" class="font-label text-xs text-outline bg-surface-container px-sm py-xs rounded-full">0 слов</span>
@@ -951,7 +951,7 @@ tailwind.config = {
   </main>
 
   <!-- ── BOTTOM NAV (main screen only) ── -->
-  <div id="bottom-nav" class="hidden fixed bottom-0 w-full max-w-[512px] bg-surface-container-lowest/95 backdrop-blur-sm border-t border-outline-variant/40 z-20">
+  <div id="bottom-nav" style="display:none" class="fixed bottom-0 w-full max-w-[512px] bg-surface-container-lowest/95 backdrop-blur-sm border-t border-outline-variant/40 z-20">
     <div class="flex">
       <button id="nav-home" onclick="showScreen('screen-main')" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors group">
         <div class="flex items-center justify-center w-14 h-7 rounded-full bg-primary-container/20 group-[.nav-active]:bg-primary-container/20">
