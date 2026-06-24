@@ -140,8 +140,17 @@ async def favicon():
 
 # ====================== СТРАНИЦЫ ======================
 
+# Mini App (Telegram WebApp открывает корень)
 @app.get("/")
+@app.get("/mini")
+@app.get("/mini/")
+async def serve_mini():
+    return FileResponse(os.path.join(MINI_DIR, "index.html"))
+
+
+# Веб-сайт (браузер, ссылка из бота)
 @app.get("/app")
+@app.get("/web")
 @app.get("/lessons")
 @app.get("/dictionary")
 @app.get("/club")
@@ -149,12 +158,6 @@ async def favicon():
 @app.get("/profile")
 async def serve_web():
     return FileResponse(os.path.join(WEB_DIR, "index.html"))
-
-
-@app.get("/mini")
-@app.get("/mini/")
-async def serve_mini():
-    return FileResponse(os.path.join(MINI_DIR, "index.html"))
 
 
 @app.get("/admin")
