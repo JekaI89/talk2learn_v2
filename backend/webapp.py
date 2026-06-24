@@ -55,8 +55,10 @@ from database.db import (
 from utils.ai_service import transcribe_voice, get_ai_response, generate_voice, translate_word
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "..", "mini", "static")
-AUDIO_DIR = os.path.join(STATIC_DIR, "audio")
+MINI_DIR = os.path.join(BASE_DIR, "..", "mini", "static")
+STATIC_DIR = MINI_DIR  # backwards compat alias for audio paths
+WEB_DIR = os.path.join(BASE_DIR, "..", "web")
+AUDIO_DIR = os.path.join(MINI_DIR, "audio")
 
 ADMIN_IDS = [377424247, 696767499]
 
@@ -1129,32 +1131,29 @@ async def telegram_verify(data: TelegramAuthData):
 
 
 # ====================== СТАТИКА ======================
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
 
+# ====================== WEB APP (основной сайт) ======================
 @app.get("/")
-@app.get("/index.html")
-async def serve_home():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+@app.get("/app")
+@app.get("/lessons")
+@app.get("/dictionary")
+@app.get("/club")
+@app.get("/situations")
+@app.get("/profile")
+async def serve_web():
+    return FileResponse(os.path.join(WEB_DIR, "index.html"))
 
+# ====================== TELEGRAM MINI APP ======================
+@app.get("/mini")
+@app.get("/mini/")
+async def serve_mini():
+    return FileResponse(os.path.join(MINI_DIR, "index.html"))
 
+# ====================== ADMIN ======================
 @app.get("/admin")
 async def serve_admin():
-    return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
-
-
-# ====================== САЙТ (не мини-апп) ======================
-WEB_DIR = os.path.join(BASE_DIR, "..", "web")
-app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
-
-@app.get("/site")
-@app.get("/site/")
-@app.get("/site/app")
-@app.get("/site/lessons")
-@app.get("/site/dictionary")
-@app.get("/site/word")
-@app.get("/site/profile")
-async def serve_site():
-    return FileResponse(os.path.join(WEB_DIR, "app.html"))
+    return FileResponse(os.path.join(MINI_DIR, "admin.html"))
 
 
 if __name__ == "__main__":
