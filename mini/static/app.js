@@ -428,11 +428,13 @@ function initClubGreeting() {
   if (!chatBox) return;
   chatBox.innerHTML = '';
   const greeting = AI_GREETINGS[userTargetLang] || AI_GREETINGS['en'];
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;justify-content:flex-start';
   const div = document.createElement('div');
-  div.className = 'bg-primary-container text-on-primary p-md rounded-2xl rounded-tl-none max-w-[85%] text-sm shadow-sm';
+  div.style.cssText = 'background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);color:#191c1e;padding:10px 14px;border-radius:18px;border-top-left-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 1px 6px rgba(0,0,0,0.06)';
   div.innerHTML = makeTextClickable(greeting, greeting);
-  setTimeout(() => div.querySelectorAll('.clickable-word').forEach(el => el.style.borderBottomColor='rgba(255,255,255,0.4)'), 0);
-  chatBox.appendChild(div);
+  wrap.appendChild(div);
+  chatBox.appendChild(wrap);
 }
 
 function openSituation(situationKey, title, situation) {
@@ -536,17 +538,20 @@ function stopSituationRecording(e) {
 // ─────────────────────────────────────────────
 function appendMessage(sender, text, isAi=false) {
   const chatBox = document.getElementById('chat-box');
+  // wrapper выравнивает пузырь по нужной стороне
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;' + (isAi ? 'justify-content:flex-start' : 'justify-content:flex-end');
   const div = document.createElement('div');
   if (isAi) {
-    div.className = 'bg-primary-container text-on-primary p-md rounded-2xl rounded-tl-none max-w-[85%] text-sm shadow-sm';
+    div.style.cssText = 'background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);color:#191c1e;padding:10px 14px;border-radius:18px;border-top-left-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 1px 6px rgba(0,0,0,0.06)';
     div.innerHTML = makeTextClickable(text, text);
-    setTimeout(()=>div.querySelectorAll('.clickable-word').forEach(el=>el.style.borderBottomColor='rgba(255,255,255,0.4)'),0);
   } else {
-    div.className = 'bg-surface-container text-on-surface p-md rounded-2xl rounded-tr-none max-w-[85%] text-sm shadow-sm ml-auto';
+    div.style.cssText = 'background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;padding:10px 14px;border-radius:18px;border-top-right-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 2px 10px rgba(79,101,239,0.25)';
     div.textContent = text;
   }
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  wrap.appendChild(div);
+  chatBox.appendChild(wrap);
+  chatBox.scrollTo({top: chatBox.scrollHeight, behavior: 'smooth'});
 }
 
 async function sendTextMessage() {
