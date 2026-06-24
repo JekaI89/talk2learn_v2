@@ -805,13 +805,13 @@ tailwind.config = {
     <div id="screen-dictionary" class="hidden screen-body px-md pt-lg pb-32 space-y-md">
       <h1 class="font-headline font-extrabold text-on-surface text-2xl">Словарь</h1>
       <!-- Level filter chips -->
-      <div class="flex gap-xs flex-wrap" id="vocab-level-filter">
-        <button onclick="loadVocabTopics(null)" data-lvl="all" class="vocab-lvl-btn px-md py-xs rounded-full text-xs font-label font-bold bg-primary-container text-on-primary transition-all">Все</button>
-        <button onclick="loadVocabTopics('A1')" data-lvl="A1" class="vocab-lvl-btn px-md py-xs rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">A1</button>
-        <button onclick="loadVocabTopics('A2')" data-lvl="A2" class="vocab-lvl-btn px-md py-xs rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">A2</button>
-        <button onclick="loadVocabTopics('B1')" data-lvl="B1" class="vocab-lvl-btn px-md py-xs rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">B1</button>
-        <button onclick="loadVocabTopics('B2')" data-lvl="B2" class="vocab-lvl-btn px-md py-xs rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">B2</button>
-        <button onclick="loadVocabTopics('C1')" data-lvl="C1" class="vocab-lvl-btn px-md py-xs rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">C1</button>
+      <div class="flex gap-xs flex-wrap items-center" id="vocab-level-filter">
+        <button onclick="loadVocabTopics(null)" data-lvl="all" class="vocab-lvl-btn h-8 px-md rounded-full text-xs font-label font-bold bg-primary-container text-on-primary transition-all">Все</button>
+        <button onclick="loadVocabTopics('A1')" data-lvl="A1" class="vocab-lvl-btn h-8 px-md rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">A1</button>
+        <button onclick="loadVocabTopics('A2')" data-lvl="A2" class="vocab-lvl-btn h-8 px-md rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">A2</button>
+        <button onclick="loadVocabTopics('B1')" data-lvl="B1" class="vocab-lvl-btn h-8 px-md rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">B1</button>
+        <button onclick="loadVocabTopics('B2')" data-lvl="B2" class="vocab-lvl-btn h-8 px-md rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">B2</button>
+        <button onclick="loadVocabTopics('C1')" data-lvl="C1" class="vocab-lvl-btn h-8 px-md rounded-full text-xs font-label font-bold bg-surface-container text-on-surface-variant transition-all">C1</button>
       </div>
       <div id="vocab-topics-list" class="grid grid-cols-2 gap-sm"></div>
     </div>
@@ -1761,10 +1761,10 @@ async function loadVocabTopics(level) {
       const g = LEVEL_COLORS[lvl] || LEVEL_COLORS['A1'];
       const badges = [...new Set(info.levels)].sort().map(l=>`<span class="text-[10px] bg-white/25 px-xs py-[2px] rounded-full font-label">${l}</span>`).join('');
       return `<button onclick="openVocabTopic('${topic.replace(/'/g,"\\'")}','${level||''}')"
-        class="bg-gradient-to-br ${g} rounded-2xl p-md text-white text-left active:scale-95 transition-transform shadow-sm">
-        <span class="text-3xl block mb-xs">${icon}</span>
-        <span class="font-headline font-extrabold text-sm block">${topic}</span>
-        <span class="font-label text-xs text-white/70">${info.count} слов</span>
+        class="bg-gradient-to-br ${g} rounded-2xl p-md text-white text-left active:scale-95 transition-transform shadow-sm flex flex-col h-[130px]">
+        <span class="text-3xl block mb-xs leading-none">${icon}</span>
+        <span class="font-headline font-extrabold text-sm block truncate w-full">${topic}</span>
+        <span class="font-label text-xs text-white/70 mt-auto">${info.count} слов</span>
         <div class="flex gap-xs mt-xs flex-wrap">${badges}</div>
       </button>`;
     }).join('');
