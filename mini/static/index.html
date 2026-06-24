@@ -24,36 +24,85 @@ tailwind.config = {
         "surface-container-highest": "#e0e3e5",
         "on-surface": "#191c1e",
         "on-surface-variant": "#434655",
+        "inverse-surface": "#2d3133",
+        "inverse-on-surface": "#eff1f3",
         "outline": "#737686",
         "outline-variant": "#c3c6d7",
+        "surface-tint": "#0053db",
         "primary": "#004ac6",
         "on-primary": "#ffffff",
         "primary-container": "#2563eb",
         "on-primary-container": "#eeefff",
         "inverse-primary": "#b4c5ff",
+        "primary-fixed": "#dbe1ff",
+        "primary-fixed-dim": "#b4c5ff",
+        "on-primary-fixed": "#00174b",
+        "on-primary-fixed-variant": "#003ea8",
         "secondary": "#9d4300",
         "on-secondary": "#ffffff",
         "secondary-container": "#fd761a",
         "on-secondary-container": "#5c2400",
+        "secondary-fixed": "#ffdbca",
+        "secondary-fixed-dim": "#ffb690",
+        "on-secondary-fixed": "#341100",
+        "on-secondary-fixed-variant": "#783200",
         "tertiary": "#006329",
         "on-tertiary": "#ffffff",
         "tertiary-container": "#007f36",
         "on-tertiary-container": "#c7ffca",
+        "tertiary-fixed": "#7ffc97",
+        "tertiary-fixed-dim": "#62df7d",
+        "on-tertiary-fixed": "#002109",
+        "on-tertiary-fixed-variant": "#005320",
         "error": "#ba1a1a",
         "on-error": "#ffffff",
         "error-container": "#ffdad6",
+        "on-error-container": "#93000a",
+        "background": "#f7f9fb",
+        "on-background": "#191c1e",
         "surface-variant": "#e0e3e5",
-        "on-secondary-fixed": "#341100",
       },
       fontFamily: {
         "body": ["Be Vietnam Pro", "sans-serif"],
+        "body-lg": ["Be Vietnam Pro", "sans-serif"],
+        "body-base": ["Be Vietnam Pro", "sans-serif"],
+        "body-loose": ["Be Vietnam Pro", "sans-serif"],
         "headline": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+        "display-hero": ["Plus Jakarta Sans", "sans-serif"],
         "label": ["Hanken Grotesk", "sans-serif"],
+        "label-caps": ["Hanken Grotesk", "sans-serif"],
+        "caption": ["Hanken Grotesk", "sans-serif"],
+      },
+      fontSize: {
+        "display-hero": ["48px", {"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"800"}],
+        "headline-lg": ["32px", {"lineHeight":"40px","letterSpacing":"-0.01em","fontWeight":"800"}],
+        "headline-lg-mobile": ["28px", {"lineHeight":"34px","fontWeight":"800"}],
+        "headline-md": ["24px", {"lineHeight":"32px","fontWeight":"700"}],
+        "body-lg": ["18px", {"lineHeight":"28px","fontWeight":"400"}],
+        "body-base": ["16px", {"lineHeight":"24px","fontWeight":"400"}],
+        "body-loose": ["16px", {"lineHeight":"30px","fontWeight":"400"}],
+        "label-caps": ["12px", {"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"700"}],
+        "caption": ["10px", {"lineHeight":"14px","fontWeight":"500"}],
+      },
+      borderRadius: {
+        "sm": "0.25rem",
+        "DEFAULT": "0.5rem",
+        "md": "0.75rem",
+        "lg": "1rem",
+        "xl": "1.5rem",
+        "full": "9999px",
       },
       spacing: {
         "xs": "4px", "sm": "8px", "md": "16px",
         "lg": "24px", "xl": "32px",
         "touch": "52px",
+        "touch-target-min": "52px",
+        "gutter": "16px",
+        "margin-mobile": "16px",
+        "base-unit": "4px",
       },
     }
   }
@@ -63,6 +112,26 @@ tailwind.config = {
   body { font-family: 'Be Vietnam Pro', sans-serif; background: #f7f9fb; min-height: 100dvh; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
   .filled { font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+  /* Card elevation styles */
+  .glass-card {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid #e0e3e5;
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+  }
+  .elevated-card {
+    background: #ffffff;
+    border: 1px solid rgba(195,198,215,0.3);
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+  }
+
+  /* Circular progress */
+  .circular-progress {
+    --percentage: 0;
+    background: radial-gradient(closest-side, white 79%, transparent 80% 100%),
+                conic-gradient(var(--progress-color, #004ac6) calc(var(--percentage) * 1%), #e0e3e5 0);
+  }
 
   /* Flashcard swipe animations */
   @keyframes slideOutLeft  { to { transform: translateX(-110%) rotate(-8deg); opacity: 0; } }
@@ -77,10 +146,10 @@ tailwind.config = {
     cursor: pointer;
     border-bottom: 1.5px dashed rgba(180,197,255,0.7);
     transition: background 0.12s ease;
-    border-radius: 2px;
-    padding: 0 1px;
+    border-radius: 4px;
+    padding: 0 2px;
   }
-  .clickable-word:hover, .clickable-word:active { background: rgba(219,225,255,0.3); }
+  .clickable-word:hover, .clickable-word:active { background: rgba(219,225,255,0.35); }
 
   /* Bottom-sheet word popup */
   #word-popup {
@@ -97,6 +166,19 @@ tailwind.config = {
 
   /* Screen scroll */
   .screen-body { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Nav active pill */
+  .nav-btn-active span.material-symbols-outlined {
+    font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;
+  }
+
+  /* Shimmer loader */
+  @keyframes shimmer { from{background-position:-200% 0} to{background-position:200% 0} }
+  .shimmer {
+    background: linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
 </style>
 </head>
 <body class="flex flex-col items-center overflow-x-hidden bg-surface">
@@ -132,28 +214,28 @@ tailwind.config = {
 <div class="w-full max-w-[512px] min-h-screen flex flex-col relative">
 
   <!-- ── STICKY HEADER ── -->
-  <header id="app-header" class="sticky top-0 z-30 bg-surface border-b border-surface-variant">
-    <div class="h-touch px-md flex items-center gap-md">
+  <header id="app-header" class="sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/40">
+    <div class="h-touch-target-min px-md flex items-center gap-sm">
       <button id="header-back" onclick="headerBack()" class="hidden w-10 h-10 flex items-center justify-center rounded-full active:bg-surface-container active:scale-90 transition-all">
         <span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
       </button>
       <div id="header-avatar" class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary font-headline font-bold text-sm cursor-pointer active:scale-90 transition-transform flex-shrink-0" onclick="openProfile()">TL</div>
       <div id="header-user-info" class="flex-1 min-w-0">
         <div id="user-name" class="font-headline font-bold text-on-surface text-sm truncate">Загрузка...</div>
-        <div class="flex items-center gap-sm text-xs text-outline font-label">
+        <div class="flex items-center gap-sm font-label-caps text-caption text-outline">
           <span class="flex items-center gap-xs">
-            <span class="material-symbols-outlined filled text-secondary-container text-sm">local_fire_department</span>
+            <span class="material-symbols-outlined filled text-secondary-container" style="font-size:14px">local_fire_department</span>
             <span id="user-streak">0</span>
           </span>
-          <span>·</span>
+          <span class="text-outline-variant">·</span>
           <span class="flex items-center gap-xs">
-            <span class="material-symbols-outlined filled text-[#f59e0b] text-sm">star</span>
+            <span class="material-symbols-outlined filled text-[#f59e0b]" style="font-size:14px">star</span>
             <span id="user-xp">0</span> XP
           </span>
         </div>
       </div>
-      <button id="admin-badge" onclick="window.location.href='/admin'" class="hidden px-sm py-xs bg-error-container text-error rounded-full text-xs font-label font-bold active:scale-90 transition-transform">
-        <span class="material-symbols-outlined text-sm">settings</span>
+      <button id="admin-badge" onclick="window.location.href='/admin'" class="hidden px-sm py-xs bg-error-container text-error rounded-full font-label-caps text-caption font-bold active:scale-90 transition-transform">
+        <span class="material-symbols-outlined" style="font-size:14px">settings</span>
       </button>
       <div id="header-title-block" class="hidden flex-1">
         <div id="header-title" class="font-headline font-bold text-on-surface text-sm"></div>
@@ -330,66 +412,99 @@ tailwind.config = {
 
     <!-- ══════════ MAIN MENU ══════════ -->
     <div id="screen-main" class="screen-body px-md pt-lg pb-32 space-y-lg">
+
+      <!-- Hero CTA card -->
+      <section class="relative overflow-hidden rounded-[1.5rem] bg-primary-container p-lg flex flex-col justify-center min-h-[140px] active:scale-[0.99] transition-transform cursor-pointer shadow-[0px_4px_20px_rgba(0,0,0,0.08)]" onclick="chooseCategory('lessons')">
+        <div class="relative z-10">
+          <p class="font-label-caps text-label-caps text-on-primary-container/70 mb-xs" data-i18n="sec_study">ЗАНЯТИЯ</p>
+          <h2 class="font-headline-lg-mobile text-on-primary-container leading-tight mb-sm" data-i18n="btn_lessons">Уроки языка</h2>
+          <p class="font-body-base text-on-primary-container/80 text-sm mb-md">Продолжите обучение — следующий урок ждёт вас!</p>
+          <div class="inline-flex items-center gap-xs bg-surface-container-lowest/20 border border-on-primary-container/20 rounded-[1rem] px-md py-sm">
+            <span class="material-symbols-outlined text-on-primary-container text-sm">play_arrow</span>
+            <span class="font-label-caps text-label-caps text-on-primary-container">Начать урок</span>
+          </div>
+        </div>
+        <div class="absolute right-[-12px] bottom-[-12px] opacity-10">
+          <span class="material-symbols-outlined text-on-primary-container" style="font-size:140px;font-variation-settings:'FILL' 1">menu_book</span>
+        </div>
+      </section>
+
+      <!-- Bento grid -->
       <section>
-        <p class="font-label text-xs uppercase tracking-wider text-outline mb-sm" data-i18n="sec_study">Занятия</p>
+        <p class="font-label-caps text-label-caps text-outline mb-sm">РАЗДЕЛЫ</p>
         <div class="grid grid-cols-2 gap-sm">
-          <button onclick="chooseCategory('lessons')" class="p-md bg-surface-container-lowest rounded-2xl text-left border border-surface-variant active:scale-95 transition-transform shadow-sm">
-            <span class="material-symbols-outlined filled text-primary-container text-3xl block mb-xs">menu_book</span>
-            <span class="font-headline font-bold text-on-surface block text-sm" data-i18n="btn_lessons">Уроки</span>
-            <span class="font-label text-xs text-outline">Теория курса</span>
+          <!-- Grammar — full width -->
+          <button onclick="chooseCategory('grammar')" class="col-span-2 elevated-card rounded-[1.25rem] p-md flex items-center gap-md text-left active:scale-[0.99] transition-transform">
+            <div class="w-12 h-12 rounded-[0.75rem] bg-[#ede9fe] flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined filled text-[#7c3aed] text-2xl">edit_note</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-headline font-bold text-on-surface text-sm" data-i18n="btn_grammar">Грамматика</div>
+              <div class="font-label text-xs text-outline">Правила и структуры языка</div>
+            </div>
+            <span class="material-symbols-outlined text-outline flex-shrink-0">chevron_right</span>
           </button>
-          <button onclick="chooseCategory('grammar')" class="p-md bg-surface-container-lowest rounded-2xl text-left border border-surface-variant active:scale-95 transition-transform shadow-sm">
-            <span class="material-symbols-outlined filled text-[#7c3aed] text-3xl block mb-xs">edit_note</span>
-            <span class="font-headline font-bold text-on-surface block text-sm" data-i18n="btn_grammar">Грамматика</span>
-            <span class="font-label text-xs text-outline">Правила</span>
+
+          <!-- Vocabulary -->
+          <button onclick="showDictionary()" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#fff7ed] flex items-center justify-center mb-sm">
+              <span class="material-symbols-outlined filled text-secondary-container text-2xl">psychology</span>
+            </div>
+            <div class="font-headline font-bold text-on-surface text-sm" data-i18n="btn_vocab">Словарь</div>
+            <div class="font-label text-xs text-outline mt-xs">Лексика</div>
           </button>
-          <button onclick="showDictionary()" class="p-md bg-surface-container-lowest rounded-2xl text-left border border-surface-variant active:scale-95 transition-transform shadow-sm">
-            <span class="material-symbols-outlined filled text-secondary-container text-3xl block mb-xs">psychology</span>
-            <span class="font-headline font-bold text-on-surface block text-sm" data-i18n="btn_vocab" data-i18n="nav_vocab">Словарь</span>
-            <span class="font-label text-xs text-outline">Лексика</span>
-          </button>
-          <button onclick="chooseCategory('practice')" class="p-md bg-surface-container-lowest rounded-2xl text-left border border-surface-variant active:scale-95 transition-transform shadow-sm">
-            <span class="material-symbols-outlined filled text-tertiary-container text-3xl block mb-xs">target</span>
-            <span class="font-headline font-bold text-on-surface block text-sm" data-i18n="btn_practice">Практика</span>
-            <span class="font-label text-xs text-outline">Тесты</span>
+
+          <!-- Practice -->
+          <button onclick="chooseCategory('practice')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ecfdf5] flex items-center justify-center mb-sm">
+              <span class="material-symbols-outlined filled text-tertiary-container text-2xl">target</span>
+            </div>
+            <div class="font-headline font-bold text-on-surface text-sm" data-i18n="btn_practice">Практика</div>
+            <div class="font-label text-xs text-outline mt-xs">Тесты</div>
           </button>
         </div>
       </section>
 
+      <!-- Interactive section -->
       <section>
-        <p class="font-label text-xs uppercase tracking-wider text-outline mb-sm" data-i18n="sec_interactive">Интерактив</p>
+        <p class="font-label-caps text-label-caps text-outline mb-sm">ИНТЕРАКТИВ</p>
         <div class="space-y-sm">
-          <button onclick="showScreen('screen-situations')" class="w-full p-md bg-surface-container-lowest border border-surface-variant rounded-2xl flex items-center justify-between active:scale-[0.99] transition-transform shadow-sm">
-            <div class="flex items-center gap-md">
+          <!-- Situations -->
+          <button onclick="showScreen('screen-situations')" class="w-full elevated-card rounded-[1.25rem] p-md flex items-center gap-md active:scale-[0.99] transition-transform">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ecfeff] flex items-center justify-center flex-shrink-0">
               <span class="material-symbols-outlined filled text-[#0891b2] text-2xl">map</span>
-              <div class="text-left">
-                <div class="font-headline font-bold text-on-surface text-sm" data-i18n="btn_situations">Ситуации</div>
-                <div class="font-label text-xs text-outline">В магазине, ресторане...</div>
-              </div>
             </div>
-            <span class="material-symbols-outlined text-outline">chevron_right</span>
+            <div class="flex-1 text-left">
+              <div class="font-headline font-bold text-on-surface text-sm" data-i18n="btn_situations">Ситуации</div>
+              <div class="font-label text-xs text-outline">В магазине, ресторане, аэропорту...</div>
+            </div>
+            <span class="material-symbols-outlined text-outline flex-shrink-0">chevron_right</span>
           </button>
-          <button onclick="showScreen('screen-club')" class="w-full p-md bg-on-surface rounded-2xl flex items-center justify-between active:scale-[0.99] transition-transform shadow-md">
-            <div class="flex items-center gap-md">
+
+          <!-- Speaking Club — dark featured card -->
+          <button onclick="showScreen('screen-club')" class="w-full relative overflow-hidden rounded-[1.25rem] bg-inverse-surface p-md flex items-center gap-md active:scale-[0.99] transition-transform shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-white/10 flex items-center justify-center flex-shrink-0">
               <span class="material-symbols-outlined filled text-inverse-primary text-2xl">mic</span>
-              <div class="text-left">
-                <div class="font-headline font-bold text-surface text-sm" data-i18n="btn_club">Разговорный клуб</div>
-                <div class="font-label text-xs text-outline-variant">AI-репетитор</div>
-              </div>
             </div>
-            <span class="px-sm py-xs bg-primary-container text-on-primary font-label text-xs font-bold rounded-lg">AI</span>
+            <div class="flex-1 text-left">
+              <div class="font-headline font-bold text-inverse-on-surface text-sm" data-i18n="btn_club">Разговорный клуб</div>
+              <div class="font-label text-xs text-inverse-on-surface/60">AI-репетитор · живой диалог</div>
+            </div>
+            <span class="px-sm py-xs bg-primary-container text-on-primary font-label-caps text-label-caps rounded-[0.5rem]">AI</span>
           </button>
         </div>
       </section>
 
       <!-- Personal notebook shortcut -->
-      <button onclick="openPersonalDictionary()" class="w-full p-md bg-gradient-to-r from-secondary to-secondary-container rounded-2xl flex items-center gap-md active:scale-[0.99] transition-transform">
-        <span class="material-symbols-outlined filled text-white text-2xl">book_2</span>
-        <div class="text-left">
+      <button onclick="openPersonalDictionary()" class="w-full rounded-[1.25rem] bg-gradient-to-r from-secondary to-secondary-container p-md flex items-center gap-md active:scale-[0.99] transition-transform shadow-sm">
+        <div class="w-11 h-11 rounded-[0.75rem] bg-white/15 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined filled text-white text-2xl">book_2</span>
+        </div>
+        <div class="flex-1 text-left">
           <div class="font-headline font-bold text-white text-sm" data-i18n="btn_notebook">Мой блокнот слов</div>
           <div class="font-label text-xs text-white/70">Слова, которые вы сохранили</div>
         </div>
-        <span class="material-symbols-outlined text-white ml-auto">chevron_right</span>
+        <span class="material-symbols-outlined text-white/70 flex-shrink-0">chevron_right</span>
       </button>
     </div>
 
@@ -836,23 +951,31 @@ tailwind.config = {
   </main>
 
   <!-- ── BOTTOM NAV (main screen only) ── -->
-  <div id="bottom-nav" class="hidden fixed bottom-0 w-full max-w-[512px] bg-surface-container-lowest border-t border-surface-variant z-20">
+  <div id="bottom-nav" class="hidden fixed bottom-0 w-full max-w-[512px] bg-surface-container-lowest/95 backdrop-blur-sm border-t border-outline-variant/40 z-20">
     <div class="flex">
-      <button onclick="showScreen('screen-main')" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined filled text-primary-container">home</span>
-        <span class="font-label text-[10px] text-primary" data-i18n="nav_home" data-i18n="nav_home">Главная</span>
+      <button id="nav-home" onclick="showScreen('screen-main')" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors group">
+        <div class="flex items-center justify-center w-14 h-7 rounded-full bg-primary-container/20 group-[.nav-active]:bg-primary-container/20">
+          <span class="material-symbols-outlined filled text-primary-container" style="font-size:20px">home</span>
+        </div>
+        <span class="font-label-caps text-[10px] text-primary" data-i18n="nav_home">Главная</span>
       </button>
-      <button onclick="showDictionary()" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined text-on-surface-variant">book_2</span>
-        <span class="font-label text-[10px] text-outline" data-i18n="nav_vocab">Словарь</span>
+      <button id="nav-dict" onclick="showDictionary()" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
+        <div class="flex items-center justify-center w-14 h-7 rounded-full">
+          <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px">book_2</span>
+        </div>
+        <span class="font-label-caps text-[10px] text-outline" data-i18n="nav_vocab">Словарь</span>
       </button>
-      <button onclick="showScreen('screen-club')" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined text-on-surface-variant">mic</span>
-        <span class="font-label text-[10px] text-outline" data-i18n="nav_club" data-i18n="nav_club">Клуб</span>
+      <button id="nav-club" onclick="showScreen('screen-club')" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
+        <div class="flex items-center justify-center w-14 h-7 rounded-full">
+          <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px">mic</span>
+        </div>
+        <span class="font-label-caps text-[10px] text-outline" data-i18n="nav_club">Клуб</span>
       </button>
-      <button onclick="openProfile()" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined text-on-surface-variant">person</span>
-        <span class="font-label text-[10px] text-outline" data-i18n="nav_profile" data-i18n="nav_profile">Профиль</span>
+      <button id="nav-profile" onclick="openProfile()" class="flex-1 py-sm flex flex-col items-center gap-xs active:bg-surface-container transition-colors">
+        <div class="flex items-center justify-center w-14 h-7 rounded-full">
+          <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px">person</span>
+        </div>
+        <span class="font-label-caps text-[10px] text-outline" data-i18n="nav_profile">Профиль</span>
       </button>
     </div>
   </div>
