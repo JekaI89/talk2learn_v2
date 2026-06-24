@@ -1,7 +1,6 @@
-# Talk2Learn — Render.com deployment config
+# Talk2Learn v2 — Render.com deployment config
 # Бот и веб-сервер запускаются в ОДНОМ процессе через webapp.py
-# (бот стартует как background asyncio task в lifespan)
-# BOT_TOKEN, GROQ_API_KEY, WEBAPP_URL — задаются в Render Dashboard → Environment
+# BOT_TOKEN, GROQ_API_KEY, WEBAPP_URL, DATABASE_URL — задаются в Render Dashboard → Environment
 
 services:
   - type: web
@@ -9,6 +8,7 @@ services:
     env: python
     region: frankfurt
     plan: free
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: python webapp.py
     envVars:

@@ -55,7 +55,7 @@ from database.db import (
 from utils.ai_service import transcribe_voice, get_ai_response, generate_voice, translate_word
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+STATIC_DIR = os.path.join(BASE_DIR, "..", "mini", "static")
 AUDIO_DIR = os.path.join(STATIC_DIR, "audio")
 
 ADMIN_IDS = [377424247, 696767499]
