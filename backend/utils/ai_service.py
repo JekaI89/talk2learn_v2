@@ -5,7 +5,10 @@ from openai import AsyncOpenAI
 from gtts import gTTS
 
 # Groq API
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY environment variable is not set")
 
 client = AsyncOpenAI(
     api_key=GROQ_API_KEY,
