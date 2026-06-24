@@ -256,6 +256,9 @@ function navTo(section) {
 
   // Close sidebar on mobile
   closeSidebar();
+
+  // Lazy load sections
+  if (section === 'dictionary' && !_vocabTopicsCache.length) loadVocabTopics(null);
 }
 
 function showPage(name) {
@@ -478,41 +481,149 @@ async function checkSb() {
 }
 
 // ── СЛОВАРЬ (ТЕМЫ) ──
-async function loadVocabTopics(level) {
+// ── VOCAB STATE ──
+let _vocabLevel = null, _vocabSearch = '';
+let _vocabTopicsCache = [];
+
+const TOPIC_GRADIENTS = {
+  'Animals':    {from:'#34d399',to:'#0891b2',bg:'#ecfdf5'},
+  'Food':       {from:'#fb923c',to:'#ef4444',bg:'#fff7ed'},
+  'Transport':  {from:'#60a5fa',to:'#818cf8',bg:'#eff6ff'},
+  'Home':       {from:'#a78bfa',to:'#ec4899',bg:'#f5f3ff'},
+  'Nature':     {from:'#4ade80',to:'#22d3ee',bg:'#f0fdf4'},
+  'Emotions':   {from:'#f472b6',to:'#fb923c',bg:'#fdf2f8'},
+  'Sports':     {from:'#f59e0b',to:'#ef4444',bg:'#fffbeb'},
+  'Technology': {from:'#6366f1',to:'#2563eb',bg:'#eef2ff'},
+  'default':    {from:'#94a3b8',to:'#64748b',bg:'#f8fafc'},
+};
+const LEVEL_BADGE = {
+  A1:{bg:'#dcfce7',color:'#16a34a'},
+  A2:{bg:'#dbeafe',color:'#2563eb'},
+  B1:{bg:'#fef3c7',color:'#d97706'},
+  B2:{bg:'#fce7f3',color:'#db2777'},
+  C1:{bg:'#f3e8ff',color:'#9333ea'},
+  C2:{bg:'#f1f5f9',color:'#475569'},
+};
+
+function setVocabLevel(level) {
+  _vocabLevel = level;
   document.querySelectorAll('.vocab-lvl').forEach(b => {
     const active = level===null ? b.dataset.lvl==='all' : b.dataset.lvl===level;
-    b.className = `vocab-lvl px-3 py-1 rounded-full text-xs font-label font-bold transition-colors ${active?'bg-primary-container text-on-primary':'bg-surface-container text-on-surface-variant'}`;
+    b.style.background = active ? '#4f65ef' : '#f0f2f5';
+    b.style.color      = active ? '#fff'    : '#737686';
+    b.style.transform  = active ? 'scale(1.05)' : '';
   });
-  const grid = document.getElementById('vocab-topics-grid');
-  grid.innerHTML = '<p class="col-span-3 text-outline text-center py-8">Загрузка...</p>';
-  try {
-    const url = level ? `/api/vocab/topics?level=${level}` : '/api/vocab/topics';
-    const topics = await (await fetch(url)).json();
-    if (!topics.length) { grid.innerHTML='<p class="col-span-3 text-outline text-center py-8">Темы не добавлены</p>'; return; }
-    const byTopic = {};
-    topics.forEach(t=>{ if(!byTopic[t.topic])byTopic[t.topic]={count:0,levels:[]}; byTopic[t.topic].count+=parseInt(t.card_count); byTopic[t.topic].levels.push(t.level); });
-    grid.innerHTML = Object.entries(byTopic).map(([topic,info])=>{
-      const icon = TOPIC_ICONS[topic]||'📖';
-      const g = LEVEL_GRADIENTS[info.levels[0]]||LEVEL_GRADIENTS['A1'];
-      return `<button onclick="openVocabTopic('${topic.replace(/'/g,"\\'")}','${level||''}')"
-        class="bg-gradient-to-br ${g} rounded-2xl p-4 text-white text-left hover:scale-95 transition-transform shadow-sm">
-        <span class="text-3xl block mb-1">${icon}</span>
-        <span class="font-headline font-extrabold text-sm block">${topic}</span>
-        <span class="text-xs text-white/70">${info.count} слов</span>
-      </button>`;
-    }).join('');
-  } catch(e) { grid.innerHTML='<p class="col-span-3 text-error text-center py-8">Ошибка</p>'; }
+  renderVocabGrid();
 }
 
-async function openVocabTopic(topic, level) {
-  showPage('flashcards');
-  document.getElementById('flashcard-content').innerHTML = '<div class="text-center py-12 text-outline"><span class="material-symbols-outlined animate-spin text-3xl">progress_activity</span></div>';
+function filterVocabTopics() {
+  _vocabSearch = (document.getElementById('vocab-search')?.value||'').toLowerCase();
+  renderVocabGrid();
+}
+
+async function loadVocabTopics(level) {
+  _vocabLevel = level;
+  const grid = document.getElementById('vocab-topics-grid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:#9aa0b4"><span class="material-symbols-outlined" style="font-size:32px;display:block;margin-bottom:8px">sync</span>Загрузка...</div>';
   try {
-    const url = level ? `/api/vocab/cards?topic=${encodeURIComponent(topic)}&level=${level}` : `/api/vocab/cards?topic=${encodeURIComponent(topic)}`;
+    const url = '/api/vocab/topics';
+    const topics = await (await fetch(url)).json();
+    _vocabTopicsCache = topics;
+    renderVocabGrid();
+  } catch(e) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:#ba1a1a">Ошибка загрузки</div>';
+  }
+}
+
+function renderVocabGrid() {
+  const grid = document.getElementById('vocab-topics-grid');
+  if (!grid) return;
+  let topics = _vocabTopicsCache;
+
+  // Группируем по теме
+  const byTopic = {};
+  topics.forEach(t => {
+    if (!byTopic[t.topic]) byTopic[t.topic] = {count:0, levels:[]};
+    byTopic[t.topic].count += parseInt(t.card_count)||0;
+    if (!byTopic[t.topic].levels.includes(t.level)) byTopic[t.topic].levels.push(t.level);
+  });
+
+  // Фильтруем по уровню
+  let entries = Object.entries(byTopic);
+  if (_vocabLevel) {
+    entries = entries.filter(([,info]) => info.levels.includes(_vocabLevel));
+  }
+  // Фильтруем по поиску
+  if (_vocabSearch) {
+    entries = entries.filter(([topic]) => topic.toLowerCase().includes(_vocabSearch));
+  }
+
+  if (!entries.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:64px 16px">
+      <div style="font-size:48px;margin-bottom:12px">🔍</div>
+      <div style="font-size:16px;font-weight:700;color:#434655;margin-bottom:4px">Темы не найдены</div>
+      <div style="font-size:13px;color:#9aa0b4">Попробуйте другой уровень или запрос</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = entries.map(([topic, info]) => {
+    const icon   = TOPIC_ICONS[topic] || '📖';
+    const colors = TOPIC_GRADIENTS[topic] || TOPIC_GRADIENTS.default;
+    const lvl    = info.levels[0] || 'A1';
+    const badge  = LEVEL_BADGE[lvl] || LEVEL_BADGE.A1;
+    const lvlLabel = _vocabLevel ? _vocabLevel : (info.levels.length > 1 ? info.levels.join('/') : lvl);
+    return `<button onclick="openVocabTopic('${topic.replace(/'/g,"\\'")}','${_vocabLevel||''}')"
+      style="background:#fff;border:1px solid rgba(195,198,215,0.25);border-radius:20px;padding:0;text-align:left;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:transform 0.18s,box-shadow 0.18s;overflow:hidden"
+      onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.12)'"
+      onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+      <!-- Card top — gradient emoji area -->
+      <div style="background:linear-gradient(135deg,${colors.from},${colors.to});padding:24px 16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:110px">
+        <span style="font-size:44px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15))">${icon}</span>
+      </div>
+      <!-- Card bottom — info -->
+      <div style="padding:12px 14px 14px">
+        <div style="font-size:14px;font-weight:800;color:#191c1e;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${topic}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+          <span style="font-size:12px;color:#737686">${info.count} ${info.count===1?'слово':info.count<5?'слова':'слов'}</span>
+          <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:${badge.bg};color:${badge.color};white-space:nowrap">${lvlLabel}</span>
+        </div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+
+async function openVocabTopic(topic, level) {
+  const lvl = level || _vocabLevel || '';
+  showPage('flashcards');
+  const fc = document.getElementById('flashcard-content');
+  fc.innerHTML = `<div style="text-align:center;padding:48px 0;color:#9aa0b4">
+    <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:12px">sync</span>
+    <div style="font-size:14px">Загружаем карточки...</div>
+  </div>`;
+  // Back button title
+  const backBtn = document.querySelector('#page-flashcards button');
+  if (backBtn) backBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">arrow_back</span> ' + topic;
+
+  try {
+    const url = lvl
+      ? `/api/vocab/cards?topic=${encodeURIComponent(topic)}&level=${lvl}`
+      : `/api/vocab/cards?topic=${encodeURIComponent(topic)}`;
     const cards = await (await fetch(url)).json();
-    if (!cards.length) { document.getElementById('flashcard-content').innerHTML='<p class="text-center py-8 text-outline">Карточки не найдены</p>'; return; }
+    if (!cards.length) {
+      fc.innerHTML = `<div style="text-align:center;padding:48px 0">
+        <div style="font-size:40px;margin-bottom:12px">📭</div>
+        <div style="font-size:15px;font-weight:700;color:#434655">Карточки не найдены</div>
+        <div style="font-size:13px;color:#9aa0b4;margin-top:4px">Добавьте карточки через панель администратора</div>
+      </div>`;
+      return;
+    }
     startFlashcards(cards);
-  } catch(e) { document.getElementById('flashcard-content').innerHTML='<p class="text-error text-center py-8">Ошибка</p>'; }
+  } catch(e) {
+    fc.innerHTML = '<p style="text-align:center;padding:32px;color:#ba1a1a">Ошибка загрузки</p>';
+  }
 }
 
 function startFlashcards(cards) {
