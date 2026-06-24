@@ -1,309 +1,1341 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="ru">
 <head>
-<meta charset="utf-8"/>
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Talk2Learn | Curriculum</title>
+<title>Talk2Learn — AI Language Tutor</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Be+Vietnam+Pro:wght@400;500;700&family=Hanken+Grotesk:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script id="tw-config">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&family=Hanken+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
 tailwind.config = {
   darkMode: "class",
   theme: { extend: {
     colors: {
-      "surface":"#f7f9fb","surface-dim":"#d8dadc","surface-bright":"#f7f9fb",
-      "surface-container-lowest":"#ffffff","surface-container-low":"#f2f4f6",
-      "surface-container":"#eceef0","surface-container-high":"#e6e8ea",
-      "surface-container-highest":"#e0e3e5","on-surface":"#191c1e",
-      "on-surface-variant":"#434655","inverse-surface":"#2d3133",
-      "inverse-on-surface":"#eff1f3","outline":"#737686","outline-variant":"#c3c6d7",
-      "surface-tint":"#0053db","surface-variant":"#e0e3e5",
-      "primary":"#004ac6","on-primary":"#ffffff","primary-container":"#2563eb",
-      "on-primary-container":"#eeefff","inverse-primary":"#b4c5ff",
-      "primary-fixed":"#dbe1ff","primary-fixed-dim":"#b4c5ff",
-      "on-primary-fixed":"#00174b","on-primary-fixed-variant":"#003ea8",
-      "secondary":"#9d4300","on-secondary":"#ffffff","secondary-container":"#fd761a",
-      "on-secondary-container":"#5c2400","secondary-fixed":"#ffdbca",
-      "secondary-fixed-dim":"#ffb690","on-secondary-fixed":"#341100",
-      "on-secondary-fixed-variant":"#783200",
-      "tertiary":"#006329","on-tertiary":"#ffffff","tertiary-container":"#007f36",
-      "on-tertiary-container":"#c7ffca","tertiary-fixed":"#7ffc97",
-      "tertiary-fixed-dim":"#62df7d","on-tertiary-fixed":"#002109",
-      "on-tertiary-fixed-variant":"#005320",
-      "error":"#ba1a1a","on-error":"#ffffff","error-container":"#ffdad6",
-      "on-error-container":"#93000a","background":"#f7f9fb","on-background":"#191c1e"
+      "surface": "#f7f9fb", "surface-dim": "#d8dadc", "surface-bright": "#f7f9fb",
+      "surface-container-lowest": "#ffffff", "surface-container-low": "#f2f4f6",
+      "surface-container": "#eceef0", "surface-container-high": "#e6e8ea",
+      "surface-container-highest": "#e0e3e5", "on-surface": "#191c1e",
+      "on-surface-variant": "#434655", "inverse-surface": "#2d3133",
+      "inverse-on-surface": "#eff1f3", "outline": "#737686", "outline-variant": "#c3c6d7",
+      "surface-tint": "#0053db", "primary": "#004ac6", "on-primary": "#ffffff",
+      "primary-container": "#2563eb", "on-primary-container": "#eeefff",
+      "inverse-primary": "#b4c5ff", "primary-fixed": "#dbe1ff", "primary-fixed-dim": "#b4c5ff",
+      "on-primary-fixed": "#00174b", "on-primary-fixed-variant": "#003ea8",
+      "secondary": "#9d4300", "on-secondary": "#ffffff", "secondary-container": "#fd761a",
+      "on-secondary-container": "#5c2400", "tertiary": "#006329", "on-tertiary": "#ffffff",
+      "tertiary-container": "#007f36", "on-tertiary-container": "#c7ffca",
+      "error": "#ba1a1a", "on-error": "#ffffff", "error-container": "#ffdad6",
+      "background": "#f7f9fb", "on-background": "#191c1e", "surface-variant": "#e0e3e5",
     },
-    borderRadius: { "DEFAULT":"0.5rem","sm":"0.25rem","md":"0.75rem","lg":"1rem","xl":"1.5rem","full":"9999px" },
-    spacing: { "xs":"4px","sm":"8px","md":"16px","lg":"24px","xl":"32px","touch-target-min":"52px","gutter":"16px" },
     fontFamily: {
-      "display-hero":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],
-      "headline-md":["Plus Jakarta Sans"],"body-lg":["Be Vietnam Pro"],
-      "body-base":["Be Vietnam Pro"],"body-loose":["Be Vietnam Pro"],
-      "label-caps":["Hanken Grotesk"],"caption":["Hanken Grotesk"]
+      "body": ["Be Vietnam Pro","sans-serif"], "headline": ["Plus Jakarta Sans","sans-serif"],
+      "label": ["Hanken Grotesk","sans-serif"],
+      "headline-lg": ["Plus Jakarta Sans","sans-serif"],
+      "headline-md": ["Plus Jakarta Sans","sans-serif"],
+      "label-caps": ["Hanken Grotesk","sans-serif"],
     },
     fontSize: {
-      "display-hero":["48px",{lineHeight:"56px",letterSpacing:"-0.02em",fontWeight:"800"}],
-      "headline-lg":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"800"}],
-      "headline-md":["24px",{lineHeight:"32px",fontWeight:"700"}],
-      "body-lg":["18px",{lineHeight:"28px",fontWeight:"400"}],
-      "body-base":["16px",{lineHeight:"24px",fontWeight:"400"}],
-      "body-loose":["16px",{lineHeight:"30px",fontWeight:"400"}],
-      "label-caps":["12px",{lineHeight:"16px",letterSpacing:"0.05em",fontWeight:"700"}],
-      "caption":["10px",{lineHeight:"14px",fontWeight:"500"}]
-    }
+      "display-hero": ["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"800"}],
+      "headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.01em","fontWeight":"800"}],
+      "headline-lg-mobile": ["28px",{"lineHeight":"34px","fontWeight":"800"}],
+      "headline-md": ["24px",{"lineHeight":"32px","fontWeight":"700"}],
+      "body-lg": ["18px",{"lineHeight":"28px","fontWeight":"400"}],
+      "body-base": ["16px",{"lineHeight":"24px","fontWeight":"400"}],
+      "label-caps": ["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"700"}],
+      "caption": ["10px",{"lineHeight":"14px","fontWeight":"500"}],
+    },
+    spacing: {
+      "xs":"4px","sm":"8px","md":"16px","lg":"24px","xl":"32px",
+      "touch-target-min":"52px","gutter":"16px","margin-mobile":"16px",
+    },
+    borderRadius: {
+      "sm":"0.25rem","DEFAULT":"0.5rem","md":"0.75rem","lg":"1rem","xl":"1.5rem","full":"9999px",
+    },
   }}
 }
 </script>
 <style>
-  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
-  .icon-fill { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
-  ::-webkit-scrollbar { width:6px; }
-  ::-webkit-scrollbar-track { background:#f7f9fb; }
-  ::-webkit-scrollbar-thumb { background:#c3c6d7; border-radius:6px; }
-  ::-webkit-scrollbar-thumb:hover { background:#737686; }
-  .card-press { transition: transform 150ms cubic-bezier(.4,0,.2,1), box-shadow 150ms; }
-  .card-press:active { transform: scale(0.985); }
+body { font-family: 'Be Vietnam Pro', sans-serif; background: #f7f9fb; overflow-x: hidden; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+.filled { font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+.screen { display: none; }
+.screen.active { display: flex; }
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; }
+.glass-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid #e0e3e5; box-shadow: 0px 4px 20px rgba(0,0,0,0.05); }
+.elevated-card { background: #ffffff; border: 1px solid rgba(195,198,215,0.3); box-shadow: 0px 4px 20px rgba(0,0,0,0.05); }
+#word-popup { transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.2s; }
+#word-popup.hidden-popup { transform: translateY(100%); opacity: 0; pointer-events: none; }
+.clickable-word { cursor: pointer; border-bottom: 1.5px dashed rgba(37,99,235,0.4); border-radius: 4px; padding: 0 2px; transition: background 0.12s; }
+.clickable-word:hover { background: rgba(219,225,255,0.35); }
+@keyframes slideOutLeft  { to { transform: translateX(-110%) rotate(-8deg); opacity: 0; } }
+@keyframes slideOutRight { to { transform: translateX(110%) rotate(8deg); opacity: 0; } }
+@keyframes slideInUp     { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.card-exit-left  { animation: slideOutLeft  0.28s ease forwards; }
+.card-exit-right { animation: slideOutRight 0.28s ease forwards; }
+.card-enter      { animation: slideInUp     0.3s ease forwards; }
 </style>
 </head>
-<body class="bg-surface text-on-surface font-body-base antialiased">
+<body class="text-on-surface">
 
-<!-- Sidebar -->
-<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low flex flex-col p-md gap-md z-40 border-r border-outline-variant/40">
-  <div class="mb-lg px-sm pt-sm">
-    <h1 class="font-headline-md text-headline-md text-primary">Talk2Learn</h1>
-    <p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mt-xs">Personal Tutor</p>
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="screen-auth" class="screen active min-h-screen items-center justify-center bg-gradient-to-br from-primary to-primary-container p-md">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-lg">
+      <div class="w-16 h-16 bg-white/20 rounded-[1.25rem] flex items-center justify-center mx-auto mb-md">
+        <span class="material-symbols-outlined filled text-white text-4xl">school</span>
+      </div>
+      <h1 class="font-headline font-extrabold text-3xl text-white mb-xs">Talk2Learn</h1>
+      <p class="text-white/70 text-sm font-label">AI-репетитор для изучения языков</p>
+    </div>
+    <div class="elevated-card rounded-[1.5rem] p-lg">
+      <div id="auth-email-step1">
+        <p class="font-label-caps text-label-caps text-outline mb-xs">EMAIL</p>
+        <input id="auth-email" type="email" placeholder="you@example.com"
+          class="w-full border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary mb-md bg-surface"/>
+        <button onclick="requestCode()"
+          class="w-full h-touch-target-min rounded-[1rem] bg-primary text-on-primary font-label font-bold tracking-wide active:scale-95 transition-all duration-150 text-sm">
+          Получить код →
+        </button>
+        <p id="auth-error1" class="text-error text-xs mt-sm text-center hidden"></p>
+      </div>
+      <div id="auth-email-step2" class="hidden">
+        <p class="text-sm text-on-surface-variant mb-md text-center">Код отправлен на <strong id="auth-email-display"></strong></p>
+        <p class="font-label-caps text-label-caps text-outline mb-xs">КОД ИЗ ПИСЬМА</p>
+        <input id="auth-code" type="text" maxlength="6" placeholder="000000"
+          class="w-full border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body text-center tracking-[0.3em] text-xl focus:outline-none focus:border-primary mb-md bg-surface"/>
+        <button onclick="verifyCode()"
+          class="w-full h-touch-target-min rounded-[1rem] bg-tertiary-container text-on-tertiary font-label font-bold active:scale-95 transition-all duration-150 text-sm">
+          Войти ✓
+        </button>
+        <button onclick="document.getElementById('auth-email-step1').classList.remove('hidden');document.getElementById('auth-email-step2').classList.add('hidden')"
+          class="w-full py-sm text-outline text-sm mt-sm hover:text-on-surface transition-colors font-label">
+          ← Изменить email
+        </button>
+        <p id="auth-error2" class="text-error text-xs mt-sm text-center hidden"></p>
+      </div>
+      <div class="relative my-lg">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-outline-variant"></div></div>
+        <div class="relative text-center"><span class="bg-white px-sm text-xs text-outline font-label">или</span></div>
+      </div>
+      <div class="text-center">
+        <script async src="https://telegram.org/js/telegram-widget.js?22"
+          data-telegram-login="RoleTalkAI_bot" data-size="large" data-radius="12"
+          data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
+        <p class="text-xs text-outline mt-sm font-label">Войти через Telegram</p>
+      </div>
+    </div>
   </div>
-  <nav class="flex-grow flex flex-col gap-xs">
-    <a href="index.html" class="flex items-center gap-md px-md py-sm rounded-xl bg-primary-container text-on-primary-container shadow-sm transition-all">
-      <span class="material-symbols-outlined icon-fill">school</span>
-      <span class="font-label-caps text-label-caps font-bold">Lessons</span>
-    </a>
-    <a href="dictionary.html" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-      <span class="material-symbols-outlined">book</span>
-      <span class="font-label-caps text-label-caps">Dictionary</span>
-    </a>
-    <a href="profile.html" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-      <span class="material-symbols-outlined">person</span>
-      <span class="font-label-caps text-label-caps">Profile</span>
-    </a>
-  </nav>
-  <button class="mb-md w-full h-touch-target-min bg-primary text-on-primary rounded-xl font-bold flex items-center justify-center gap-sm hover:opacity-90 active:scale-95 transition-all">
-    <span class="material-symbols-outlined icon-fill">play_arrow</span>
-    Start Practice
-  </button>
-  <footer class="flex flex-col gap-xs pt-md border-t border-outline-variant/40">
-    <a href="#" class="flex items-center gap-md px-md py-xs rounded-lg text-on-surface-variant hover:bg-surface-variant transition-all">
-      <span class="material-symbols-outlined text-[20px]">settings</span>
-      <span class="font-caption text-caption">Settings</span>
-    </a>
-    <a href="#" class="flex items-center gap-md px-md py-xs rounded-lg text-on-surface-variant hover:bg-surface-variant transition-all">
-      <span class="material-symbols-outlined text-[20px]">help</span>
-      <span class="font-caption text-caption">Help</span>
-    </a>
-  </footer>
-</aside>
+</div>
 
-<!-- Main -->
-<main class="ml-64 min-h-screen p-xl">
-  <!-- Header -->
-  <header class="flex justify-between items-end mb-xl">
-    <div>
-      <h2 class="font-headline-lg text-headline-lg text-on-surface">Curriculum</h2>
-      <p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Continue your daily streak to master new skills.</p>
-    </div>
-    <div class="flex items-center gap-md">
-      <div class="flex items-center gap-xs px-md py-sm bg-surface-container-high rounded-full">
-        <span class="material-symbols-outlined text-secondary icon-fill">local_fire_department</span>
-        <span class="font-bold text-on-surface">12 Day Streak</span>
+<!-- ═══ APP SCREEN ═══ -->
+<div id="screen-app" class="screen min-h-screen">
+
+  <!-- Sidebar (desktop) -->
+  <aside class="hidden md:flex flex-col w-64 bg-surface-container-low fixed h-full z-20 p-md gap-md border-r border-outline-variant/30">
+    <div class="flex items-center gap-sm px-sm py-md">
+      <div class="w-10 h-10 bg-primary rounded-[0.75rem] flex items-center justify-center">
+        <span class="material-symbols-outlined filled text-on-primary">school</span>
       </div>
-      <button class="p-sm rounded-full bg-surface-container-high hover:bg-surface-variant transition-colors">
-        <span class="material-symbols-outlined">notifications</span>
+      <div>
+        <h1 class="font-headline font-bold text-primary text-base leading-none">Talk2Learn</h1>
+        <p class="font-label text-[10px] text-outline mt-xs">Personal AI Tutor</p>
+      </div>
+    </div>
+
+    <!-- User block -->
+    <div class="glass-card rounded-[1rem] p-md flex items-center gap-sm">
+      <div id="sidebar-avatar" class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary font-headline font-bold text-sm flex-shrink-0">TL</div>
+      <div class="min-w-0">
+        <div id="sidebar-name" class="font-headline font-bold text-on-surface text-sm truncate">Загрузка...</div>
+        <div class="flex gap-sm text-xs text-outline font-label">
+          <span class="flex items-center gap-xs"><span class="material-symbols-outlined filled text-secondary-container" style="font-size:13px">local_fire_department</span><span id="sidebar-streak">0</span></span>
+          <span class="flex items-center gap-xs"><span class="material-symbols-outlined filled text-[#f59e0b]" style="font-size:13px">star</span><span id="sidebar-xp">0</span> XP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav items -->
+    <nav class="flex-1 flex flex-col gap-xs">
+      <button onclick="navTo('main')" data-nav="main" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined" style="font-size:20px">home</span>
+        <span class="font-label-caps text-label-caps">Главная</span>
       </button>
-      <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center">
-        <span class="material-symbols-outlined text-on-primary-container text-[20px]">person</span>
-      </div>
+      <button onclick="navTo('dictionary')" data-nav="dictionary" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined" style="font-size:20px">menu_book</span>
+        <span class="font-label-caps text-label-caps">Словарь</span>
+      </button>
+      <button onclick="navTo('notebook')" data-nav="notebook" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined" style="font-size:20px">book_2</span>
+        <span class="font-label-caps text-label-caps">Мой блокнот</span>
+      </button>
+      <button onclick="navTo('club')" data-nav="club" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined" style="font-size:20px">record_voice_over</span>
+        <span class="font-label-caps text-label-caps">Разговорный клуб</span>
+      </button>
+      <button onclick="navTo('situations')" data-nav="situations" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined" style="font-size:20px">theater_comedy</span>
+        <span class="font-label-caps text-label-caps">Ситуации</span>
+      </button>
+      <button onclick="navTo('profile')" data-nav="profile" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined" style="font-size:20px">person</span>
+        <span class="font-label-caps text-label-caps">Профиль</span>
+      </button>
+    </nav>
+
+    <div class="border-t border-outline-variant/40 pt-md">
+      <button onclick="logout()" class="w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-outline hover:text-error hover:bg-error-container/20 transition-all font-label-caps text-label-caps">
+        <span class="material-symbols-outlined" style="font-size:20px">logout</span> Выйти
+      </button>
     </div>
-  </header>
+  </aside>
 
-  <!-- Bento Grid -->
-  <section class="grid grid-cols-4 gap-lg mb-xl">
+  <!-- Main content -->
+  <main class="flex-1 md:ml-64 flex flex-col min-h-screen">
 
-    <!-- Speaking — wide -->
-    <div data-card class="card-press col-span-2 group relative overflow-hidden bg-white rounded-[2rem] border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-xl cursor-pointer hover:shadow-lg transition-all">
-      <div class="flex justify-between items-start">
-        <div class="space-y-sm">
-          <span class="px-sm py-xs bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-caption rounded-full">INTERMEDIATE B1</span>
-          <h3 class="font-headline-md text-headline-md text-on-surface">Speaking</h3>
-          <p class="font-body-base text-body-base text-on-surface-variant max-w-[200px]">Perfect your pronunciation and conversational flow.</p>
-        </div>
-        <div class="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm group-hover:rotate-12 transition-transform duration-300">
-          <span class="material-symbols-outlined text-[32px]">record_voice_over</span>
+    <!-- Mobile header -->
+    <header class="md:hidden sticky top-0 z-10 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant/40 px-md h-[52px] flex items-center gap-sm">
+      <div id="mobile-avatar" class="w-8 h-8 bg-primary-container rounded-full flex items-center justify-center text-on-primary font-headline font-bold text-xs">TL</div>
+      <span id="mobile-title" class="font-headline font-bold text-on-surface text-sm flex-1">Talk2Learn</span>
+      <span id="mobile-xp" class="font-label-caps text-caption text-outline">⭐ 0 XP</span>
+    </header>
+
+    <!-- Pages -->
+
+    <!-- DASHBOARD -->
+    <div id="page-main" class="page p-md md:p-xl gap-lg max-w-5xl w-full mx-auto">
+
+      <!-- Header row -->
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="font-headline font-extrabold text-2xl md:text-[28px] text-on-surface leading-tight">Добро пожаловать! 👋</h2>
+          <p class="text-on-surface-variant text-sm font-body mt-xs">Выберите раздел для занятия</p>
         </div>
       </div>
-      <div class="mt-xl">
-        <div class="flex justify-between items-end mb-xs">
-          <span class="font-label-caps text-caption text-primary">Progress: 65%</span>
-          <span class="font-label-caps text-caption text-on-surface-variant">12/20 Lessons</span>
-        </div>
-        <div class="w-full h-3 bg-surface-container-high rounded-full overflow-hidden">
-          <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width:65%"></div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Vocabulary -->
-    <div data-card class="card-press group relative overflow-hidden bg-white rounded-[2rem] border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-xl cursor-pointer hover:shadow-lg transition-all">
-      <div class="flex flex-col h-full">
-        <div class="flex justify-between items-start mb-lg">
-          <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-on-secondary-container group-hover:-translate-y-1 transition-transform">
-            <span class="material-symbols-outlined text-[24px]">translate</span>
+      <!-- Hero card + stats -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+        <!-- Hero CTA -->
+        <div class="lg:col-span-2 relative overflow-hidden rounded-[1.5rem] bg-primary-container p-lg md:p-xl flex flex-col justify-center min-h-[160px] cursor-pointer active:scale-[0.99] transition-transform" onclick="startCategory('lessons')">
+          <div class="relative z-10">
+            <p class="font-label-caps text-label-caps text-on-primary-container/70 mb-xs">УРОКИ</p>
+            <h3 class="font-headline font-extrabold text-xl md:text-2xl text-on-primary-container leading-tight mb-sm">Продолжите обучение — следующий урок ждёт!</h3>
+            <div class="inline-flex items-center gap-xs bg-white/15 border border-white/20 rounded-[0.75rem] px-md py-xs">
+              <span class="material-symbols-outlined text-on-primary-container" style="font-size:16px">play_arrow</span>
+              <span class="font-label-caps text-label-caps text-on-primary-container">Начать урок</span>
+            </div>
           </div>
-          <span class="px-sm py-xs bg-secondary-fixed text-on-secondary-fixed-variant font-label-caps text-caption rounded-full">DAILY MIX</span>
-        </div>
-        <h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Vocabulary</h3>
-        <p class="font-caption text-caption text-on-surface-variant mb-auto">Expand your lexicon with 500+ daily words.</p>
-        <div class="mt-md">
-          <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-            <div class="h-full bg-secondary-container rounded-full" style="width:40%"></div>
+          <div class="absolute right-[-16px] bottom-[-16px] opacity-10">
+            <span class="material-symbols-outlined text-on-primary-container" style="font-size:160px;font-variation-settings:'FILL' 1">menu_book</span>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Grammar -->
-    <div data-card class="card-press group relative overflow-hidden bg-white rounded-[2rem] border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-xl cursor-pointer hover:shadow-lg transition-all">
-      <div class="flex flex-col h-full">
-        <div class="flex justify-between items-start mb-lg">
-          <div class="w-12 h-12 rounded-xl bg-tertiary-container flex items-center justify-center text-on-tertiary-container group-hover:-translate-y-1 transition-transform">
-            <span class="material-symbols-outlined text-[24px]">extension</span>
+        <!-- Quick stats -->
+        <div class="flex flex-col gap-md">
+          <div class="elevated-card rounded-[1.25rem] p-md flex items-center gap-md">
+            <div class="w-12 h-12 rounded-[0.75rem] bg-[#fff7ed] flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined filled text-secondary-container text-2xl">local_fire_department</span>
+            </div>
+            <div>
+              <p class="font-label-caps text-label-caps text-outline">СТРИК</p>
+              <p id="stat-streak" class="font-headline font-extrabold text-xl text-on-surface">0 дней</p>
+            </div>
           </div>
-          <span class="px-sm py-xs bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-caption rounded-full">CORE</span>
-        </div>
-        <h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Grammar</h3>
-        <p class="font-caption text-caption text-on-surface-variant mb-auto">Master the structural foundation of the language.</p>
-        <div class="mt-md">
-          <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-            <div class="h-full bg-tertiary-container rounded-full" style="width:85%"></div>
+          <div class="elevated-card rounded-[1.25rem] p-md flex items-center gap-md">
+            <div class="w-12 h-12 rounded-[0.75rem] bg-[#fefce8] flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined filled text-[#f59e0b] text-2xl">star</span>
+            </div>
+            <div>
+              <p class="font-label-caps text-label-caps text-outline">XP</p>
+              <p id="stat-xp" class="font-headline font-extrabold text-xl text-on-surface">0 XP</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Listening — full width -->
-    <div data-card class="card-press col-span-4 bg-primary-container/10 rounded-[2rem] border-2 border-dashed border-primary/20 p-lg flex items-center gap-xl relative overflow-hidden cursor-pointer hover:bg-primary-container/15 transition-all">
-      <div class="w-24 h-24 shrink-0 rounded-full bg-white flex items-center justify-center shadow-md">
-        <span class="material-symbols-outlined text-primary text-[48px]">headphones</span>
-      </div>
-      <div class="flex-grow">
-        <div class="flex justify-between items-center mb-sm">
-          <h3 class="font-headline-md text-headline-md text-on-surface">Listening Immersion</h3>
-          <span class="font-label-caps text-label-caps text-primary bg-white px-md py-sm rounded-full shadow-sm">NEW EPISODES AVAILABLE</span>
+      <!-- Bento category grid -->
+      <div>
+        <p class="font-label-caps text-label-caps text-outline mb-sm">РАЗДЕЛЫ</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+          <button onclick="startCategory('lessons')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-primary-container/15 flex items-center justify-center mb-sm">
+              <span class="material-symbols-outlined filled text-primary-container text-2xl">menu_book</span>
+            </div>
+            <div class="font-headline font-bold text-on-surface text-sm">Уроки</div>
+            <div class="font-label text-xs text-outline mt-xs">Теория курса</div>
+          </button>
+          <button onclick="startCategory('grammar')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ede9fe] flex items-center justify-center mb-sm">
+              <span class="material-symbols-outlined filled text-[#7c3aed] text-2xl">edit_note</span>
+            </div>
+            <div class="font-headline font-bold text-on-surface text-sm">Грамматика</div>
+            <div class="font-label text-xs text-outline mt-xs">Правила</div>
+          </button>
+          <button onclick="startCategory('vocabulary')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ecfdf5] flex items-center justify-center mb-sm">
+              <span class="material-symbols-outlined filled text-tertiary-container text-2xl">psychology</span>
+            </div>
+            <div class="font-headline font-bold text-on-surface text-sm">Лексика</div>
+            <div class="font-label text-xs text-outline mt-xs">Словарный запас</div>
+          </button>
+          <button onclick="startCategory('practice')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#fdf4ff] flex items-center justify-center mb-sm">
+              <span class="material-symbols-outlined filled text-[#a21caf] text-2xl">quiz</span>
+            </div>
+            <div class="font-headline font-bold text-on-surface text-sm">Практика</div>
+            <div class="font-label text-xs text-outline mt-xs">Тесты</div>
+          </button>
         </div>
-        <p class="font-body-base text-body-base text-on-surface-variant mb-md max-w-2xl">Dive into real-world audio scenarios. From casual coffee shop chats to professional boardroom presentations.</p>
-        <div class="flex items-center gap-lg">
-          <div class="flex-grow h-2 bg-surface-container-high rounded-full">
-            <div class="h-full bg-primary rounded-full" style="width:30%"></div>
-          </div>
-          <button class="bg-primary text-on-primary px-lg py-sm rounded-xl font-bold flex items-center gap-sm active:scale-95 transition-all">
-            Listen Now <span class="material-symbols-outlined">arrow_forward</span>
+      </div>
+
+      <!-- Interactive section -->
+      <div>
+        <p class="font-label-caps text-label-caps text-outline mb-sm">ИНТЕРАКТИВ</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+          <button onclick="navTo('situations')" class="elevated-card rounded-[1.25rem] p-md flex items-center gap-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ecfeff] flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined filled text-[#0891b2] text-2xl">theater_comedy</span>
+            </div>
+            <div class="flex-1">
+              <div class="font-headline font-bold text-on-surface text-sm">Ситуации</div>
+              <div class="font-label text-xs text-outline">В магазине, ресторане, аэропорту...</div>
+            </div>
+            <span class="material-symbols-outlined text-outline">chevron_right</span>
+          </button>
+          <button onclick="navTo('club')" class="relative overflow-hidden rounded-[1.25rem] bg-inverse-surface p-md flex items-center gap-md text-left active:scale-[0.99] transition-transform shadow-md">
+            <div class="w-11 h-11 rounded-[0.75rem] bg-white/10 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined filled text-inverse-primary text-2xl">mic</span>
+            </div>
+            <div class="flex-1">
+              <div class="font-headline font-bold text-inverse-on-surface text-sm">Разговорный клуб</div>
+              <div class="font-label text-xs text-inverse-on-surface/60">AI-репетитор · живой диалог</div>
+            </div>
+            <span class="px-sm py-xs bg-primary-container text-on-primary font-label-caps text-label-caps rounded-[0.5rem]">AI</span>
           </button>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- Quick Start Scenarios -->
-  <section>
-    <div class="flex items-center justify-between mb-lg">
-      <h3 class="font-headline-md text-headline-md text-on-surface">Quick Start Scenarios</h3>
-      <a href="#" class="text-primary font-bold hover:underline flex items-center gap-xs">View All <span class="material-symbols-outlined text-[18px]">arrow_forward</span></a>
+    <!-- LEVELS -->
+    <div id="page-levels" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <button onclick="navTo('main')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Назад
+      </button>
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">Выберите уровень</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-sm" id="levels-grid"></div>
     </div>
-    <div class="grid grid-cols-3 gap-lg">
 
-      <!-- Card 1 -->
-      <div data-card class="card-press bg-white rounded-xl overflow-hidden border border-outline-variant/30 hover:shadow-md transition-all group cursor-pointer">
-        <div class="h-40 bg-gradient-to-br from-orange-400 to-amber-600 relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-white text-[64px] icon-fill opacity-80">local_cafe</span>
-          <div class="absolute top-md left-md">
-            <span class="bg-white/90 backdrop-blur-md px-sm py-xs rounded-lg font-label-caps text-caption text-on-surface flex items-center gap-xs">
-              <span class="material-symbols-outlined text-[14px]">schedule</span> 5 min
-            </span>
-          </div>
-        </div>
-        <div class="p-lg">
-          <h4 class="font-headline-md text-[18px] text-on-surface mb-xs">Ordering Coffee</h4>
-          <p class="font-body-base text-[14px] text-on-surface-variant mb-lg">Learn essential phrases for ordering your favorite beverage in a local cafe setting.</p>
-          <div class="flex items-center justify-between">
-            <span class="font-label-caps text-caption text-secondary uppercase">Level A1</span>
-            <button class="p-sm rounded-full text-primary hover:bg-primary-container/10 transition-colors">
-              <span class="material-symbols-outlined icon-fill">play_circle</span>
-            </button>
-          </div>
-        </div>
+    <!-- PRACTICE MODE -->
+    <div id="page-practice-mode" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <button onclick="showPage('levels')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Назад
+      </button>
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">Режим практики</h2>
+      <div class="space-y-sm">
+        <button onclick="startPracticeMode('multiple_choice')" class="w-full elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="font-headline font-bold text-on-surface mb-xs">🎯 Тест с вариантами</div>
+          <div class="font-label text-xs text-on-surface-variant">Выберите правильный ответ из 4 вариантов</div>
+        </button>
+        <button onclick="startPracticeMode('sentence_builder')" class="w-full elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="font-headline font-bold text-on-surface mb-xs">🧩 Конструктор предложений</div>
+          <div class="font-label text-xs text-on-surface-variant">Составьте фразу из слов</div>
+        </button>
       </div>
-
-      <!-- Card 2 -->
-      <div data-card class="card-press bg-white rounded-xl overflow-hidden border border-outline-variant/30 hover:shadow-md transition-all group cursor-pointer">
-        <div class="h-40 bg-gradient-to-br from-blue-500 to-indigo-700 relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-white text-[64px] icon-fill opacity-80">flight</span>
-          <div class="absolute top-md left-md">
-            <span class="bg-white/90 backdrop-blur-md px-sm py-xs rounded-lg font-label-caps text-caption text-on-surface flex items-center gap-xs">
-              <span class="material-symbols-outlined text-[14px]">schedule</span> 8 min
-            </span>
-          </div>
-        </div>
-        <div class="p-lg">
-          <h4 class="font-headline-md text-[18px] text-on-surface mb-xs">Airport Check-in</h4>
-          <p class="font-body-base text-[14px] text-on-surface-variant mb-lg">Navigate international travel conversations, from baggage drop to finding your gate.</p>
-          <div class="flex items-center justify-between">
-            <span class="font-label-caps text-caption text-primary uppercase">Level B1</span>
-            <button class="p-sm rounded-full text-primary hover:bg-primary-container/10 transition-colors">
-              <span class="material-symbols-outlined icon-fill">play_circle</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div data-card class="card-press bg-white rounded-xl overflow-hidden border border-outline-variant/30 hover:shadow-md transition-all group cursor-pointer">
-        <div class="h-40 bg-gradient-to-br from-purple-600 to-red-600 relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-white text-[64px] icon-fill opacity-80">business_center</span>
-          <div class="absolute top-md left-md">
-            <span class="bg-white/90 backdrop-blur-md px-sm py-xs rounded-lg font-label-caps text-caption text-on-surface flex items-center gap-xs">
-              <span class="material-symbols-outlined text-[14px]">schedule</span> 12 min
-            </span>
-          </div>
-        </div>
-        <div class="p-lg">
-          <h4 class="font-headline-md text-[18px] text-on-surface mb-xs">Business Pitch</h4>
-          <p class="font-body-base text-[14px] text-on-surface-variant mb-lg">Master professional language and persuasive techniques for your next big presentation.</p>
-          <div class="flex items-center justify-between">
-            <span class="font-label-caps text-caption text-tertiary uppercase">Level C1</span>
-            <button class="p-sm rounded-full text-primary hover:bg-primary-container/10 transition-colors">
-              <span class="material-symbols-outlined icon-fill">play_circle</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
     </div>
-  </section>
-</main>
 
-<!-- Footer -->
-<footer class="ml-64 bg-surface-container-highest border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-xl py-lg">
-  <div>
-    <span class="font-label-caps text-label-caps text-primary uppercase">Talk2Learn AI</span>
-    <p class="font-caption text-caption text-on-surface-variant mt-xs">© 2025 Talk2Learn AI. Master languages with ease.</p>
-  </div>
-  <div class="flex flex-wrap gap-lg mt-md md:mt-0">
-    <a href="#" class="font-caption text-caption text-on-surface-variant hover:text-secondary transition-colors">Language Settings</a>
-    <a href="#" class="font-caption text-caption text-on-surface-variant hover:text-secondary transition-colors">Privacy Policy</a>
-    <a href="#" class="font-caption text-caption text-on-surface-variant hover:text-secondary transition-colors">Terms of Service</a>
-    <a href="#" class="font-caption text-caption text-on-surface-variant hover:text-secondary transition-colors">Contact Support</a>
-  </div>
-</footer>
+    <!-- LESSON -->
+    <div id="page-lesson" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <button onclick="showPage('levels')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> К уровням
+      </button>
+      <div id="lesson-content"></div>
+    </div>
 
-<script src="_shared.js"></script>
+    <!-- PRACTICE -->
+    <div id="page-practice" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <button onclick="showPage('practice-mode')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Назад
+      </button>
+      <div id="practice-content"></div>
+    </div>
+
+    <!-- SENTENCE BUILDER -->
+    <div id="page-sentence-builder" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <button onclick="showPage('practice-mode')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Назад
+      </button>
+      <div id="sb-content"></div>
+    </div>
+
+    <!-- DICTIONARY -->
+    <div id="page-dictionary" class="page p-md md:p-xl gap-md max-w-3xl w-full mx-auto">
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">📚 Визуальный словарь</h2>
+      <div class="flex gap-sm flex-wrap" id="vocab-level-filters">
+        <button onclick="loadVocabTopics(null)" data-lvl="all" class="vocab-lvl px-md py-xs rounded-full font-label-caps text-label-caps bg-primary-container text-on-primary active:scale-95 transition-transform">Все</button>
+        <button onclick="loadVocabTopics('A1')" data-lvl="A1" class="vocab-lvl px-md py-xs rounded-full font-label-caps text-label-caps bg-surface-container text-on-surface-variant active:scale-95 transition-transform">A1</button>
+        <button onclick="loadVocabTopics('A2')" data-lvl="A2" class="vocab-lvl px-md py-xs rounded-full font-label-caps text-label-caps bg-surface-container text-on-surface-variant active:scale-95 transition-transform">A2</button>
+        <button onclick="loadVocabTopics('B1')" data-lvl="B1" class="vocab-lvl px-md py-xs rounded-full font-label-caps text-label-caps bg-surface-container text-on-surface-variant active:scale-95 transition-transform">B1</button>
+        <button onclick="loadVocabTopics('B2')" data-lvl="B2" class="vocab-lvl px-md py-xs rounded-full font-label-caps text-label-caps bg-surface-container text-on-surface-variant active:scale-95 transition-transform">B2</button>
+      </div>
+      <div id="vocab-topics-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-sm"></div>
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div id="page-flashcards" class="page p-md md:p-xl gap-md max-w-lg w-full mx-auto">
+      <button onclick="navTo('dictionary')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> К темам
+      </button>
+      <div id="flashcard-content"></div>
+    </div>
+
+    <!-- NOTEBOOK -->
+    <div id="page-notebook" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">📒 Мой блокнот слов</h2>
+      <p id="notebook-count" class="text-outline text-sm font-label">Загрузка...</p>
+      <div id="notebook-list"></div>
+    </div>
+
+    <!-- CLUB -->
+    <div id="page-club" class="page flex-col max-w-2xl w-full mx-auto" style="height:calc(100vh - 52px)">
+      <div class="p-md border-b border-outline-variant/40 flex-shrink-0">
+        <h2 class="font-headline font-bold text-on-surface">🗣️ Разговорный клуб</h2>
+        <p class="font-label text-xs text-outline">Уровень: <span id="club-level" class="font-bold text-primary">A1</span></p>
+      </div>
+      <div id="chat-box" class="flex-1 overflow-y-auto p-md space-y-sm"></div>
+      <div class="p-sm border-t border-outline-variant/40 flex gap-sm flex-shrink-0 bg-surface-container-lowest/80 backdrop-blur-sm">
+        <input id="chat-input" type="text" placeholder="Напишите сообщение..."
+          class="flex-1 border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body focus:outline-none focus:border-primary bg-surface"
+          onkeydown="if(event.key==='Enter')sendClubMessage()"/>
+        <button onclick="sendClubMessage()" class="w-10 h-10 bg-primary-container text-on-primary rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
+          <span class="material-symbols-outlined" style="font-size:18px">send</span>
+        </button>
+        <button id="club-mic-btn" onmousedown="startClubRecording(event)" onmouseup="stopClubRecording(event)"
+          class="w-10 h-10 bg-surface-container rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
+          <span class="material-symbols-outlined" style="font-size:18px">mic</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SITUATIONS -->
+    <div id="page-situations" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">🎭 Ситуации</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+        <button onclick="openSituation('shop','В магазине','shop')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="text-2xl mb-xs">🛒</div><div class="font-headline font-bold text-on-surface">В магазине</div>
+          <div class="font-label text-xs text-outline">Покупки и цены</div>
+        </button>
+        <button onclick="openSituation('restaurant','В ресторане','restaurant')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="text-2xl mb-xs">🍽️</div><div class="font-headline font-bold text-on-surface">В ресторане</div>
+          <div class="font-label text-xs text-outline">Заказ еды</div>
+        </button>
+        <button onclick="openSituation('airport','В аэропорту','airport')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="text-2xl mb-xs">✈️</div><div class="font-headline font-bold text-on-surface">В аэропорту</div>
+          <div class="font-label text-xs text-outline">Регистрация на рейс</div>
+        </button>
+        <button onclick="openSituation('hotel','В отеле','hotel')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="text-2xl mb-xs">🏨</div><div class="font-headline font-bold text-on-surface">В отеле</div>
+          <div class="font-label text-xs text-outline">Заселение и услуги</div>
+        </button>
+        <button onclick="openSituation('doctor','У врача','doctor')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="text-2xl mb-xs">🏥</div><div class="font-headline font-bold text-on-surface">У врача</div>
+          <div class="font-label text-xs text-outline">Симптомы и лечение</div>
+        </button>
+        <button onclick="openSituation('emergency','Экстренная помощь','emergency')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+          <div class="text-2xl mb-xs">🚨</div><div class="font-headline font-bold text-on-surface">Экстренная помощь</div>
+          <div class="font-label text-xs text-outline">Срочные ситуации</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- SITUATION CHAT -->
+    <div id="page-situation-chat" class="page flex-col max-w-2xl w-full mx-auto" style="height:calc(100vh - 52px)">
+      <div class="p-md border-b border-outline-variant/40 flex items-center gap-sm flex-shrink-0">
+        <button onclick="showPage('situations')" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container active:scale-90 transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px">arrow_back</span>
+        </button>
+        <div>
+          <div id="sit-title" class="font-headline font-bold text-on-surface text-sm"></div>
+          <div id="sit-hint" class="font-label text-xs text-outline"></div>
+        </div>
+      </div>
+      <div id="sit-chat-box" class="flex-1 overflow-y-auto p-md space-y-sm"></div>
+      <div class="p-sm border-t border-outline-variant/40 flex gap-sm flex-shrink-0 bg-surface-container-lowest/80 backdrop-blur-sm">
+        <input id="sit-input" type="text" placeholder="Напишите сообщение..."
+          class="flex-1 border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body focus:outline-none focus:border-primary bg-surface"
+          onkeydown="if(event.key==='Enter')sendSitMessage()"/>
+        <button onclick="sendSitMessage()" class="w-10 h-10 bg-primary-container text-on-primary rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
+          <span class="material-symbols-outlined" style="font-size:18px">send</span>
+        </button>
+        <button id="sit-mic-btn" onmousedown="startSitRecording(event)" onmouseup="stopSitRecording(event)"
+          class="w-10 h-10 bg-surface-container rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
+          <span class="material-symbols-outlined" style="font-size:18px">mic</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-profile" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">Мой профиль</h2>
+      <div id="profile-content"></div>
+    </div>
+
+    <!-- ONBOARDING -->
+    <div id="page-onboarding" class="page p-md md:p-xl gap-lg max-w-lg w-full mx-auto">
+      <div id="ob-step-0">
+        <div class="text-center mb-lg"><div class="text-5xl mb-md">🌍</div>
+          <h2 class="font-headline font-extrabold text-2xl text-on-surface">Какой язык учим?</h2></div>
+        <div class="grid grid-cols-2 gap-sm">
+          <button onclick="obSelectTarget('en')" data-lang="en" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇬🇧</div><div class="font-headline font-bold text-sm">Английский</div></button>
+          <button onclick="obSelectTarget('de')" data-lang="de" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇩🇪</div><div class="font-headline font-bold text-sm">Немецкий</div></button>
+          <button onclick="obSelectTarget('fr')" data-lang="fr" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇫🇷</div><div class="font-headline font-bold text-sm">Французский</div></button>
+          <button onclick="obSelectTarget('es')" data-lang="es" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇪🇸</div><div class="font-headline font-bold text-sm">Испанский</div></button>
+          <button onclick="obSelectTarget('it')" data-lang="it" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇮🇹</div><div class="font-headline font-bold text-sm">Итальянский</div></button>
+          <button onclick="obSelectTarget('zh')" data-lang="zh" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇨🇳</div><div class="font-headline font-bold text-sm">Китайский</div></button>
+        </div>
+      </div>
+      <div id="ob-step-1" class="hidden">
+        <div class="text-center mb-lg"><div class="text-5xl mb-md">🗣️</div>
+          <h2 class="font-headline font-extrabold text-2xl text-on-surface">Ваш родной язык?</h2></div>
+        <div class="grid grid-cols-2 gap-sm">
+          <button onclick="obSelectNative('ru')" data-lang="ru" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇷🇺</div><div class="font-headline font-bold text-sm">Русский</div></button>
+          <button onclick="obSelectNative('en')" data-lang="en" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇬🇧</div><div class="font-headline font-bold text-sm">Английский</div></button>
+          <button onclick="obSelectNative('de')" data-lang="de" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇩🇪</div><div class="font-headline font-bold text-sm">Немецкий</div></button>
+          <button onclick="obSelectNative('fr')" data-lang="fr" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇫🇷</div><div class="font-headline font-bold text-sm">Французский</div></button>
+        </div>
+      </div>
+      <div id="ob-step-2" class="hidden">
+        <div class="text-center mb-lg"><div class="text-5xl mb-md">📊</div>
+          <h2 class="font-headline font-extrabold text-2xl text-on-surface">Ваш уровень?</h2></div>
+        <div class="grid grid-cols-2 gap-sm">
+          <button onclick="obSelectLevel('A1')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-green-400 to-teal-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">A1</span><span class="font-label text-xs text-white/70 block mt-xs">Начинаю с нуля</span></button>
+          <button onclick="obSelectLevel('A2')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">A2</span><span class="font-label text-xs text-white/70 block mt-xs">Базовые фразы</span></button>
+          <button onclick="obSelectLevel('B1')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-orange-400 to-amber-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">B1</span><span class="font-label text-xs text-white/70 block mt-xs">Средний</span></button>
+          <button onclick="obSelectLevel('B2')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-pink-400 to-rose-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">B2</span><span class="font-label text-xs text-white/70 block mt-xs">Выше среднего</span></button>
+          <button onclick="obSelectLevel('C1')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-red-400 to-purple-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">C1</span><span class="font-label text-xs text-white/70 block mt-xs">Продвинутый</span></button>
+          <button onclick="obSelectLevel('C2')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-zinc-600 to-gray-800 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">C2</span><span class="font-label text-xs text-white/70 block mt-xs">Мастер</span></button>
+        </div>
+      </div>
+      <div id="ob-step-3" class="hidden text-center py-xl">
+        <div class="text-6xl mb-md">🚀</div>
+        <h2 class="font-headline font-extrabold text-2xl text-on-surface mb-sm">Всё готово!</h2>
+        <p id="ob-ready-msg" class="text-on-surface-variant font-body mb-lg"></p>
+        <button onclick="finishOnboarding()" class="px-xl py-sm bg-tertiary-container text-on-tertiary font-label font-bold rounded-[1rem] active:scale-95 transition-transform text-sm">
+          Начать учиться →
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Mobile bottom nav -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest/95 backdrop-blur-sm border-t border-outline-variant/40 flex z-20">
+    <button onclick="navTo('main')" data-nav="main" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
+      <span class="material-symbols-outlined" style="font-size:20px">home</span><span class="font-label text-[10px] mt-xs">Главная</span>
+    </button>
+    <button onclick="navTo('dictionary')" data-nav="dictionary" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
+      <span class="material-symbols-outlined" style="font-size:20px">menu_book</span><span class="font-label text-[10px] mt-xs">Словарь</span>
+    </button>
+    <button onclick="navTo('club')" data-nav="club" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
+      <span class="material-symbols-outlined" style="font-size:20px">record_voice_over</span><span class="font-label text-[10px] mt-xs">Клуб</span>
+    </button>
+    <button onclick="navTo('profile')" data-nav="profile" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
+      <span class="material-symbols-outlined" style="font-size:20px">person</span><span class="font-label text-[10px] mt-xs">Профиль</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Word popup -->
+<div id="word-popup-overlay" class="hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" onclick="hideWordPopup()"></div>
+<div id="word-popup" class="hidden-popup fixed bottom-0 left-0 right-0 md:left-auto md:right-lg md:bottom-lg md:w-96 z-50 bg-surface-container-lowest rounded-t-[1.5rem] md:rounded-[1.5rem] shadow-2xl p-md pb-8">
+  <div class="w-10 h-1 bg-outline-variant rounded-full mx-auto mb-md md:hidden"></div>
+  <div class="flex justify-between items-start mb-sm">
+    <div>
+      <span id="popup-word" class="font-headline text-2xl font-extrabold text-on-surface"></span>
+      <span id="popup-transcription" class="text-sm text-outline ml-sm font-label"></span>
+    </div>
+    <button onclick="hideWordPopup()" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high active:scale-90 transition-all">
+      <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">close</span>
+    </button>
+  </div>
+  <div id="popup-translation" class="text-primary-container text-xl font-bold font-headline mb-xs"></div>
+  <div id="popup-example" class="text-on-surface-variant text-sm mb-md italic"></div>
+  <div id="popup-status" class="text-sm text-center text-tertiary-container font-label mb-xs min-h-[18px]"></div>
+  <button id="popup-add-btn" onclick="addWordToDict()"
+    class="w-full h-touch-target-min rounded-[0.75rem] bg-secondary-container text-on-secondary font-label font-bold text-sm uppercase tracking-wider active:scale-[0.98] transition-transform">
+    + В мой словарь
+  </button>
+</div>
+
+<script>
+// ── State ──
+let userId = 0, userEmail = '';
+let userNativeLang = 'ru', userTargetLang = 'en';
+let currentLevel = 'A1', currentCategory = 'lessons';
+let popupWord = '', popupContext = '';
+let obTarget = 'en', obNative = 'ru', obLevel = 'A1';
+let currentSituation = '';
+let clubMediaRecorder = null, clubAudioChunks = [], clubStreamRef = null;
+let sitMediaRecorder = null, sitAudioChunks = [], sitStreamRef = null;
+let vfCards = [], vfIdx = 0, vfKnown = [], vfLearning = [], vfFlipped = false, vfCard = null;
+let sbCorrect = '', sbQId = null, sbSelected = [];
+let currentPracticeQId = null, correctPracticeOption = null;
+
+const XP_PER_LEVEL = 50;
+const LEVELS = ['A1','A2','B1','B2','C1','C2'];
+const LEVEL_GRADIENTS = {A1:'from-green-400 to-teal-500',A2:'from-blue-400 to-indigo-500',B1:'from-orange-400 to-amber-500',B2:'from-pink-400 to-rose-500',C1:'from-red-400 to-purple-500',C2:'from-zinc-600 to-gray-800'};
+const TOPIC_ICONS = {'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠','Nature':'🌿','Emotions':'😊','Sports':'⚽','Technology':'💻'};
+const AI_GREETINGS = {en:"Hello! How can I help you today? Feel free to type or use the microphone!",de:"Hallo! Wie kann ich Ihnen heute helfen?",fr:"Bonjour ! Comment puis-je vous aider ?",es:"¡Hola! ¿En qué puedo ayudarte?",it:"Ciao! Come posso aiutarti?",zh:"你好！今天我能帮你什么？",ru:"Привет! Чем могу помочь?"};
+const SIT_GREETINGS = {shop:{en:"Welcome! How can I help you today?",ru:"Добро пожаловать! Чем могу помочь?"},restaurant:{en:"Good evening! Do you have a reservation?",ru:"Добрый вечер! У вас есть бронь?"},airport:{en:"Good morning! May I see your passport?",ru:"Доброе утро! Ваш паспорт, пожалуйста."},hotel:{en:"Welcome to our hotel! Do you have a reservation?",ru:"Добро пожаловать! Есть бронь?"},doctor:{en:"Hello! What brings you in today?",ru:"Здравствуйте! Что вас беспокоит?"},emergency:{en:"Emergency services, what is your emergency?",ru:"Служба спасения, что случилось?"}};
+const SIT_HINTS = {shop:'🛒 Вы покупатель. Попросите найти товар.',restaurant:'🍽️ Вы гость. Закажите блюдо.',airport:'✈️ Вы пассажир. Пройдите регистрацию.',hotel:'🏨 Вы гость. Заселитесь.',doctor:'🏥 Вы пациент. Опишите симптомы.',emergency:'🚨 Срочно опишите ситуацию.'};
+
+// ── AUTH ──
+async function requestCode() {
+  const email = document.getElementById('auth-email').value.trim();
+  const err = document.getElementById('auth-error1');
+  err.classList.add('hidden');
+  if (!email || !email.includes('@')) { err.textContent='Введите корректный email'; err.classList.remove('hidden'); return; }
+  try {
+    const res = await fetch('/api/auth/email/request-code', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+    const data = await res.json();
+    if (!res.ok) { err.textContent=data.detail||'Ошибка'; err.classList.remove('hidden'); return; }
+    document.getElementById('auth-email-display').textContent = email;
+    document.getElementById('auth-email-step1').classList.add('hidden');
+    document.getElementById('auth-email-step2').classList.remove('hidden');
+  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+}
+
+async function verifyCode() {
+  const email = document.getElementById('auth-email').value.trim();
+  const code = document.getElementById('auth-code').value.trim();
+  const err = document.getElementById('auth-error2');
+  err.classList.add('hidden');
+  try {
+    const res = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,code})});
+    const data = await res.json();
+    if (!res.ok) { err.textContent=data.detail||'Неверный код'; err.classList.remove('hidden'); return; }
+    userId = data.user_id; userEmail = email;
+    localStorage.setItem('t2l_user_id', userId);
+    localStorage.setItem('t2l_email', email);
+    await initApp();
+  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+}
+
+async function onTelegramAuth(user) {
+  try {
+    const res = await fetch('/api/auth/telegram/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(user)});
+    const data = await res.json();
+    if (!res.ok) { alert('Ошибка авторизации Telegram'); return; }
+    userId = data.user_id;
+    localStorage.setItem('t2l_user_id', userId);
+    localStorage.setItem('t2l_name', data.name);
+    await initApp();
+  } catch(e) { alert('Ошибка соединения'); }
+}
+
+function logout() {
+  localStorage.removeItem('t2l_user_id');
+  localStorage.removeItem('t2l_email');
+  localStorage.removeItem('t2l_name');
+  userId = 0;
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-auth').classList.add('active');
+}
+
+// ── INIT ──
+async function initApp() {
+  document.getElementById('screen-auth').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  await loadUserData();
+  try {
+    const res = await fetch(`/api/user/languages/${userId}`);
+    const langs = await res.json();
+    userNativeLang = langs.native || 'ru';
+    userTargetLang = langs.target || 'en';
+  } catch(e) {}
+  document.getElementById('club-level').textContent = currentLevel;
+  initClubGreeting();
+  try {
+    const res = await fetch(`/api/onboarding/${userId}`);
+    const data = await res.json();
+    if (!data.onboarding_done) { showPage('onboarding'); return; }
+  } catch(e) {}
+  navTo('main');
+}
+
+async function loadUserData() {
+  try {
+    const res = await fetch(`/api/dashboard/${userId}`);
+    const data = await res.json();
+    const p = data.user || data;
+    const name = p.name || userEmail.split('@')[0] || 'Ученик';
+    const streak = p.streak ?? 0;
+    const xp = p.xp ?? 0;
+    currentLevel = p.level || 'A1';
+    document.getElementById('sidebar-name').textContent = name;
+    document.getElementById('sidebar-streak').textContent = streak;
+    document.getElementById('sidebar-xp').textContent = xp;
+    document.getElementById('sidebar-avatar').textContent = name[0].toUpperCase();
+    document.getElementById('mobile-avatar').textContent = name[0].toUpperCase();
+    document.getElementById('mobile-xp').textContent = `⭐ ${xp} XP`;
+    const statStreak = document.getElementById('stat-streak');
+    const statXp = document.getElementById('stat-xp');
+    if (statStreak) statStreak.textContent = streak + ' дней';
+    if (statXp) statXp.textContent = xp + ' XP';
+  } catch(e) {}
+}
+
+// ── NAVIGATION ──
+function navTo(section) {
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); });
+  const page = document.getElementById('page-' + section);
+  if (page) page.classList.add('active');
+
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    const active = b.dataset.nav === section;
+    b.classList.toggle('bg-primary-container', active);
+    b.classList.toggle('text-on-primary-container', active);
+    b.classList.toggle('text-on-surface-variant', !active);
+  });
+  document.querySelectorAll('.mob-nav').forEach(b => {
+    const active = b.dataset.nav === section;
+    b.classList.toggle('text-primary', active);
+    b.classList.toggle('text-outline', !active);
+  });
+
+  if (section === 'dictionary') loadVocabTopics(null);
+  if (section === 'notebook') loadNotebook();
+  if (section === 'profile') loadProfile();
+  if (section === 'club' && document.getElementById('chat-box').children.length === 0) initClubGreeting();
+  document.getElementById('mobile-title').textContent = {main:'Главная',dictionary:'Словарь',notebook:'Блокнот',club:'Разговорный клуб',situations:'Ситуации',profile:'Профиль'}[section] || 'Talk2Learn';
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+}
+
+// ── LESSONS ──
+function startCategory(cat) {
+  currentCategory = cat;
+  renderLevelsGrid();
+  showPage('levels');
+}
+
+function renderLevelsGrid() {
+  document.getElementById('levels-grid').innerHTML = LEVELS.map(lvl => `
+    <button onclick="selectLevel('${lvl}')" class="bg-gradient-to-br ${LEVEL_GRADIENTS[lvl]} rounded-[1.25rem] p-md text-white text-left active:scale-95 transition-transform shadow-sm">
+      <span class="font-label text-xs text-white/70 block">Уровень</span>
+      <span class="font-headline font-extrabold text-2xl block">${lvl}</span>
+    </button>`).join('');
+}
+
+function selectLevel(level) {
+  currentLevel = level;
+  document.getElementById('club-level').textContent = level;
+  if (currentCategory === 'practice') { showPage('practice-mode'); return; }
+  loadNextLesson();
+}
+
+async function loadNextLesson() {
+  showPage('lesson');
+  const typeMap = {lessons:'lesson', grammar:'grammar', vocabulary:'vocabulary'};
+  const contentType = typeMap[currentCategory] || 'lesson';
+  document.getElementById('lesson-content').innerHTML = '<div class="text-center py-12 text-outline"><span class="material-symbols-outlined animate-spin text-3xl">progress_activity</span></div>';
+  try {
+    const res = await fetch(`/api/lessons/next/${currentLevel}?user_id=${userId}&content_type=${contentType}`);
+    const lesson = await res.json();
+    if (lesson.completed) { renderLevelComplete(); return; }
+    renderLesson(lesson);
+  } catch(e) {
+    document.getElementById('lesson-content').innerHTML = '<p class="text-error text-center py-8">Ошибка загрузки</p>';
+  }
+}
+
+function renderLesson(lesson) {
+  const iconMap = {grammar:'edit_note', vocabulary:'psychology', lesson:'menu_book'};
+  const icon = iconMap[lesson.type] || 'menu_book';
+  const p = lesson.progress || {};
+  const total = p.total || 0, num = p.next_num || 1;
+  const pct = total > 0 ? Math.round(((num-1)/total)*100) : 0;
+  const progressHtml = total > 0 ? `<div class="mb-md"><div class="flex justify-between font-label-caps text-caption text-outline mb-xs"><span>Урок ${num} из ${total}</span><span>${pct}%</span></div><div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full transition-all" style="width:${pct}%"></div></div></div>` : '';
+  document.getElementById('lesson-content').innerHTML = `
+    ${progressHtml}
+    <div class="flex items-center gap-sm mb-sm"><span class="material-symbols-outlined filled text-primary-container">${icon}</span><span class="font-label-caps text-label-caps text-outline">${lesson.type||'урок'} · ${currentLevel}</span></div>
+    <h1 class="font-headline font-extrabold text-on-surface text-2xl mb-md leading-tight">${lesson.title}</h1>
+    <p class="font-label text-xs text-outline mb-sm">💡 Нажмите на слово для перевода</p>
+    <div class="elevated-card rounded-[1.25rem] p-md text-on-surface-variant leading-loose text-base font-body mb-lg">${makeClickable(lesson.lesson_text||'')}</div>
+    <button id="complete-btn" onclick="completeLesson('${lesson.type||'lesson'}',${lesson.id})"
+      class="w-full h-touch-target-min rounded-[1rem] bg-tertiary-container text-on-tertiary font-label font-bold uppercase tracking-wider text-sm active:scale-[0.98] transition-transform">
+      ✅ Просмотрено · +5 XP
+    </button>`;
+}
+
+function renderLevelComplete() {
+  const idx = LEVELS.indexOf(currentLevel);
+  const hasNext = idx < LEVELS.length - 1;
+  document.getElementById('lesson-content').innerHTML = `
+    <div class="text-center py-xl">
+      <div class="text-6xl mb-md">🎉</div>
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface mb-sm">Уровень ${currentLevel} пройден!</h2>
+      <p class="text-on-surface-variant font-body mb-lg">Вы прошли все материалы уровня. Отличная работа!</p>
+      ${hasNext ? `<button onclick="currentLevel='${LEVELS[idx+1]}';loadNextLesson()" class="px-lg py-sm bg-primary-container text-on-primary font-label font-bold rounded-[1rem] active:scale-95 transition-transform">Следующий: ${LEVELS[idx+1]} →</button>` : '<p class="text-tertiary-container font-bold">🏆 Вы прошли все уровни!</p>'}
+      <br><button onclick="showPage('levels')" class="mt-sm text-sm text-outline hover:text-on-surface transition-colors font-label">← К выбору уровня</button>
+    </div>`;
+}
+
+async function completeLesson(type, id) {
+  const btn = document.getElementById('complete-btn');
+  if (btn) { btn.disabled=true; btn.textContent='Сохранение...'; }
+  try {
+    const res = await fetch('/api/progress/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),content_type:type,content_id:parseInt(id)})});
+    const data = await res.json();
+    if (data.xp_earned > 0) showToast(`🎉 +${data.xp_earned} XP!`);
+    await loadUserData();
+    await loadNextLesson();
+  } catch(e) { showToast('Ошибка','neutral'); if(btn){btn.disabled=false;btn.textContent='✅ Просмотрено · +5 XP';} }
+}
+
+// ── PRACTICE ──
+function startPracticeMode(mode) {
+  if (mode === 'sentence_builder') loadSentenceBuilder();
+  else loadPractice();
+}
+
+async function loadPractice() {
+  showPage('practice');
+  document.getElementById('practice-content').innerHTML = '<div class="text-center py-12 text-outline"><span class="material-symbols-outlined animate-spin text-3xl">progress_activity</span></div>';
+  try {
+    const res = await fetch(`/api/random_question?user_id=${userId}&type=multiple_choice&level=${currentLevel}`);
+    const q = await res.json();
+    if (q.error === 'no_more_questions') { document.getElementById('practice-content').innerHTML='<p class="text-center py-8 text-on-surface-variant">🎉 Все вопросы уровня пройдены!</p>'; return; }
+    currentPracticeQId = q.question_id;
+    correctPracticeOption = q.correct_option;
+    document.getElementById('practice-content').innerHTML = `
+      <div class="elevated-card rounded-[1.25rem] p-md mb-md">
+        <p class="font-label-caps text-label-caps text-outline mb-sm">ВОПРОС</p>
+        <p class="font-body text-on-surface text-base">${q.question}</p>
+      </div>
+      <div class="space-y-sm" id="practice-options">
+        ${q.options.map((opt,i)=>`<button onclick="checkAnswer(${i+1},this)" class="w-full text-left px-md py-sm elevated-card rounded-[1rem] font-body text-on-surface text-sm active:scale-[0.99] transition-transform"><span class="font-label-caps text-label-caps text-outline mr-sm">${String.fromCharCode(65+i)}.</span>${opt}</button>`).join('')}
+      </div>
+      <div id="practice-feedback" class="hidden mt-sm rounded-[1rem] p-sm text-center font-label font-bold text-sm"></div>`;
+  } catch(e) { document.getElementById('practice-content').innerHTML='<p class="text-error text-center py-8">Ошибка загрузки</p>'; }
+}
+
+async function checkAnswer(selected, btn) {
+  document.querySelectorAll('#practice-options button').forEach(b=>b.disabled=true);
+  const fb = document.getElementById('practice-feedback');
+  fb.classList.remove('hidden');
+  if (selected === correctPracticeOption) {
+    btn.classList.add('border-green-500','bg-green-50','text-green-800');
+    fb.className='rounded-[1rem] p-sm text-center font-label font-bold text-sm bg-green-50 text-green-800 border border-green-200';
+    fb.textContent='✅ Правильно!';
+    try { await fetch('/api/progress/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),content_type:'practice',content_id:currentPracticeQId})}); await loadUserData(); } catch(e){}
+  } else {
+    btn.classList.add('border-red-400','bg-red-50','text-red-700');
+    fb.className='rounded-[1rem] p-sm text-center font-label font-bold text-sm bg-red-50 text-red-700 border border-red-200';
+    fb.textContent='❌ Неверно';
+  }
+  setTimeout(loadPractice, 2000);
+}
+
+// ── SENTENCE BUILDER ──
+async function loadSentenceBuilder() {
+  showPage('sentence-builder');
+  sbSelected = [];
+  document.getElementById('sb-content').innerHTML = '<div class="text-center py-12 text-outline"><span class="material-symbols-outlined animate-spin text-3xl">progress_activity</span></div>';
+  try {
+    const res = await fetch(`/api/random_question?user_id=${userId}&level=${currentLevel}&type=sentence_builder`);
+    const q = await res.json();
+    if (q.error==='no_more_questions') { document.getElementById('sb-content').innerHTML='<p class="text-center py-8">🎉 Все задания пройдены!</p>'; return; }
+    sbCorrect = q.correct_sentence; sbQId = q.question_id;
+    document.getElementById('sb-content').innerHTML = `
+      <div class="elevated-card rounded-[1.25rem] p-md mb-md">
+        <p class="font-label-caps text-label-caps text-outline mb-xs">ПЕРЕВЕДИТЕ:</p>
+        <p class="font-body text-on-surface" id="sb-source">${q.question}</p>
+      </div>
+      <div id="sb-zone" class="min-h-16 border-2 border-dashed border-outline-variant rounded-[1.25rem] p-sm mb-sm flex flex-wrap gap-sm items-start">
+        <p id="sb-zone-hint" class="text-outline text-sm opacity-60 w-full text-center font-label">Нажимайте слова, чтобы составить фразу</p>
+      </div>
+      <div id="sb-bank" class="flex flex-wrap gap-sm mb-md">
+        ${q.word_bank.map((w,i)=>`<button class="sb-chip px-sm py-xs elevated-card rounded-[0.75rem] text-sm font-body text-on-surface active:scale-95 transition-transform" data-word="${w.replace(/"/g,'&quot;')}" data-idx="${i}" onclick="sbPickWord(this)">${w}</button>`).join('')}
+      </div>
+      <div id="sb-feedback" class="hidden mb-sm"></div>
+      <button id="sb-check" onclick="checkSb()" disabled class="w-full h-touch-target-min rounded-[1rem] bg-surface-container text-outline font-label font-bold text-sm cursor-not-allowed">
+        Проверить
+      </button>`;
+  } catch(e) { document.getElementById('sb-content').innerHTML='<p class="text-error text-center py-8">Ошибка</p>'; }
+}
+
+function sbPickWord(btn) {
+  const word = btn.dataset.word, idx = btn.dataset.idx;
+  btn.classList.add('opacity-0','pointer-events-none');
+  setTimeout(()=>btn.classList.add('hidden'),100);
+  const hint = document.getElementById('sb-zone-hint');
+  if(hint) hint.remove();
+  sbSelected.push({word,idx});
+  const zone = document.getElementById('sb-zone');
+  const chip = document.createElement('button');
+  chip.className = 'px-sm py-xs bg-primary-container/15 border border-primary-container rounded-[0.75rem] text-sm font-body text-primary active:scale-95 transition-transform';
+  chip.textContent = word; chip.dataset.idx = idx;
+  chip.onclick = () => sbReturnWord(chip, idx);
+  zone.appendChild(chip);
+  updateSbBtn();
+}
+
+function sbReturnWord(chip, idx) {
+  chip.remove();
+  sbSelected = sbSelected.filter(w=>w.idx!==idx);
+  const bankBtn = document.querySelector(`#sb-bank button[data-idx="${idx}"]`);
+  if(bankBtn) bankBtn.classList.remove('hidden','opacity-0','pointer-events-none');
+  if(sbSelected.length===0) {
+    const zone = document.getElementById('sb-zone');
+    const hint = document.createElement('p');
+    hint.id='sb-zone-hint'; hint.className='text-outline text-sm opacity-60 w-full text-center font-label';
+    hint.textContent='Нажимайте слова, чтобы составить фразу';
+    zone.appendChild(hint);
+  }
+  updateSbBtn();
+}
+
+function updateSbBtn() {
+  const btn = document.getElementById('sb-check');
+  if (!btn) return;
+  if (sbSelected.length > 0) { btn.disabled=false; btn.className='w-full h-touch-target-min rounded-[1rem] bg-primary-container text-on-primary font-label font-bold text-sm active:scale-[0.98] transition-transform'; }
+  else { btn.disabled=true; btn.className='w-full h-touch-target-min rounded-[1rem] bg-surface-container text-outline font-label font-bold text-sm cursor-not-allowed'; }
+}
+
+async function checkSb() {
+  const user = sbSelected.map(w=>w.word).join(' ');
+  const normalize = s => s.toLowerCase().replace(/[.!?,]/g,'').trim().replace(/\s+/g,' ');
+  const ok = normalize(user) === normalize(sbCorrect);
+  const fb = document.getElementById('sb-feedback');
+  fb.classList.remove('hidden');
+  document.querySelectorAll('#sb-zone button, #sb-bank button').forEach(b=>b.disabled=true);
+  document.getElementById('sb-check').disabled=true;
+  if (ok) {
+    fb.className='rounded-[1rem] p-sm text-center font-label font-bold text-sm bg-green-50 text-green-800 border border-green-200';
+    fb.textContent='✅ Правильно!';
+    try { await fetch('/api/progress/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),content_type:'practice',content_id:sbQId})}); await loadUserData(); } catch(e){}
+    setTimeout(loadSentenceBuilder, 2000);
+  } else {
+    fb.className='rounded-[1rem] p-sm text-center font-label font-bold text-sm bg-red-50 text-red-700 border border-red-200';
+    fb.textContent=`❌ Правильно: «${sbCorrect}»`;
+    setTimeout(loadSentenceBuilder, 3000);
+  }
+}
+
+// ── DICTIONARY (TOPICS) ──
+async function loadVocabTopics(level) {
+  document.querySelectorAll('.vocab-lvl').forEach(b => {
+    const active = level===null ? b.dataset.lvl==='all' : b.dataset.lvl===level;
+    b.className = `vocab-lvl px-md py-xs rounded-full font-label-caps text-label-caps transition-all active:scale-95 ${active?'bg-primary-container text-on-primary':'bg-surface-container text-on-surface-variant'}`;
+  });
+  const grid = document.getElementById('vocab-topics-grid');
+  grid.innerHTML = '<p class="col-span-4 text-outline text-center py-8 font-label">Загрузка...</p>';
+  try {
+    const url = level ? `/api/vocab/topics?level=${level}` : '/api/vocab/topics';
+    const topics = await (await fetch(url)).json();
+    if (!topics.length) { grid.innerHTML='<p class="col-span-4 text-outline text-center py-8 font-label">Темы не добавлены</p>'; return; }
+    const byTopic = {};
+    topics.forEach(t=>{ if(!byTopic[t.topic])byTopic[t.topic]={count:0,levels:[]}; byTopic[t.topic].count+=parseInt(t.card_count); byTopic[t.topic].levels.push(t.level); });
+    grid.innerHTML = Object.entries(byTopic).map(([topic,info])=>{
+      const icon = TOPIC_ICONS[topic]||'📖';
+      const g = LEVEL_GRADIENTS[info.levels[0]]||LEVEL_GRADIENTS['A1'];
+      return `<button onclick="openVocabTopic('${topic.replace(/'/g,"\\'")}','${level||''}')"
+        class="bg-gradient-to-br ${g} rounded-[1.25rem] p-md text-white text-left active:scale-95 transition-transform shadow-sm">
+        <span class="text-3xl block mb-xs">${icon}</span>
+        <span class="font-headline font-extrabold text-sm block">${topic}</span>
+        <span class="font-label text-xs text-white/70">${info.count} слов</span>
+      </button>`;
+    }).join('');
+  } catch(e) { grid.innerHTML='<p class="col-span-4 text-error text-center py-8">Ошибка</p>'; }
+}
+
+async function openVocabTopic(topic, level) {
+  showPage('flashcards');
+  document.getElementById('flashcard-content').innerHTML = '<div class="text-center py-12 text-outline"><span class="material-symbols-outlined animate-spin text-3xl">progress_activity</span></div>';
+  try {
+    const url = level ? `/api/vocab/cards?topic=${encodeURIComponent(topic)}&level=${level}` : `/api/vocab/cards?topic=${encodeURIComponent(topic)}`;
+    const cards = await (await fetch(url)).json();
+    if (!cards.length) { document.getElementById('flashcard-content').innerHTML='<p class="text-center py-8 text-outline font-label">Карточки не найдены</p>'; return; }
+    startFlashcards(cards);
+  } catch(e) { document.getElementById('flashcard-content').innerHTML='<p class="text-error text-center py-8">Ошибка</p>'; }
+}
+
+function startFlashcards(cards) {
+  vfCards = shuffle([...cards]); vfIdx=0; vfKnown=[]; vfLearning=[]; vfFlipped=false;
+  renderFlashcard();
+}
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function renderFlashcard() {
+  if (vfIdx >= vfCards.length) { renderFlashcardCompletion(); return; }
+  vfCard = vfCards[vfIdx]; vfFlipped=false;
+  const gradMap = {A1:'linear-gradient(135deg,#4ade80,#2dd4bf)',A2:'linear-gradient(135deg,#60a5fa,#818cf8)',B1:'linear-gradient(135deg,#fb923c,#f59e0b)',B2:'linear-gradient(135deg,#f472b6,#fb7185)',C1:'linear-gradient(135deg,#f87171,#a855f7)',C2:'linear-gradient(135deg,#71717a,#374151)'};
+  let emoji='📖'; try{emoji=String.fromCodePoint(parseInt(vfCard.emoji_code,16));}catch(e){}
+  const pct = vfCards.length>0?Math.round(vfIdx/vfCards.length*100):0;
+  document.getElementById('flashcard-content').innerHTML = `
+    <div class="mb-sm"><div class="flex justify-between font-label-caps text-caption text-outline mb-xs"><span>${vfIdx}/${vfCards.length}</span><span>${vfKnown.length} знаю · ${vfLearning.length} учу</span></div>
+    <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full transition-all" style="width:${pct}%"></div></div></div>
+    <div id="vf-card" onclick="flipCard()" class="cursor-pointer elevated-card rounded-[1.5rem] p-lg mb-md text-center min-h-[240px] flex flex-col items-center justify-center card-enter transition-all">
+      <div id="vf-emoji-bg" class="w-20 h-20 rounded-[1rem] flex items-center justify-center text-4xl mb-sm" style="background:${gradMap[vfCard.level]||gradMap.A1}">${emoji}</div>
+      <div class="font-headline font-extrabold text-2xl text-on-surface mb-xs">${vfCard.word}</div>
+      <span class="font-label-caps text-caption bg-surface-container text-outline px-sm py-xs rounded-full">${vfCard.level}</span>
+      <div id="vf-tap-hint" class="font-label text-xs text-outline mt-sm">Нажмите, чтобы открыть</div>
+      <div id="vf-back" class="hidden mt-sm text-center">
+        <div class="text-primary-container font-bold text-lg font-headline">${vfCard.translation||''}</div>
+        <div class="text-on-surface-variant text-sm mt-xs font-body">${vfCard.definition||''}</div>
+      </div>
+    </div>
+    <div id="vf-btns" class="hidden grid grid-cols-2 gap-sm">
+      <button onclick="rateCard('learning')" class="py-sm bg-red-50 border border-red-200 text-red-700 font-label font-bold rounded-[1rem] active:scale-95 transition-transform">👈 Учу</button>
+      <button onclick="rateCard('known')" class="py-sm bg-green-50 border border-green-200 text-green-700 font-label font-bold rounded-[1rem] active:scale-95 transition-transform">Знаю 👉</button>
+    </div>
+    <button onclick="speakWord()" class="mt-sm w-full py-sm text-sm text-outline hover:text-on-surface transition-colors font-label flex items-center justify-center gap-xs">
+      <span class="material-symbols-outlined" style="font-size:16px">volume_up</span> Произношение
+    </button>`;
+}
+
+function flipCard() {
+  if (vfFlipped) return; vfFlipped=true;
+  document.getElementById('vf-tap-hint').classList.add('hidden');
+  document.getElementById('vf-back').classList.remove('hidden');
+  document.getElementById('vf-btns').classList.remove('hidden');
+  document.getElementById('vf-btns').classList.add('grid');
+  document.getElementById('vf-card').classList.add('border-primary-container/30','bg-surface-container-low');
+}
+
+function rateCard(rating) {
+  if (!vfFlipped) { flipCard(); return; }
+  if (rating==='known') {
+    vfKnown.push(vfCard);
+    fetch('/api/progress/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),content_type:'vocab_card',content_id:vfCard.id})}).catch(()=>{});
+  } else {
+    vfLearning.push(vfCard);
+    fetch('/api/dictionary/quick_add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),word:vfCard.word,context_sentence:vfCard.definition||''})}).catch(()=>{});
+  }
+  vfIdx++;
+  renderFlashcard();
+}
+
+function renderFlashcardCompletion() {
+  document.getElementById('flashcard-content').innerHTML = `
+    <div class="text-center py-lg">
+      <div class="text-5xl mb-md">🎉</div>
+      <h3 class="font-headline font-extrabold text-xl text-on-surface mb-sm">Тема пройдена!</h3>
+      <div class="grid grid-cols-2 gap-sm mb-lg">
+        <div class="bg-green-50 border border-green-200 rounded-[1.25rem] p-md"><div class="font-headline font-extrabold text-2xl text-green-700">${vfKnown.length}</div><div class="font-label text-xs text-green-600">Знаю</div></div>
+        <div class="bg-red-50 border border-red-200 rounded-[1.25rem] p-md"><div class="font-headline font-extrabold text-2xl text-red-700">${vfLearning.length}</div><div class="font-label text-xs text-red-600">Учу</div></div>
+      </div>
+      <button onclick="startFlashcards(vfCards)" class="w-full h-touch-target-min rounded-[1rem] bg-primary-container text-on-primary font-label font-bold mb-sm active:scale-[0.98] transition-transform">Повторить все</button>
+      ${vfLearning.length>0?`<button onclick="startFlashcards(vfLearning)" class="w-full h-touch-target-min rounded-[1rem] bg-surface-container text-on-surface-variant font-label font-bold active:scale-[0.98] transition-transform">Повторить «учу»</button>`:''}
+    </div>`;
+}
+
+function speakWord() {
+  if (!vfCard) return;
+  new Audio(`/api/tts/word?word=${encodeURIComponent(vfCard.word)}`).play().catch(()=>{});
+}
+
+// ── NOTEBOOK ──
+async function loadNotebook() {
+  const list = document.getElementById('notebook-list');
+  const count = document.getElementById('notebook-count');
+  list.innerHTML='<p class="text-center py-8 text-outline font-label">Загрузка...</p>';
+  try {
+    const words = await (await fetch(`/api/dictionary/${userId}`)).json();
+    count.textContent = words.length + ' слов';
+    if (!words.length) { list.innerHTML='<div class="text-center py-8 elevated-card rounded-[1.25rem] border-2 border-dashed border-outline-variant"><span class="material-symbols-outlined text-outline text-4xl">book_2</span><p class="text-outline text-sm mt-sm font-label">Нажмите на слово в уроке — оно появится здесь</p></div>'; return; }
+    list.innerHTML = words.map(w=>`
+      <div class="elevated-card rounded-[1.25rem] p-md mb-sm">
+        <div class="flex justify-between items-start">
+          <div><div class="font-headline font-bold text-on-surface text-lg">${w.word}</div>${w.transcription?`<div class="font-label-caps text-caption text-outline">${w.transcription}</div>`:''}<div class="text-primary font-body font-bold mt-xs">${w.translation}</div></div>
+          <button onclick="toggleWordStatus('${w.word.replace(/'/g,"\\'")}','${w.status}')" class="px-sm py-xs rounded-full font-label-caps text-caption transition-all active:scale-90 ${w.status==='known'?'bg-tertiary-container text-on-tertiary':'bg-surface-container text-on-surface-variant'}">${w.status==='known'?'✓ Знаю':'Учу'}</button>
+        </div>
+        ${w.context_example?`<div class="mt-sm text-sm text-on-surface-variant italic border-t border-outline-variant/40 pt-sm font-body">"${w.context_example}"</div>`:''}
+      </div>`).join('');
+  } catch(e) { list.innerHTML='<p class="text-error text-center py-8">Ошибка загрузки</p>'; }
+}
+
+async function toggleWordStatus(word, status) {
+  const newStatus = status==='known'?'learning':'known';
+  try { await fetch('/api/dictionary/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),word,status:newStatus})}); loadNotebook(); } catch(e){}
+}
+
+// ── SPEAKING CLUB ──
+function initClubGreeting() {
+  const box = document.getElementById('chat-box');
+  if (!box) return;
+  box.innerHTML='';
+  addChatMsg('ai', AI_GREETINGS[userTargetLang]||AI_GREETINGS.en, box);
+}
+
+function addChatMsg(who, text, box) {
+  const div = document.createElement('div');
+  if (who==='ai') { div.className='bg-primary-container text-on-primary p-sm rounded-[1rem] rounded-tl-none max-w-[85%] text-sm shadow-sm font-body'; div.innerHTML=makeClickable(text); }
+  else { div.className='bg-surface-container text-on-surface p-sm rounded-[1rem] rounded-tr-none max-w-[85%] text-sm shadow-sm ml-auto font-body'; div.textContent=text; }
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
+
+async function sendClubMessage() {
+  const inp=document.getElementById('chat-input'); const text=inp.value.trim(); if(!text)return;
+  inp.value=''; const box=document.getElementById('chat-box');
+  addChatMsg('user',text,box);
+  try {
+    const fd=new FormData(); fd.append('user_id',userId); fd.append('text',text); fd.append('level',currentLevel); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
+    const data=await (await fetch('/api/web-club/text',{method:'POST',body:fd})).json();
+    addChatMsg('ai',data.ai_text,box);
+    if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});
+  } catch(e){addChatMsg('ai','Connection error.',box);}
+}
+
+async function startClubRecording(e) {
+  e.preventDefault(); clubAudioChunks=[];
+  try {
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true}); clubStreamRef=stream;
+    let opts={}; if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts={mimeType:'audio/webm;codecs=opus'};
+    clubMediaRecorder=new MediaRecorder(stream,opts);
+    clubMediaRecorder.ondataavailable=ev=>{if(ev.data?.size>0)clubAudioChunks.push(ev.data);};
+    clubMediaRecorder.onstop=async()=>{
+      const blob=new Blob(clubAudioChunks,{type:clubMediaRecorder.mimeType});
+      const box=document.getElementById('chat-box'); addChatMsg('user','🎙️ ...',box);
+      const fd=new FormData(); fd.append('user_id',userId); fd.append('file',blob,'voice'); fd.append('level',currentLevel); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
+      try{const data=await(await fetch('/api/web-club/voice',{method:'POST',body:fd})).json(); if(box.lastChild)box.removeChild(box.lastChild); addChatMsg('user',data.user_text||'🎤',box); addChatMsg('ai',data.ai_text,box); if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});}catch(e){addChatMsg('ai','Error.',box);}
+    };
+    clubMediaRecorder.start();
+    document.getElementById('club-mic-btn').querySelector('.material-symbols-outlined').style.color='#ef4444';
+  } catch(e){alert('Нужен HTTPS и разрешения для микрофона');}
+}
+function stopClubRecording(e) {
+  e.preventDefault();
+  document.getElementById('club-mic-btn').querySelector('.material-symbols-outlined').style.color='';
+  if(clubMediaRecorder?.state!=='inactive')clubMediaRecorder.stop();
+  clubStreamRef?.getTracks().forEach(t=>t.stop()); clubStreamRef=null;
+}
+
+// ── SITUATIONS ──
+function openSituation(key, title, sit) {
+  currentSituation=sit;
+  document.getElementById('sit-title').textContent=title;
+  document.getElementById('sit-hint').textContent=SIT_HINTS[sit]||'';
+  const box=document.getElementById('sit-chat-box'); box.innerHTML='';
+  const greet=(SIT_GREETINGS[sit]||{})[userTargetLang]||(SIT_GREETINGS[sit]||{}).en||'Hello!';
+  addSitMsg('ai',greet,box);
+  showPage('situation-chat');
+}
+
+function addSitMsg(who,text,box) {
+  const div=document.createElement('div');
+  if(who==='ai'){div.className='bg-primary-container text-on-primary p-sm rounded-[1rem] rounded-tl-none max-w-[85%] text-sm shadow-sm font-body';div.innerHTML=makeClickable(text);}
+  else{div.className='bg-surface-container text-on-surface p-sm rounded-[1rem] rounded-tr-none max-w-[85%] text-sm shadow-sm ml-auto font-body';div.textContent=text;}
+  box.appendChild(div); box.scrollTop=box.scrollHeight;
+}
+
+async function sendSitMessage() {
+  const inp=document.getElementById('sit-input'); const text=inp.value.trim(); if(!text)return;
+  inp.value=''; const box=document.getElementById('sit-chat-box'); addSitMsg('user',text,box);
+  try {
+    const fd=new FormData(); fd.append('user_id',userId); fd.append('text',text); fd.append('level',currentLevel); fd.append('situation',currentSituation); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
+    const data=await(await fetch('/api/web-club/text',{method:'POST',body:fd})).json();
+    addSitMsg('ai',data.ai_text,box); if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});
+  } catch(e){addSitMsg('ai','Connection error.',box);}
+}
+
+async function startSitRecording(e) {
+  e.preventDefault(); sitAudioChunks=[];
+  try {
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true}); sitStreamRef=stream;
+    let opts={}; if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts={mimeType:'audio/webm;codecs=opus'};
+    sitMediaRecorder=new MediaRecorder(stream,opts);
+    sitMediaRecorder.ondataavailable=ev=>{if(ev.data?.size>0)sitAudioChunks.push(ev.data);};
+    sitMediaRecorder.onstop=async()=>{
+      const blob=new Blob(sitAudioChunks,{type:sitMediaRecorder.mimeType});
+      const box=document.getElementById('sit-chat-box'); addSitMsg('user','🎙️ ...',box);
+      const fd=new FormData(); fd.append('user_id',userId); fd.append('file',blob,'voice'); fd.append('level',currentLevel); fd.append('situation',currentSituation); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
+      try{const data=await(await fetch('/api/web-club/voice',{method:'POST',body:fd})).json(); if(box.lastChild)box.removeChild(box.lastChild); addSitMsg('user',data.user_text||'🎤',box); addSitMsg('ai',data.ai_text,box); if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});}catch(e){addSitMsg('ai','Error.',box);}
+    };
+    sitMediaRecorder.start();
+    document.getElementById('sit-mic-btn').querySelector('.material-symbols-outlined').style.color='#ef4444';
+  } catch(e){alert('Нужен HTTPS и разрешения');}
+}
+function stopSitRecording(e) {
+  e.preventDefault();
+  document.getElementById('sit-mic-btn').querySelector('.material-symbols-outlined').style.color='';
+  if(sitMediaRecorder?.state!=='inactive')sitMediaRecorder.stop();
+  sitStreamRef?.getTracks().forEach(t=>t.stop()); sitStreamRef=null;
+}
+
+// ── PROFILE ──
+async function loadProfile() {
+  const c=document.getElementById('profile-content');
+  c.innerHTML='<p class="text-center py-8 text-outline font-label">Загрузка...</p>';
+  try {
+    const p=await(await fetch(`/api/profile/${userId}`)).json();
+    const xpInLevel=p.xp%XP_PER_LEVEL, xpPct=Math.min(100,Math.round(xpInLevel/XP_PER_LEVEL*100));
+    let catHtml='';
+    try {
+      const cats=await(await fetch(`/api/stats/categories/${userId}`)).json();
+      const labels={lesson:{icon:'📖',name:'Уроки'},grammar:{icon:'✍️',name:'Грамматика'},vocabulary:{icon:'💬',name:'Лексика'},practice:{icon:'🎯',name:'Практика'},vocab_cards:{icon:'🃏',name:'Карточки'},words:{icon:'📒',name:'Блокнот'}};
+      catHtml=Object.entries(labels).map(([k,{icon,name}])=>{
+        const s=cats[k]||{completed:0,total:0};
+        const pct=s.total>0?Math.min(100,Math.round(s.completed/s.total*100)):0;
+        const label=s.total===0?'нет':s.completed+' / '+s.total;
+        return `<div class="mb-sm"><div class="flex justify-between font-label-caps text-caption text-on-surface-variant mb-xs"><span>${icon} ${name}</span><span>${label}</span></div><div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full" style="width:${pct}%"></div></div></div>`;
+      }).join('');
+    } catch(e){}
+    c.innerHTML=`
+      <div class="relative overflow-hidden rounded-[1.5rem] bg-primary-container p-lg text-center mb-md">
+        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-sm"><span class="material-symbols-outlined filled text-3xl text-on-primary">school</span></div>
+        <div class="font-headline font-extrabold text-xl text-on-primary-container">${p.name||'Ученик'}</div>
+        ${p.username?`<div class="text-on-primary-container/70 text-sm font-label">@${p.username}</div>`:''}
+        <div class="absolute right-[-12px] bottom-[-12px] opacity-10"><span class="material-symbols-outlined text-on-primary-container" style="font-size:100px;font-variation-settings:'FILL' 1">person</span></div>
+      </div>
+      <div class="grid grid-cols-2 gap-sm mb-md">
+        <div class="elevated-card rounded-[1.25rem] p-md text-center"><div class="font-headline font-extrabold text-2xl text-secondary-container">${p.streak}</div><div class="font-label-caps text-caption text-outline mt-xs">🔥 Дней подряд</div></div>
+        <div class="elevated-card rounded-[1.25rem] p-md text-center"><div class="font-headline font-extrabold text-2xl text-[#f59e0b]">${p.xp}</div><div class="font-label-caps text-caption text-outline mt-xs">⭐ Всего XP</div></div>
+        <div class="elevated-card rounded-[1.25rem] p-md text-center"><div class="font-headline font-extrabold text-2xl text-primary-container">${p.lessons_done}</div><div class="font-label-caps text-caption text-outline mt-xs">📖 Уроков</div></div>
+        <div class="elevated-card rounded-[1.25rem] p-md text-center"><div class="font-headline font-extrabold text-2xl text-tertiary-container">${p.tasks_done}</div><div class="font-label-caps text-caption text-outline mt-xs">🎯 Заданий</div></div>
+      </div>
+      <div class="elevated-card rounded-[1.25rem] p-md mb-md">
+        <div class="flex justify-between font-label-caps text-caption text-on-surface-variant mb-sm"><span class="font-bold">Прогресс XP</span><span>${p.xp} XP</span></div>
+        <div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full transition-all" style="width:${xpPct}%"></div></div>
+      </div>
+      ${catHtml?`<div class="elevated-card rounded-[1.25rem] p-md mb-md"><p class="font-label-caps text-label-caps text-outline mb-sm">ПРОГРЕСС ПО РАЗДЕЛАМ</p>${catHtml}</div>`:''}
+      <button onclick="showLangSettings()" class="w-full h-touch-target-min rounded-[1rem] bg-surface-container text-on-surface-variant font-label font-bold text-sm active:scale-[0.98] transition-transform hover:bg-surface-container-high">
+        ⚙️ Настройки языка
+      </button>`;
+  } catch(e){ c.innerHTML='<p class="text-error text-center py-8">Ошибка загрузки</p>'; }
+}
+
+// ── LANG SETTINGS ──
+function showLangSettings() {
+  const html=`
+    <div class="elevated-card rounded-[1.25rem] p-md mb-md">
+      <h3 class="font-headline font-bold text-on-surface mb-sm">Язык изучения</h3>
+      <div class="grid grid-cols-2 gap-sm">
+        ${[['en','🇬🇧','Английский'],['de','🇩🇪','Немецкий'],['fr','🇫🇷','Французский'],['es','🇪🇸','Испанский'],['it','🇮🇹','Итальянский'],['zh','🇨🇳','Китайский']].map(([l,f,n])=>`<button onclick="setLangTarget('${l}')" data-tgt="${l}" class="ls-tgt p-sm border-2 ${userTargetLang===l?'border-primary-container bg-surface-container-low':'border-surface-variant'} rounded-[1rem] text-center text-sm font-label active:scale-95 transition-all"><div class="text-2xl">${f}</div><div class="font-bold text-on-surface">${n}</div></button>`).join('')}
+      </div>
+    </div>
+    <div class="elevated-card rounded-[1.25rem] p-md mb-md">
+      <h3 class="font-headline font-bold text-on-surface mb-sm">Родной язык</h3>
+      <div class="grid grid-cols-2 gap-sm">
+        ${[['ru','🇷🇺','Русский'],['en','🇬🇧','Английский'],['de','🇩🇪','Немецкий'],['fr','🇫🇷','Французский']].map(([l,f,n])=>`<button onclick="setLangNative('${l}')" data-ntv="${l}" class="ls-ntv p-sm border-2 ${userNativeLang===l?'border-primary-container bg-surface-container-low':'border-surface-variant'} rounded-[1rem] text-center text-sm font-label active:scale-95 transition-all"><div class="text-2xl">${f}</div><div class="font-bold text-on-surface">${n}</div></button>`).join('')}
+      </div>
+    </div>
+    <p id="ls-status" class="font-label-caps text-caption text-center mb-sm"></p>
+    <button onclick="saveLangSettings()" class="w-full h-touch-target-min rounded-[1rem] bg-tertiary-container text-on-tertiary font-label font-bold active:scale-[0.98] transition-transform mb-sm text-sm">Сохранить</button>
+    <button onclick="loadProfile()" class="w-full py-sm text-sm text-outline hover:text-on-surface transition-colors font-label">← Назад</button>`;
+  document.getElementById('profile-content').innerHTML=html;
+}
+
+let lsTgt='', lsNtv='';
+function setLangTarget(l){ lsTgt=l; document.querySelectorAll('.ls-tgt').forEach(b=>{const a=b.dataset.tgt===l;b.classList.toggle('border-primary-container',a);b.classList.toggle('bg-surface-container-low',a);b.classList.toggle('border-surface-variant',!a);}); }
+function setLangNative(l){ lsNtv=l; document.querySelectorAll('.ls-ntv').forEach(b=>{const a=b.dataset.ntv===l;b.classList.toggle('border-primary-container',a);b.classList.toggle('bg-surface-container-low',a);b.classList.toggle('border-surface-variant',!a);}); }
+async function saveLangSettings() {
+  if(!lsTgt||!lsNtv){document.getElementById('ls-status').textContent='Выберите оба языка';return;}
+  if(lsTgt===lsNtv){document.getElementById('ls-status').textContent='⚠️ Языки не могут совпадать';return;}
+  try {
+    await fetch('/api/user/languages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),native_language:lsNtv,target_language:lsTgt})});
+    userNativeLang=lsNtv; userTargetLang=lsTgt;
+    document.getElementById('ls-status').textContent='✅ Сохранено!';
+    setTimeout(loadProfile,1000);
+  } catch(e){document.getElementById('ls-status').textContent='Ошибка';}
+}
+
+// ── ONBOARDING ──
+function obSelectTarget(lang) {
+  obTarget=lang;
+  document.querySelectorAll('.ob-lang').forEach(b=>{const a=b.dataset.lang===lang;b.classList.toggle('border-2',a);b.classList.toggle('border-primary-container',a);});
+  setTimeout(()=>{document.getElementById('ob-step-0').classList.add('hidden');document.getElementById('ob-step-1').classList.remove('hidden');document.querySelectorAll('.ob-native').forEach(b=>{b.classList.toggle('hidden',b.dataset.lang===lang);});},280);
+}
+function obSelectNative(lang) {
+  obNative=lang;
+  setTimeout(()=>{document.getElementById('ob-step-1').classList.add('hidden');document.getElementById('ob-step-2').classList.remove('hidden');},280);
+}
+function obSelectLevel(level) {
+  obLevel=level;
+  document.getElementById('ob-step-2').classList.add('hidden');
+  document.getElementById('ob-ready-msg').textContent=`Язык: ${obTarget.toUpperCase()}, уровень ${level}`;
+  document.getElementById('ob-step-3').classList.remove('hidden');
+}
+async function finishOnboarding() {
+  try {
+    await fetch('/api/onboarding/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),level:obLevel,goal:'general',native_language:obNative,target_language:obTarget})});
+    userNativeLang=obNative; userTargetLang=obTarget; currentLevel=obLevel;
+    await loadUserData();
+    navTo('main');
+  } catch(e){navTo('main');}
+}
+
+// ── WORD POPUP ──
+function makeClickable(text) {
+  return text.replace(/([A-Za-zÀ-ÿА-яёЁ]{2,})/g, w=>`<span class="clickable-word" data-word="${w.replace(/&/g,'&amp;').replace(/</g,'&lt;')}">${w}</span>`);
+}
+document.addEventListener('click', e=>{
+  const span=e.target.closest('.clickable-word'); if(!span)return;
+  handleWordTap(span.dataset.word, span.closest('div')?.textContent||'');
+});
+async function handleWordTap(word, ctx) {
+  popupWord=word; popupContext=ctx;
+  document.getElementById('popup-word').textContent=word;
+  document.getElementById('popup-transcription').textContent='';
+  document.getElementById('popup-translation').textContent='⏳ Перевод...';
+  document.getElementById('popup-example').textContent='';
+  document.getElementById('popup-status').textContent='';
+  document.getElementById('popup-add-btn').disabled=false;
+  document.getElementById('popup-add-btn').textContent='+ В мой словарь';
+  showWordPopup();
+  try {
+    const data=await(await fetch('/api/dictionary/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),word,context_sentence:ctx.substring(0,300),native_language:userNativeLang,target_language:userTargetLang})})).json();
+    if(data.status==='success'){
+      document.getElementById('popup-transcription').textContent=data.transcription||'';
+      document.getElementById('popup-translation').textContent=data.translation||'—';
+      document.getElementById('popup-example').textContent=data.context_example?`"${data.context_example}"`:'';}
+    else document.getElementById('popup-translation').textContent=data.message||'Ошибка';
+  } catch(e){document.getElementById('popup-translation').textContent='Ошибка соединения';}
+}
+function showWordPopup() {
+  document.getElementById('word-popup-overlay').classList.remove('hidden');
+  document.getElementById('word-popup').classList.remove('hidden-popup');
+}
+function hideWordPopup() {
+  document.getElementById('word-popup-overlay').classList.add('hidden');
+  document.getElementById('word-popup').classList.add('hidden-popup');
+}
+async function addWordToDict() {
+  if(!popupWord)return;
+  const btn=document.getElementById('popup-add-btn'); btn.disabled=true; btn.textContent='Сохранение...';
+  try {
+    const data=await(await fetch('/api/dictionary/quick_add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),word:popupWord,context_sentence:popupContext.substring(0,300)})})).json();
+    if(data.status==='success'){document.getElementById('popup-status').textContent='✅ Добавлено!';btn.textContent='✓ В словаре';}
+    else{document.getElementById('popup-status').textContent=data.message||'Ошибка';btn.disabled=false;btn.textContent='+ В мой словарь';}
+  } catch(e){document.getElementById('popup-status').textContent='Ошибка';btn.disabled=false;btn.textContent='+ В мой словарь';}
+}
+
+// ── TOAST ──
+function showToast(msg, type='success') {
+  const t=document.createElement('div');
+  t.className=`fixed bottom-24 md:bottom-lg left-1/2 -translate-x-1/2 ${type==='success'?'bg-tertiary-container text-on-tertiary':'bg-on-surface text-surface'} px-md py-sm rounded-[1rem] font-label font-bold shadow-lg z-50 whitespace-nowrap text-sm`;
+  t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2800);
+}
+
+// ── START ──
+window.onload = () => {
+  const savedId = localStorage.getItem('t2l_user_id');
+  if (savedId && parseInt(savedId) > 0) {
+    userId = parseInt(savedId);
+    userEmail = localStorage.getItem('t2l_email') || '';
+    initApp();
+  }
+};
+</script>
 </body>
 </html>
