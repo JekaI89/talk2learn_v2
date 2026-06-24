@@ -27,79 +27,81 @@ function switchAuthTab(tab) {
     const btn = document.getElementById('tab-'+t);
     const panel = document.getElementById('auth-'+t);
     const active = t === tab;
-    // кнопка
-    btn.style.background = active ? '#fff' : 'transparent';
-    btn.style.color = active ? 'var(--color-on-surface, #1a1a2e)' : 'var(--color-on-surface-variant, #6b7280)';
-    btn.style.boxShadow = active ? '0 1px 3px rgba(0,0,0,0.12)' : 'none';
-    // панель — display напрямую, без зависимости от Tailwind JIT
-    panel.style.display = active ? 'block' : 'none';
+    btn.style.background  = active ? '#fff' : 'transparent';
+    btn.style.color       = active ? '#1a1a2e' : '#6b7280';
+    btn.style.boxShadow   = active ? '0 1px 3px rgba(0,0,0,0.12)' : 'none';
+    panel.style.display   = active ? 'block' : 'none';
   });
 }
 
+function _showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
 async function loginWithEmail() {
-  const email = document.getElementById('login-email').value.trim();
+  _showErr('login-error','');
+  const email    = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
-  const err = document.getElementById('login-error');
-  err.classList.add('hidden');
-  if (!email || !password) { err.textContent='Заполните все поля'; err.classList.remove('hidden'); return; }
+  if (!email || !password) { _showErr('login-error','Заполните все поля'); return; }
   try {
-    const res = await fetch('/api/auth/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const res  = await fetch('/api/auth/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
     const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Ошибка входа'; err.classList.remove('hidden'); return; }
+    if (!res.ok) { _showErr('login-error', data.detail||'Неверный email или пароль'); return; }
     userId = data.user_id; userEmail = email;
     localStorage.setItem('t2l_user_id', userId);
     localStorage.setItem('t2l_email', email);
     await initApp();
-  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+  } catch(e) { _showErr('login-error','Ошибка соединения'); }
 }
 
 async function registerWithEmail() {
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
+  _showErr('reg-error','');
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
   const password = document.getElementById('reg-password').value;
-  const err = document.getElementById('reg-error');
-  err.classList.add('hidden');
-  if (!email || !password) { err.textContent='Email и пароль обязательны'; err.classList.remove('hidden'); return; }
-  if (password.length < 6) { err.textContent='Пароль минимум 6 символов'; err.classList.remove('hidden'); return; }
+  if (!email || !password) { _showErr('reg-error','Email и пароль обязательны'); return; }
+  if (password.length < 6) { _showErr('reg-error','Пароль минимум 6 символов'); return; }
   try {
-    const res = await fetch('/api/auth/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password,name})});
+    const res  = await fetch('/api/auth/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password,name})});
     const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Ошибка регистрации'; err.classList.remove('hidden'); return; }
+    if (!res.ok) { _showErr('reg-error', data.detail||'Ошибка регистрации'); return; }
     _regEmail = email;
-    userId = data.user_id;
+    userId    = data.user_id;
     document.getElementById('reg-email-display').textContent = email;
-    document.getElementById('reg-step1').classList.add('hidden');
-    document.getElementById('reg-step2').classList.remove('hidden');
-  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+    document.getElementById('reg-step1').style.display = 'none';
+    document.getElementById('reg-step2').style.display = 'block';
+  } catch(e) { _showErr('reg-error','Ошибка соединения'); }
 }
 
 async function verifyEmailCode() {
+  _showErr('reg-verify-error','');
   const code = document.getElementById('reg-code').value.trim();
-  const err = document.getElementById('reg-verify-error');
-  err.classList.add('hidden');
   try {
-    const res = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail,code})});
+    const res  = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail,code})});
     const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Неверный код'; err.classList.remove('hidden'); return; }
+    if (!res.ok) { _showErr('reg-verify-error', data.detail||'Неверный код'); return; }
     userEmail = _regEmail;
     localStorage.setItem('t2l_user_id', userId);
     localStorage.setItem('t2l_email', _regEmail);
     await initApp();
-  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+  } catch(e) { _showErr('reg-verify-error','Ошибка соединения'); }
 }
 
 async function resendCode() {
   try {
-    const res = await fetch('/api/auth/email/resend', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail})});
+    const res  = await fetch('/api/auth/email/resend', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail})});
     const data = await res.json();
-    if (!res.ok) { document.getElementById('reg-verify-error').textContent=data.detail||'Ошибка'; document.getElementById('reg-verify-error').classList.remove('hidden'); return; }
+    if (!res.ok) { _showErr('reg-verify-error', data.detail||'Ошибка'); return; }
     showToast('Новый код отправлен');
   } catch(e) {}
 }
 
 async function onTelegramAuth(user) {
   try {
-    const res = await fetch('/api/auth/telegram/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(user)});
+    const res  = await fetch('/api/auth/telegram/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(user)});
     const data = await res.json();
     if (!res.ok) { alert('Ошибка авторизации Telegram'); return; }
     userId = data.user_id;
@@ -116,62 +118,63 @@ function logout() {
   localStorage.removeItem('t2l_email');
   localStorage.removeItem('t2l_name');
   userId = 0; userEmail = '';
-  document.getElementById('screen-app').classList.remove('active');
-  document.getElementById('screen-app').classList.add('hidden');
-  document.getElementById('screen-auth').classList.add('active');
-  document.getElementById('screen-auth').style.display = '';
+  const authEl = document.getElementById('screen-auth');
+  const appEl  = document.getElementById('screen-app');
+  authEl.style.display = '';
+  authEl.classList.add('active');
+  appEl.classList.remove('active');
+  appEl.style.display = 'none';
 }
 
 // ── LINK ACCOUNTS (профиль) ──
 async function linkTelegramAccount(telegramData) {
   try {
-    const res = await fetch('/api/auth/link/telegram', {method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:userId, telegram_data:telegramData})});
+    const res  = await fetch('/api/auth/link/telegram', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId, telegram_data:telegramData})});
     const data = await res.json();
-    if (!res.ok) { showToast(data.detail||'Ошибка привязки', 'error'); return; }
+    if (!res.ok) { showToast(data.detail||'Ошибка привязки','error'); return; }
     showToast('Telegram успешно привязан ✓');
     loadProfile();
   } catch(e) { showToast('Ошибка соединения','error'); }
 }
 
 async function linkEmailAccount() {
-  const email = document.getElementById('link-email-input').value.trim();
+  _showErr('link-email-error','');
+  const email    = document.getElementById('link-email-input').value.trim();
   const password = document.getElementById('link-email-password').value;
-  const err = document.getElementById('link-email-error');
-  err.classList.add('hidden');
-  if (!email || !password) { err.textContent='Заполните email и пароль'; err.classList.remove('hidden'); return; }
+  if (!email || !password) { _showErr('link-email-error','Заполните email и пароль'); return; }
   try {
-    const res = await fetch('/api/auth/link/email', {method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({telegram_user_id:userId, email, password})});
+    const res  = await fetch('/api/auth/link/email', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_user_id:userId, email, password})});
     const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Ошибка'; err.classList.remove('hidden'); return; }
+    if (!res.ok) { _showErr('link-email-error', data.detail||'Ошибка'); return; }
     _regEmail = email;
-    document.getElementById('link-email-form').classList.add('hidden');
-    document.getElementById('link-email-verify').classList.remove('hidden');
-    document.getElementById('link-email-display').textContent = email;
-  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+    document.getElementById('link-email-form').style.display  = 'none';
+    document.getElementById('link-email-verify').style.display = 'block';
+    document.getElementById('link-email-display').textContent  = email;
+  } catch(e) { _showErr('link-email-error','Ошибка соединения'); }
 }
 
 async function verifyLinkCode() {
+  _showErr('link-verify-error','');
   const code = document.getElementById('link-verify-code').value.trim();
-  const err = document.getElementById('link-verify-error');
-  err.classList.add('hidden');
   try {
-    const res = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail, code})});
+    const res  = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail, code})});
     const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Неверный код'; err.classList.remove('hidden'); return; }
+    if (!res.ok) { _showErr('link-verify-error', data.detail||'Неверный код'); return; }
     userEmail = _regEmail;
     localStorage.setItem('t2l_email', _regEmail);
     showToast('Email успешно привязан ✓');
     loadProfile();
-  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+  } catch(e) { _showErr('link-verify-error','Ошибка соединения'); }
 }
 
 // ── INIT ──
 async function initApp() {
-  document.getElementById('screen-auth').classList.remove('active');
-  document.getElementById('screen-auth').style.display = 'none';
-  document.getElementById('screen-app').classList.add('active');
+  const authEl = document.getElementById('screen-auth');
+  const appEl  = document.getElementById('screen-app');
+  authEl.classList.remove('active');
+  authEl.style.display = 'none';
+  appEl.style.display  = '';   // сбросить принудительный display:none от logout
+  appEl.classList.add('active');
 
   await loadUserData();
 
