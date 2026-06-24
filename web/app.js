@@ -101,17 +101,28 @@ async function resendCode() {
 }
 
 async function onTelegramAuth(user) {
+  const errEl = document.getElementById('tg-auth-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
   try {
     const res  = await fetch('/api/auth/telegram/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(user)});
     const data = await res.json();
-    if (!res.ok) { alert('Ошибка авторизации Telegram'); return; }
+    if (!res.ok) {
+      const msg = data.detail || 'Ошибка авторизации Telegram';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else alert(msg);
+      return;
+    }
     userId = data.user_id;
     if (data.email) userEmail = data.email;
     localStorage.setItem('t2l_user_id', userId);
     localStorage.setItem('t2l_name', data.name);
     if (data.email) localStorage.setItem('t2l_email', data.email);
     await initApp();
-  } catch(e) { alert('Ошибка соединения'); }
+  } catch(e) {
+    const msg = 'Ошибка соединения с сервером';
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+    else alert(msg);
+  }
 }
 
 function logout() {

@@ -13,7 +13,7 @@ auth.py — полная авторизация Talk2Learn
 """
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 import hashlib
 import hmac
@@ -97,13 +97,15 @@ class EmailVerifyRequest(BaseModel):
     code: str
 
 class TelegramAuthData(BaseModel):
+    model_config = {"populate_by_name": True}
+
     id: int
     first_name: str
     last_name: Optional[str] = None
     username: Optional[str] = None
     photo_url: Optional[str] = None
     auth_date: int
-    hash: str
+    tg_hash: str = Field(alias="hash")
 
 class LinkTelegramRequest(BaseModel):
     user_id: int          # email-пользователь
@@ -131,7 +133,7 @@ def _verify_telegram_hash(data: TelegramAuthData) -> bool:
     secret = hashlib.sha256(bot_token.encode()).digest()
     expected = hmac.new(key=secret, msg=data_check.encode(), digestmod=hashlib.sha256).hexdigest()
 
-    return hmac.compare_digest(expected, data.hash) and (time.time() - data.auth_date) < 86400
+    return hmac.compare_digest(expected, data.tg_hash) and (time.time() - data.auth_date) < 86400
 
 
 # ─── /api/auth/register ──────────────────────────────────────────────────────
@@ -277,8 +279,14 @@ async def login(data: LoginRequest):
 
 @router.post("/api/auth/telegram/verify")
 async def telegram_verify(data: TelegramAuthData):
-    if not _verify_telegram_hash(data):
-        raise HTTPException(403, "Неверная подпись Telegram.")
+    import logging
+    try:
+        valid = _verify_telegram_hash(data)
+    except Exception as e:
+        logging.error(f"[TG verify] hash check error: {e}")
+        raise HTTPException(500, f"Ошибка проверки подписи: {e}")
+    if not valid:
+        raise HTTPException(403, "Неверная подпись Telegram. Убедитесь что домен прописан у @BotFather командой /setdomain")
 
     full_name = data.first_name + (f" {data.last_name}" if data.last_name else "")
     pool = await get_pool()
