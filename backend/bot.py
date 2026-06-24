@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -8,12 +9,14 @@ from aiogram.enums import ParseMode
 from handlers import menu
 from handlers import speaking_club
 
-# Токен бота
-BOT_TOKEN = "8822263360:AAHLuQ9L5cR9fN5KpD_5AKR0gf_xps1DuKE"
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
-    
+    if not BOT_TOKEN:
+        print("⚠️ BOT_TOKEN не задан")
+        return
+
     bot = Bot(
         token=BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
