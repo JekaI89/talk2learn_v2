@@ -80,50 +80,100 @@ body { font-family: 'Be Vietnam Pro', sans-serif; background: #f7f9fb; overflow-
 <body class="text-on-surface">
 
 <!-- ═══ AUTH SCREEN ═══ -->
-<div id="screen-auth" class="screen active min-h-screen items-center justify-center bg-gradient-to-br from-primary to-primary-container p-md">
+<div id="screen-auth" class="screen active min-h-screen items-center justify-center bg-gradient-to-br from-primary to-primary-container p-4">
   <div class="w-full max-w-md">
-    <div class="text-center mb-lg">
-      <div class="w-16 h-16 bg-white/20 rounded-[1.25rem] flex items-center justify-center mx-auto mb-md">
+    <!-- Logo -->
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
         <span class="material-symbols-outlined filled text-white text-4xl">school</span>
       </div>
-      <h1 class="font-headline font-extrabold text-3xl text-white mb-xs">Talk2Learn</h1>
+      <h1 class="font-headline font-extrabold text-3xl text-white mb-1">Talk2Learn</h1>
       <p class="text-white/70 text-sm font-label">AI-репетитор для изучения языков</p>
     </div>
-    <div class="elevated-card rounded-[1.5rem] p-lg">
-      <div id="auth-email-step1">
-        <p class="font-label-caps text-label-caps text-outline mb-xs">EMAIL</p>
-        <input id="auth-email" type="email" placeholder="you@example.com"
-          class="w-full border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary mb-md bg-surface"/>
-        <button onclick="requestCode()"
-          class="w-full h-touch-target-min rounded-[1rem] bg-primary text-on-primary font-label font-bold tracking-wide active:scale-95 transition-all duration-150 text-sm">
-          Получить код →
+
+    <!-- Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-xl">
+
+      <!-- Tabs -->
+      <div class="flex gap-1 bg-surface-container rounded-xl p-1 mb-5">
+        <button id="tab-login" onclick="switchAuthTab('login')"
+          class="auth-tab flex-1 py-2 rounded-lg text-sm font-label font-bold transition-all bg-white text-on-surface shadow-sm">
+          Войти
         </button>
-        <p id="auth-error1" class="text-error text-xs mt-sm text-center hidden"></p>
+        <button id="tab-register" onclick="switchAuthTab('register')"
+          class="auth-tab flex-1 py-2 rounded-lg text-sm font-label font-bold transition-all text-on-surface-variant">
+          Регистрация
+        </button>
       </div>
-      <div id="auth-email-step2" class="hidden">
-        <p class="text-sm text-on-surface-variant mb-md text-center">Код отправлен на <strong id="auth-email-display"></strong></p>
-        <p class="font-label-caps text-label-caps text-outline mb-xs">КОД ИЗ ПИСЬМА</p>
-        <input id="auth-code" type="text" maxlength="6" placeholder="000000"
-          class="w-full border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body text-center tracking-[0.3em] text-xl focus:outline-none focus:border-primary mb-md bg-surface"/>
-        <button onclick="verifyCode()"
-          class="w-full h-touch-target-min rounded-[1rem] bg-tertiary-container text-on-tertiary font-label font-bold active:scale-95 transition-all duration-150 text-sm">
-          Войти ✓
-        </button>
-        <button onclick="document.getElementById('auth-email-step1').classList.remove('hidden');document.getElementById('auth-email-step2').classList.add('hidden')"
-          class="w-full py-sm text-outline text-sm mt-sm hover:text-on-surface transition-colors font-label">
-          ← Изменить email
-        </button>
-        <p id="auth-error2" class="text-error text-xs mt-sm text-center hidden"></p>
+
+      <!-- LOGIN FORM -->
+      <div id="auth-login" class="auth-panel">
+        <div class="space-y-3">
+          <input id="login-email" type="email" placeholder="Email"
+            class="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-surface"/>
+          <input id="login-password" type="password" placeholder="Пароль"
+            class="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-surface"/>
+          <button onclick="loginWithEmail()"
+            class="w-full py-3 rounded-xl bg-primary text-on-primary font-label font-bold text-sm active:scale-95 transition-transform">
+            Войти →
+          </button>
+          <p id="login-error" class="text-error text-xs text-center hidden"></p>
+        </div>
       </div>
-      <div class="relative my-lg">
+
+      <!-- REGISTER FORM -->
+      <div id="auth-register" class="auth-panel hidden">
+        <!-- Step 1: fill form -->
+        <div id="reg-step1" class="space-y-3">
+          <input id="reg-name" type="text" placeholder="Имя (необязательно)"
+            class="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary bg-surface"/>
+          <input id="reg-email" type="email" placeholder="Email"
+            class="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary bg-surface"/>
+          <input id="reg-password" type="password" placeholder="Пароль (мин. 6 символов)"
+            class="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary bg-surface"/>
+          <button onclick="registerWithEmail()"
+            class="w-full py-3 rounded-xl bg-primary text-on-primary font-label font-bold text-sm active:scale-95 transition-transform">
+            Создать аккаунт →
+          </button>
+          <p id="reg-error" class="text-error text-xs text-center hidden"></p>
+        </div>
+        <!-- Step 2: verify email -->
+        <div id="reg-step2" class="hidden space-y-3">
+          <div class="text-center mb-2">
+            <div class="text-3xl mb-2">📬</div>
+            <p class="text-sm text-on-surface-variant">Код отправлен на</p>
+            <p class="font-bold text-on-surface text-sm" id="reg-email-display"></p>
+          </div>
+          <input id="reg-code" type="text" maxlength="6" placeholder="000000"
+            class="w-full border border-outline-variant rounded-xl px-4 py-3 text-xl text-center tracking-[0.3em] focus:outline-none focus:border-primary bg-surface"/>
+          <button onclick="verifyEmailCode()"
+            class="w-full py-3 rounded-xl bg-tertiary-container text-on-tertiary font-label font-bold text-sm active:scale-95 transition-transform">
+            Подтвердить ✓
+          </button>
+          <button onclick="resendCode()"
+            class="w-full py-2 text-outline text-sm hover:text-on-surface transition-colors font-label">
+            Отправить код повторно
+          </button>
+          <button onclick="document.getElementById('reg-step1').classList.remove('hidden');document.getElementById('reg-step2').classList.add('hidden')"
+            class="w-full py-2 text-outline text-xs hover:text-on-surface transition-colors">
+            ← Изменить email
+          </button>
+          <p id="reg-verify-error" class="text-error text-xs text-center hidden"></p>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="relative my-5">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-outline-variant"></div></div>
-        <div class="relative text-center"><span class="bg-white px-sm text-xs text-outline font-label">или</span></div>
+        <div class="relative text-center"><span class="bg-white px-3 text-xs text-outline font-label">или</span></div>
       </div>
+
+      <!-- Telegram -->
       <div class="text-center">
         <script async src="https://telegram.org/js/telegram-widget.js?22"
           data-telegram-login="RoleTalkAI_bot" data-size="large" data-radius="12"
           data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
-        <p class="text-xs text-outline mt-sm font-label">Войти через Telegram</p>
+        <p class="text-xs text-outline mt-2 font-label">Войти через Telegram</p>
       </div>
     </div>
   </div>

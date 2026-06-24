@@ -167,6 +167,40 @@ async def init_db():
         """)
         await db.execute("ALTER TABLE vocabulary_cards ADD COLUMN IF NOT EXISTS card_language TEXT DEFAULT 'en'")
         await db.execute("ALTER TABLE vocabulary_cards ADD COLUMN IF NOT EXISTS native_language TEXT DEFAULT 'ru'")
+
+        # ==================== USER_AUTH ====================
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS user_auth (
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT,
+                email_verified BOOLEAN DEFAULT FALSE,
+                verify_code TEXT,
+                verify_code_expires_at TIMESTAMP,
+                reset_code TEXT,
+                reset_code_expires_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_auth_email ON user_auth(email)")
+        await db.execute("CREATE INDEX IF NOT EXISTS idx_user_auth_user_id ON user_auth(user_id)")
+
+        # ==================== USER_TELEGRAM ====================
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS user_telegram (
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
+                telegram_id BIGINT UNIQUE NOT NULL,
+                telegram_username TEXT,
+                telegram_name TEXT,
+                linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_telegram_tg_id ON user_telegram(telegram_id)")
+        await db.execute("CREATE INDEX IF NOT EXISTS idx_user_telegram_user_id ON user_telegram(user_id)")
+
         print("✅ PostgreSQL: База данных инициализирована")
 
 

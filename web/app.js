@@ -20,36 +20,83 @@ const SIT_GREETINGS = {shop:{en:"Welcome! How can I help you today?",ru:"Доб�
 const SIT_HINTS = {shop:'🛒 Вы покупатель. Попросите найти товар.',restaurant:'🍽️ Вы гость. Закажите блюдо.',airport:'✈️ Вы пассажир. Пройдите регистрацию.',hotel:'🏨 Вы гость. Заселитесь.',doctor:'🏥 Вы пациент. Опишите симптомы.',emergency:'🚨 Срочно опишите ситуацию.'};
 
 // ── AUTH ──
-async function requestCode() {
-  const email = document.getElementById('auth-email').value.trim();
-  const err = document.getElementById('auth-error1');
-  err.classList.add('hidden');
-  if (!email || !email.includes('@')) { err.textContent='Введите корректный email'; err.classList.remove('hidden'); return; }
-  try {
-    const res = await fetch('/api/auth/email/request-code', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
-    const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Ошибка'; err.classList.remove('hidden'); return; }
-    document.getElementById('auth-email-display').textContent = email;
-    document.getElementById('auth-email-step1').classList.add('hidden');
-    document.getElementById('auth-email-step2').classList.remove('hidden');
-  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+let _regEmail = '';
+
+function switchAuthTab(tab) {
+  ['login','register'].forEach(t => {
+    const btn = document.getElementById('tab-'+t);
+    const panel = document.getElementById('auth-'+t);
+    if (t === tab) {
+      btn.classList.add('bg-white','text-on-surface','shadow-sm');
+      btn.classList.remove('text-on-surface-variant');
+      panel.classList.remove('hidden');
+    } else {
+      btn.classList.remove('bg-white','text-on-surface','shadow-sm');
+      btn.classList.add('text-on-surface-variant');
+      panel.classList.add('hidden');
+    }
+  });
 }
 
-async function verifyCode() {
-  const email = document.getElementById('auth-email').value.trim();
-  const code = document.getElementById('auth-code').value.trim();
-  const err = document.getElementById('auth-error2');
+async function loginWithEmail() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const err = document.getElementById('login-error');
   err.classList.add('hidden');
+  if (!email || !password) { err.textContent='Заполните все поля'; err.classList.remove('hidden'); return; }
   try {
-    const res = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,code})});
+    const res = await fetch('/api/auth/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
     const data = await res.json();
-    if (!res.ok) { err.textContent=data.detail||'Неверный код'; err.classList.remove('hidden'); return; }
-    userId = data.user_id;
-    userEmail = email;
+    if (!res.ok) { err.textContent=data.detail||'Ошибка входа'; err.classList.remove('hidden'); return; }
+    userId = data.user_id; userEmail = email;
     localStorage.setItem('t2l_user_id', userId);
     localStorage.setItem('t2l_email', email);
     await initApp();
   } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+}
+
+async function registerWithEmail() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const err = document.getElementById('reg-error');
+  err.classList.add('hidden');
+  if (!email || !password) { err.textContent='Email и пароль обязательны'; err.classList.remove('hidden'); return; }
+  if (password.length < 6) { err.textContent='Пароль минимум 6 символов'; err.classList.remove('hidden'); return; }
+  try {
+    const res = await fetch('/api/auth/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password,name})});
+    const data = await res.json();
+    if (!res.ok) { err.textContent=data.detail||'Ошибка регистрации'; err.classList.remove('hidden'); return; }
+    _regEmail = email;
+    userId = data.user_id;
+    document.getElementById('reg-email-display').textContent = email;
+    document.getElementById('reg-step1').classList.add('hidden');
+    document.getElementById('reg-step2').classList.remove('hidden');
+  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+}
+
+async function verifyEmailCode() {
+  const code = document.getElementById('reg-code').value.trim();
+  const err = document.getElementById('reg-verify-error');
+  err.classList.add('hidden');
+  try {
+    const res = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail,code})});
+    const data = await res.json();
+    if (!res.ok) { err.textContent=data.detail||'Неверный код'; err.classList.remove('hidden'); return; }
+    userEmail = _regEmail;
+    localStorage.setItem('t2l_user_id', userId);
+    localStorage.setItem('t2l_email', _regEmail);
+    await initApp();
+  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+}
+
+async function resendCode() {
+  try {
+    const res = await fetch('/api/auth/email/resend', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail})});
+    const data = await res.json();
+    if (!res.ok) { document.getElementById('reg-verify-error').textContent=data.detail||'Ошибка'; document.getElementById('reg-verify-error').classList.remove('hidden'); return; }
+    showToast('Новый код отправлен');
+  } catch(e) {}
 }
 
 async function onTelegramAuth(user) {
@@ -58,8 +105,10 @@ async function onTelegramAuth(user) {
     const data = await res.json();
     if (!res.ok) { alert('Ошибка авторизации Telegram'); return; }
     userId = data.user_id;
+    if (data.email) userEmail = data.email;
     localStorage.setItem('t2l_user_id', userId);
     localStorage.setItem('t2l_name', data.name);
+    if (data.email) localStorage.setItem('t2l_email', data.email);
     await initApp();
   } catch(e) { alert('Ошибка соединения'); }
 }
@@ -68,10 +117,56 @@ function logout() {
   localStorage.removeItem('t2l_user_id');
   localStorage.removeItem('t2l_email');
   localStorage.removeItem('t2l_name');
-  userId = 0;
+  userId = 0; userEmail = '';
   document.getElementById('screen-app').classList.remove('active');
   document.getElementById('screen-app').classList.add('hidden');
   document.getElementById('screen-auth').classList.add('active');
+  document.getElementById('screen-auth').style.display = '';
+}
+
+// ── LINK ACCOUNTS (профиль) ──
+async function linkTelegramAccount(telegramData) {
+  try {
+    const res = await fetch('/api/auth/link/telegram', {method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:userId, telegram_data:telegramData})});
+    const data = await res.json();
+    if (!res.ok) { showToast(data.detail||'Ошибка привязки', 'error'); return; }
+    showToast('Telegram успешно привязан ✓');
+    loadProfile();
+  } catch(e) { showToast('Ошибка соединения','error'); }
+}
+
+async function linkEmailAccount() {
+  const email = document.getElementById('link-email-input').value.trim();
+  const password = document.getElementById('link-email-password').value;
+  const err = document.getElementById('link-email-error');
+  err.classList.add('hidden');
+  if (!email || !password) { err.textContent='Заполните email и пароль'; err.classList.remove('hidden'); return; }
+  try {
+    const res = await fetch('/api/auth/link/email', {method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telegram_user_id:userId, email, password})});
+    const data = await res.json();
+    if (!res.ok) { err.textContent=data.detail||'Ошибка'; err.classList.remove('hidden'); return; }
+    _regEmail = email;
+    document.getElementById('link-email-form').classList.add('hidden');
+    document.getElementById('link-email-verify').classList.remove('hidden');
+    document.getElementById('link-email-display').textContent = email;
+  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
+}
+
+async function verifyLinkCode() {
+  const code = document.getElementById('link-verify-code').value.trim();
+  const err = document.getElementById('link-verify-error');
+  err.classList.add('hidden');
+  try {
+    const res = await fetch('/api/auth/email/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_regEmail, code})});
+    const data = await res.json();
+    if (!res.ok) { err.textContent=data.detail||'Неверный код'; err.classList.remove('hidden'); return; }
+    userEmail = _regEmail;
+    localStorage.setItem('t2l_email', _regEmail);
+    showToast('Email успешно привязан ✓');
+    loadProfile();
+  } catch(e) { err.textContent='Ошибка соединения'; err.classList.remove('hidden'); }
 }
 
 // ── INIT ──
@@ -641,10 +736,58 @@ async function loadProfile() {
         <div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full transition-all" style="width:${xpPct}%"></div></div>
       </div>
       ${catHtml?`<div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 mb-4"><p class="font-label text-xs text-outline uppercase tracking-wider mb-3">Прогресс по разделам</p>${catHtml}</div>`:''}
-      <button onclick="showLangSettings()" class="w-full py-3 bg-surface-container text-on-surface-variant font-label font-bold text-sm rounded-xl hover:bg-surface-container-high transition-colors">
+      <button onclick="showLangSettings()" class="w-full py-3 bg-surface-container text-on-surface-variant font-label font-bold text-sm rounded-xl hover:bg-surface-container-high transition-colors mb-3">
         ⚙️ Настройки языка
-      </button>`;
+      </button>
+      <div id="account-links-section"></div>
+      <button onclick="logout()" class="w-full py-3 bg-red-50 text-red-600 border border-red-200 font-label font-bold text-sm rounded-xl hover:bg-red-100 transition-colors mt-3">
+        Выйти из аккаунта
+      </button>\`;
+    await loadAccountLinks();
   } catch(e){ c.innerHTML='<p class="text-error text-center py-8">Ошибка загрузки</p>'; }
+}
+
+async function loadAccountLinks() {
+  try {
+    const status = await (await fetch(`/api/auth/status/${userId}`)).json();
+    const el = document.getElementById('account-links-section');
+    if (!el) return;
+    const hasEmail = status.email && status.email_verified;
+    const hasTg = !!status.telegram_id;
+    let html = '<div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 mb-3">';
+    html += '<p class="font-label text-xs text-outline uppercase tracking-wider mb-3">Аккаунты</p>';
+    // Email status
+    if (hasEmail) {
+      html += `<div class="flex items-center justify-between py-2 border-b border-surface-variant"><div class="flex items-center gap-2"><span class="text-lg">✉️</span><div><div class="text-sm font-label font-bold text-on-surface">${status.email}</div><div class="text-xs text-green-600">✓ Подтверждён</div></div></div></div>`;
+    } else {
+      html += `<div class="py-2 border-b border-surface-variant" id="link-email-section">
+        <div class="flex items-center gap-2 mb-2"><span class="text-lg">✉️</span><span class="text-sm text-outline">Email не привязан</span></div>
+        <div id="link-email-form">
+          <input id="link-email-input" type="email" placeholder="Email" class="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm mb-2 focus:outline-none focus:border-primary bg-surface"/>
+          <input id="link-email-password" type="password" placeholder="Придумайте пароль" class="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm mb-2 focus:outline-none focus:border-primary bg-surface"/>
+          <button onclick="linkEmailAccount()" class="w-full py-2 bg-primary text-on-primary rounded-xl text-sm font-label font-bold">Привязать email</button>
+          <p id="link-email-error" class="text-error text-xs mt-1 hidden"></p>
+        </div>
+        <div id="link-email-verify" class="hidden">
+          <p class="text-xs text-on-surface-variant mb-2">Код отправлен на <strong id="link-email-display"></strong></p>
+          <input id="link-verify-code" type="text" maxlength="6" placeholder="000000" class="w-full border border-outline-variant rounded-xl px-3 py-2 text-xl text-center tracking-[0.3em] mb-2 focus:outline-none focus:border-primary bg-surface"/>
+          <button onclick="verifyLinkCode()" class="w-full py-2 bg-tertiary-container text-on-tertiary rounded-xl text-sm font-label font-bold">Подтвердить</button>
+          <p id="link-verify-error" class="text-error text-xs mt-1 hidden"></p>
+        </div>
+      </div>`;
+    }
+    // Telegram status
+    if (hasTg) {
+      const tgName = status.telegram_name || status.telegram_username || 'Telegram';
+      html += `<div class="flex items-center gap-2 pt-2"><span class="text-lg">✈️</span><div><div class="text-sm font-label font-bold text-on-surface">${tgName}</div><div class="text-xs text-green-600">✓ Привязан</div></div></div>`;
+    } else {
+      html += `<div class="pt-2"><div class="flex items-center gap-2 mb-2"><span class="text-lg">✈️</span><span class="text-sm text-outline">Telegram не привязан</span></div>
+        <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="RoleTalkAI_bot" data-size="medium" data-radius="8" data-onauth="linkTelegramAccount(user)" data-request-access="write"><\/script>
+      </div>`;
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  } catch(e){}
 }
 
 // ── НАСТРОЙКИ ЯЗЫКА ──
