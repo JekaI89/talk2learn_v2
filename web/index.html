@@ -56,25 +56,251 @@ tailwind.config = {
 }
 </script>
 <style>
-body { font-family: 'Be Vietnam Pro', sans-serif; background: #f7f9fb; overflow-x: hidden; }
-.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+body { font-family: 'Be Vietnam Pro', sans-serif; background: #f0f2f5; overflow-x: hidden; margin: 0; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; line-height: 1; }
 .filled { font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+/* ── Screens & Pages ── */
 .screen { display: none; }
 .screen.active { display: flex; }
 .page { display: none; }
 .page.active { display: flex; flex-direction: column; }
-.glass-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid #e0e3e5; box-shadow: 0px 4px 20px rgba(0,0,0,0.05); }
-.elevated-card { background: #ffffff; border: 1px solid rgba(195,198,215,0.3); box-shadow: 0px 4px 20px rgba(0,0,0,0.05); }
+
+/* ── Cards ── */
+.glass-card {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(224,227,229,0.8);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.elevated-card {
+  background: #ffffff;
+  border: 1px solid rgba(195,198,215,0.25);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(195,198,215,0.15);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.elevated-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(195,198,215,0.2);
+}
+
+/* ── App Layout ── */
+#screen-app {
+  min-height: 100vh;
+  display: none;
+  position: relative;
+}
+#screen-app.active {
+  display: flex;
+  flex-direction: row;
+}
+
+/* ── Sidebar ── */
+.app-sidebar {
+  width: 256px;
+  min-width: 256px;
+  background: #ffffff;
+  border-right: 1px solid rgba(195,198,215,0.3);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+  gap: 8px;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.app-sidebar.open { transform: translateX(0); }
+@media (min-width: 768px) {
+  .app-sidebar { transform: translateX(0); }
+}
+
+/* ── Sidebar overlay (mobile) ── */
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 29;
+  backdrop-filter: blur(2px);
+}
+#sidebar-overlay.active { display: block; }
+
+/* ── Main content ── */
+.app-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+@media (min-width: 768px) {
+  .app-main { margin-left: 256px; }
+}
+
+/* ── Mobile header ── */
+.mobile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 56px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(195,198,215,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+@media (min-width: 768px) {
+  .mobile-header { display: none; }
+}
+
+/* ── Page container ── */
+.page-container {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 100px;
+}
+@media (min-width: 768px) {
+  .page-container { padding: 32px 32px 48px; }
+}
+@media (min-width: 1280px) {
+  .page-container { padding: 40px 48px 48px; }
+}
+
+/* ── Dashboard grid ── */
+.dashboard-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+@media (min-width: 640px) {
+  .dashboard-hero-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1024px) {
+  .dashboard-hero-grid { grid-template-columns: 2fr 1fr; }
+}
+
+.dashboard-stats-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .dashboard-stats-col { grid-template-columns: 1fr; }
+}
+
+/* ── Category grid ── */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .category-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Interactive grid ── */
+.interactive-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .interactive-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Nav buttons ── */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #434655;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  text-align: left;
+}
+.nav-btn:hover { background: rgba(195,198,215,0.2); }
+.nav-btn.active-nav {
+  background: rgba(79,101,239,0.1);
+  color: #4f65ef;
+}
+
+/* ── Mobile bottom nav ── */
+.mobile-bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(195,198,215,0.3);
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) { .mobile-bottom-nav { display: none; } }
+.mob-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #737686;
+  transition: color 0.15s;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+.mob-nav-btn.active-nav { color: #4f65ef; }
+
+/* ── Word popup ── */
 #word-popup { transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.2s; }
 #word-popup.hidden-popup { transform: translateY(100%); opacity: 0; pointer-events: none; }
+
+/* ── Clickable words ── */
 .clickable-word { cursor: pointer; border-bottom: 1.5px dashed rgba(37,99,235,0.4); border-radius: 4px; padding: 0 2px; transition: background 0.12s; }
 .clickable-word:hover { background: rgba(219,225,255,0.35); }
+
+/* ── Flashcard animations ── */
 @keyframes slideOutLeft  { to { transform: translateX(-110%) rotate(-8deg); opacity: 0; } }
 @keyframes slideOutRight { to { transform: translateX(110%) rotate(8deg); opacity: 0; } }
 @keyframes slideInUp     { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 .card-exit-left  { animation: slideOutLeft  0.28s ease forwards; }
 .card-exit-right { animation: slideOutRight 0.28s ease forwards; }
-.card-enter      { animation: slideInUp     0.3s ease forwards; }
+.card-enter      { animation: slideInUp 0.3s ease forwards; }
+
+/* ── Section titles ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #737686;
+  margin-bottom: 12px;
+}
 </style>
 </head>
 <body class="text-on-surface">
@@ -180,193 +406,170 @@ body { font-family: 'Be Vietnam Pro', sans-serif; background: #f7f9fb; overflow-
 </div>
 
 <!-- ═══ APP SCREEN ═══ -->
-<div id="screen-app" class="screen min-h-screen">
+<div id="screen-app" class="screen">
 
-  <!-- Sidebar (desktop) -->
-  <aside class="hidden md:flex flex-col w-64 bg-surface-container-low fixed h-full z-20 p-md gap-md border-r border-outline-variant/30">
-    <div class="flex items-center gap-sm px-sm py-md">
-      <div class="w-10 h-10 bg-primary rounded-[0.75rem] flex items-center justify-center">
-        <span class="material-symbols-outlined filled text-on-primary">school</span>
+  <!-- Sidebar overlay (mobile) -->
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside id="app-sidebar" class="app-sidebar">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 8px 12px">
+      <div style="width:36px;height:36px;background:#4f65ef;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span class="material-symbols-outlined filled" style="color:#fff;font-size:20px">school</span>
       </div>
       <div>
-        <h1 class="font-headline font-bold text-primary text-base leading-none">Talk2Learn</h1>
-        <p class="font-label text-[10px] text-outline mt-xs">Personal AI Tutor</p>
+        <div style="font-weight:700;font-size:14px;color:#191c1e">Talk2Learn</div>
+        <div style="font-size:11px;color:#737686">Personal AI Tutor</div>
       </div>
     </div>
-
-    <!-- User block -->
-    <div class="glass-card rounded-[1rem] p-md flex items-center gap-sm">
-      <div id="sidebar-avatar" class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary font-headline font-bold text-sm flex-shrink-0">TL</div>
-      <div class="min-w-0">
-        <div id="sidebar-name" class="font-headline font-bold text-on-surface text-sm truncate">Загрузка...</div>
-        <div class="flex gap-sm text-xs text-outline font-label">
-          <span class="flex items-center gap-xs"><span class="material-symbols-outlined filled text-secondary-container" style="font-size:13px">local_fire_department</span><span id="sidebar-streak">0</span></span>
-          <span class="flex items-center gap-xs"><span class="material-symbols-outlined filled text-[#f59e0b]" style="font-size:13px">star</span><span id="sidebar-xp">0</span> XP</span>
+    <div class="glass-card" style="border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <div id="sidebar-avatar" style="width:38px;height:38px;background:#dbe4ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#4f65ef;flex-shrink:0">TL</div>
+      <div style="flex:1;min-width:0">
+        <div id="sidebar-name" style="font-weight:700;font-size:13px;color:#191c1e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Загрузка...</div>
+        <div style="display:flex;gap:10px;font-size:11px;color:#737686;margin-top:2px">
+          <span style="display:flex;align-items:center;gap:3px"><span class="material-symbols-outlined filled" style="color:#f97316;font-size:13px">local_fire_department</span><span id="sidebar-streak">0</span></span>
+          <span style="display:flex;align-items:center;gap:3px"><span class="material-symbols-outlined filled" style="color:#f59e0b;font-size:13px">star</span><span id="sidebar-xp">0</span> XP</span>
         </div>
       </div>
     </div>
-
-    <!-- Nav items -->
-    <nav class="flex-1 flex flex-col gap-xs">
-      <button onclick="navTo('main')" data-nav="main" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-        <span class="material-symbols-outlined" style="font-size:20px">home</span>
-        <span class="font-label-caps text-label-caps">Главная</span>
-      </button>
-      <button onclick="navTo('dictionary')" data-nav="dictionary" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-        <span class="material-symbols-outlined" style="font-size:20px">menu_book</span>
-        <span class="font-label-caps text-label-caps">Словарь</span>
-      </button>
-      <button onclick="navTo('notebook')" data-nav="notebook" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-        <span class="material-symbols-outlined" style="font-size:20px">book_2</span>
-        <span class="font-label-caps text-label-caps">Мой блокнот</span>
-      </button>
-      <button onclick="navTo('club')" data-nav="club" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-        <span class="material-symbols-outlined" style="font-size:20px">record_voice_over</span>
-        <span class="font-label-caps text-label-caps">Разговорный клуб</span>
-      </button>
-      <button onclick="navTo('situations')" data-nav="situations" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-        <span class="material-symbols-outlined" style="font-size:20px">theater_comedy</span>
-        <span class="font-label-caps text-label-caps">Ситуации</span>
-      </button>
-      <button onclick="navTo('profile')" data-nav="profile" class="nav-btn w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95 duration-150">
-        <span class="material-symbols-outlined" style="font-size:20px">person</span>
-        <span class="font-label-caps text-label-caps">Профиль</span>
-      </button>
+    <nav style="flex:1;display:flex;flex-direction:column;gap:2px;margin-top:4px">
+      <button onclick="navTo('main')" data-nav="main" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">home</span><span>Главная</span></button>
+      <button onclick="navTo('dictionary')" data-nav="dictionary" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">menu_book</span><span>Словарь</span></button>
+      <button onclick="navTo('notebook')" data-nav="notebook" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">book_2</span><span>Мой блокнот</span></button>
+      <button onclick="navTo('club')" data-nav="club" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">mic</span><span>Разговорный клуб</span></button>
+      <button onclick="navTo('situations')" data-nav="situations" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">theater_comedy</span><span>Ситуации</span></button>
+      <button onclick="navTo('profile')" data-nav="profile" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">person</span><span>Профиль</span></button>
     </nav>
-
-    <div class="border-t border-outline-variant/40 pt-md">
-      <button onclick="logout()" class="w-full flex items-center gap-md px-md py-sm rounded-[0.75rem] text-outline hover:text-error hover:bg-error-container/20 transition-all font-label-caps text-label-caps">
-        <span class="material-symbols-outlined" style="font-size:20px">logout</span> Выйти
-      </button>
+    <div style="border-top:1px solid rgba(195,198,215,0.3);padding-top:8px;margin-top:4px">
+      <button onclick="logout()" class="nav-btn" style="color:#ba1a1a"><span class="material-symbols-outlined" style="font-size:20px">logout</span><span>Выйти</span></button>
     </div>
   </aside>
 
-  <!-- Main content -->
-  <main class="flex-1 md:ml-64 flex flex-col min-h-screen">
-
-    <!-- Mobile header -->
-    <header class="md:hidden sticky top-0 z-10 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant/40 px-md h-[52px] flex items-center gap-sm">
-      <div id="mobile-avatar" class="w-8 h-8 bg-primary-container rounded-full flex items-center justify-center text-on-primary font-headline font-bold text-xs">TL</div>
-      <span id="mobile-title" class="font-headline font-bold text-on-surface text-sm flex-1">Talk2Learn</span>
-      <span id="mobile-xp" class="font-label-caps text-caption text-outline">⭐ 0 XP</span>
+  <div class="app-main">
+    <header class="mobile-header">
+      <button onclick="openSidebar()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center">
+        <span class="material-symbols-outlined" style="font-size:24px;color:#434655">menu</span>
+      </button>
+      <div id="mobile-avatar" style="width:32px;height:32px;background:#dbe4ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#4f65ef;flex-shrink:0">TL</div>
+      <span id="mobile-title" style="font-weight:700;font-size:14px;color:#191c1e;flex:1">Talk2Learn</span>
+      <span id="mobile-xp" style="font-size:12px;color:#737686;white-space:nowrap">⭐ 0 XP</span>
     </header>
-
     <!-- Pages -->
 
     <!-- DASHBOARD -->
-    <div id="page-main" class="page p-md md:p-xl gap-lg max-w-5xl w-full mx-auto">
+    <div id="page-main" class="page">
+      <div class="page-container" style="display:flex;flex-direction:column;gap:24px">
 
-      <!-- Header row -->
-      <div class="flex items-start justify-between">
+        <!-- Welcome -->
         <div>
-          <h2 class="font-headline font-extrabold text-2xl md:text-[28px] text-on-surface leading-tight">Добро пожаловать! 👋</h2>
-          <p class="text-on-surface-variant text-sm font-body mt-xs">Выберите раздел для занятия</p>
-        </div>
-      </div>
-
-      <!-- Hero card + stats -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
-        <!-- Hero CTA -->
-        <div class="lg:col-span-2 relative overflow-hidden rounded-[1.5rem] bg-primary-container p-lg md:p-xl flex flex-col justify-center min-h-[160px] cursor-pointer active:scale-[0.99] transition-transform" onclick="startCategory('lessons')">
-          <div class="relative z-10">
-            <p class="font-label-caps text-label-caps text-on-primary-container/70 mb-xs">УРОКИ</p>
-            <h3 class="font-headline font-extrabold text-xl md:text-2xl text-on-primary-container leading-tight mb-sm">Продолжите обучение — следующий урок ждёт!</h3>
-            <div class="inline-flex items-center gap-xs bg-white/15 border border-white/20 rounded-[0.75rem] px-md py-xs">
-              <span class="material-symbols-outlined text-on-primary-container" style="font-size:16px">play_arrow</span>
-              <span class="font-label-caps text-label-caps text-on-primary-container">Начать урок</span>
-            </div>
-          </div>
-          <div class="absolute right-[-16px] bottom-[-16px] opacity-10">
-            <span class="material-symbols-outlined text-on-primary-container" style="font-size:160px;font-variation-settings:'FILL' 1">menu_book</span>
-          </div>
+          <h2 style="font-size:clamp(20px,3vw,28px);font-weight:800;color:#191c1e;margin:0 0 4px">Добро пожаловать! 👋</h2>
+          <p style="font-size:14px;color:#737686;margin:0">Выберите раздел для занятия</p>
         </div>
 
-        <!-- Quick stats -->
-        <div class="flex flex-col gap-md">
-          <div class="elevated-card rounded-[1.25rem] p-md flex items-center gap-md">
-            <div class="w-12 h-12 rounded-[0.75rem] bg-[#fff7ed] flex items-center justify-center flex-shrink-0">
-              <span class="material-symbols-outlined filled text-secondary-container text-2xl">local_fire_department</span>
+        <!-- Hero + Stats -->
+        <div class="dashboard-hero-grid">
+          <!-- Hero CTA -->
+          <div onclick="startCategory('lessons')" style="position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(135deg,#4f65ef,#7c3aed);padding:28px 28px 28px 32px;display:flex;flex-direction:column;justify-content:center;min-height:160px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 32px rgba(79,101,239,0.3)" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(79,101,239,0.4)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 8px 32px rgba(79,101,239,0.3)'">
+            <div style="position:relative;z-index:1">
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin:0 0 8px">УРОКИ</p>
+              <h3 style="font-size:clamp(16px,2.5vw,22px);font-weight:800;color:#fff;line-height:1.3;margin:0 0 16px">Продолжите обучение — следующий урок ждёт!</h3>
+              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:8px 14px">
+                <span class="material-symbols-outlined" style="color:#fff;font-size:16px">play_arrow</span>
+                <span style="font-size:13px;font-weight:700;color:#fff">Начать урок</span>
+              </div>
             </div>
-            <div>
-              <p class="font-label-caps text-label-caps text-outline">СТРИК</p>
-              <p id="stat-streak" class="font-headline font-extrabold text-xl text-on-surface">0 дней</p>
-            </div>
-          </div>
-          <div class="elevated-card rounded-[1.25rem] p-md flex items-center gap-md">
-            <div class="w-12 h-12 rounded-[0.75rem] bg-[#fefce8] flex items-center justify-center flex-shrink-0">
-              <span class="material-symbols-outlined filled text-[#f59e0b] text-2xl">star</span>
-            </div>
-            <div>
-              <p class="font-label-caps text-label-caps text-outline">XP</p>
-              <p id="stat-xp" class="font-headline font-extrabold text-xl text-on-surface">0 XP</p>
+            <div style="position:absolute;right:-16px;bottom:-16px;opacity:0.08">
+              <span class="material-symbols-outlined filled" style="font-size:160px;color:#fff;font-variation-settings:'FILL' 1">menu_book</span>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Bento category grid -->
-      <div>
-        <p class="font-label-caps text-label-caps text-outline mb-sm">РАЗДЕЛЫ</p>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
-          <button onclick="startCategory('lessons')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
-            <div class="w-11 h-11 rounded-[0.75rem] bg-primary-container/15 flex items-center justify-center mb-sm">
-              <span class="material-symbols-outlined filled text-primary-container text-2xl">menu_book</span>
+          <!-- Stats -->
+          <div class="dashboard-stats-col">
+            <div class="elevated-card" style="border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px">
+              <div style="width:44px;height:44px;border-radius:12px;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-outlined filled" style="color:#f97316;font-size:22px">local_fire_department</span>
+              </div>
+              <div>
+                <p style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#737686;margin:0 0 2px">СТРИК</p>
+                <p id="stat-streak" style="font-size:20px;font-weight:800;color:#191c1e;margin:0">0 дней</p>
+              </div>
             </div>
-            <div class="font-headline font-bold text-on-surface text-sm">Уроки</div>
-            <div class="font-label text-xs text-outline mt-xs">Теория курса</div>
-          </button>
-          <button onclick="startCategory('grammar')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
-            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ede9fe] flex items-center justify-center mb-sm">
-              <span class="material-symbols-outlined filled text-[#7c3aed] text-2xl">edit_note</span>
+            <div class="elevated-card" style="border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px">
+              <div style="width:44px;height:44px;border-radius:12px;background:#fefce8;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-outlined filled" style="color:#f59e0b;font-size:22px">star</span>
+              </div>
+              <div>
+                <p style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#737686;margin:0 0 2px">XP</p>
+                <p id="stat-xp" style="font-size:20px;font-weight:800;color:#191c1e;margin:0">0 XP</p>
+              </div>
             </div>
-            <div class="font-headline font-bold text-on-surface text-sm">Грамматика</div>
-            <div class="font-label text-xs text-outline mt-xs">Правила</div>
-          </button>
-          <button onclick="startCategory('vocabulary')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
-            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ecfdf5] flex items-center justify-center mb-sm">
-              <span class="material-symbols-outlined filled text-tertiary-container text-2xl">psychology</span>
-            </div>
-            <div class="font-headline font-bold text-on-surface text-sm">Лексика</div>
-            <div class="font-label text-xs text-outline mt-xs">Словарный запас</div>
-          </button>
-          <button onclick="startCategory('practice')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-95 transition-transform hover:shadow-md">
-            <div class="w-11 h-11 rounded-[0.75rem] bg-[#fdf4ff] flex items-center justify-center mb-sm">
-              <span class="material-symbols-outlined filled text-[#a21caf] text-2xl">quiz</span>
-            </div>
-            <div class="font-headline font-bold text-on-surface text-sm">Практика</div>
-            <div class="font-label text-xs text-outline mt-xs">Тесты</div>
-          </button>
+          </div>
         </div>
-      </div>
 
-      <!-- Interactive section -->
-      <div>
-        <p class="font-label-caps text-label-caps text-outline mb-sm">ИНТЕРАКТИВ</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
-          <button onclick="navTo('situations')" class="elevated-card rounded-[1.25rem] p-md flex items-center gap-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-            <div class="w-11 h-11 rounded-[0.75rem] bg-[#ecfeff] flex items-center justify-center flex-shrink-0">
-              <span class="material-symbols-outlined filled text-[#0891b2] text-2xl">theater_comedy</span>
-            </div>
-            <div class="flex-1">
-              <div class="font-headline font-bold text-on-surface text-sm">Ситуации</div>
-              <div class="font-label text-xs text-outline">В магазине, ресторане, аэропорту...</div>
-            </div>
-            <span class="material-symbols-outlined text-outline">chevron_right</span>
-          </button>
-          <button onclick="navTo('club')" class="relative overflow-hidden rounded-[1.25rem] bg-inverse-surface p-md flex items-center gap-md text-left active:scale-[0.99] transition-transform shadow-md">
-            <div class="w-11 h-11 rounded-[0.75rem] bg-white/10 flex items-center justify-center flex-shrink-0">
-              <span class="material-symbols-outlined filled text-inverse-primary text-2xl">mic</span>
-            </div>
-            <div class="flex-1">
-              <div class="font-headline font-bold text-inverse-on-surface text-sm">Разговорный клуб</div>
-              <div class="font-label text-xs text-inverse-on-surface/60">AI-репетитор · живой диалог</div>
-            </div>
-            <span class="px-sm py-xs bg-primary-container text-on-primary font-label-caps text-label-caps rounded-[0.5rem]">AI</span>
-          </button>
+        <!-- Categories -->
+        <div>
+          <p class="section-label">РАЗДЕЛЫ</p>
+          <div class="category-grid">
+            <button onclick="startCategory('lessons')" class="elevated-card" style="border-radius:16px;padding:16px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+              <div style="width:44px;height:44px;border-radius:12px;background:#eef2ff;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+                <span class="material-symbols-outlined filled" style="color:#4f65ef;font-size:22px">menu_book</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#191c1e">Уроки</div>
+              <div style="font-size:12px;color:#737686;margin-top:2px">Теория курса</div>
+            </button>
+            <button onclick="startCategory('grammar')" class="elevated-card" style="border-radius:16px;padding:16px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+              <div style="width:44px;height:44px;border-radius:12px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+                <span class="material-symbols-outlined filled" style="color:#7c3aed;font-size:22px">edit_note</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#191c1e">Грамматика</div>
+              <div style="font-size:12px;color:#737686;margin-top:2px">Правила</div>
+            </button>
+            <button onclick="startCategory('vocabulary')" class="elevated-card" style="border-radius:16px;padding:16px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+              <div style="width:44px;height:44px;border-radius:12px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+                <span class="material-symbols-outlined filled" style="color:#059669;font-size:22px">psychology</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#191c1e">Лексика</div>
+              <div style="font-size:12px;color:#737686;margin-top:2px">Словарный запас</div>
+            </button>
+            <button onclick="startCategory('practice')" class="elevated-card" style="border-radius:16px;padding:16px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+              <div style="width:44px;height:44px;border-radius:12px;background:#fdf4ff;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+                <span class="material-symbols-outlined filled" style="color:#a21caf;font-size:22px">quiz</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#191c1e">Практика</div>
+              <div style="font-size:12px;color:#737686;margin-top:2px">Тесты</div>
+            </button>
+          </div>
         </div>
+
+        <!-- Interactive -->
+        <div>
+          <p class="section-label">ИНТЕРАКТИВ</p>
+          <div class="interactive-grid">
+            <button onclick="navTo('situations')" class="elevated-card" style="border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+              <div style="width:44px;height:44px;border-radius:12px;background:#ecfeff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-outlined filled" style="color:#0891b2;font-size:22px">theater_comedy</span>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:700;color:#191c1e">Ситуации</div>
+                <div style="font-size:12px;color:#737686;margin-top:2px">В магазине, ресторане, аэропорту...</div>
+              </div>
+              <span class="material-symbols-outlined" style="color:#c3c6d7;font-size:20px;flex-shrink:0">chevron_right</span>
+            </button>
+            <button onclick="navTo('club')" style="border-radius:16px;background:linear-gradient(135deg,#1e293b,#334155);padding:16px;display:flex;align-items:center;gap:14px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 4px 20px rgba(0,0,0,0.15)" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-outlined filled" style="color:#a5b4fc;font-size:22px">mic</span>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:700;color:#fff">Разговорный клуб</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px">AI-репетитор · живой диалог</div>
+              </div>
+              <span style="background:#4f65ef;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;flex-shrink:0">AI</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
-
     <!-- LEVELS -->
     <div id="page-levels" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
       <button onclick="navTo('main')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
@@ -576,24 +779,28 @@ body { font-family: 'Be Vietnam Pro', sans-serif; background: #f7f9fb; overflow-
       </div>
     </div>
 
-  </main>
+  </div><!-- /app-main -->
 
   <!-- Mobile bottom nav -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest/95 backdrop-blur-sm border-t border-outline-variant/40 flex z-20">
-    <button onclick="navTo('main')" data-nav="main" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
-      <span class="material-symbols-outlined" style="font-size:20px">home</span><span class="font-label text-[10px] mt-xs">Главная</span>
+  <nav class="mobile-bottom-nav">
+    <button onclick="navTo('main')" data-mob-nav="main" class="mob-nav-btn">
+      <span class="material-symbols-outlined filled" style="font-size:22px">home</span>
+      <span>Главная</span>
     </button>
-    <button onclick="navTo('dictionary')" data-nav="dictionary" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
-      <span class="material-symbols-outlined" style="font-size:20px">menu_book</span><span class="font-label text-[10px] mt-xs">Словарь</span>
+    <button onclick="navTo('dictionary')" data-mob-nav="dictionary" class="mob-nav-btn">
+      <span class="material-symbols-outlined filled" style="font-size:22px">menu_book</span>
+      <span>Словарь</span>
     </button>
-    <button onclick="navTo('club')" data-nav="club" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
-      <span class="material-symbols-outlined" style="font-size:20px">record_voice_over</span><span class="font-label text-[10px] mt-xs">Клуб</span>
+    <button onclick="navTo('club')" data-mob-nav="club" class="mob-nav-btn">
+      <span class="material-symbols-outlined filled" style="font-size:22px">mic</span>
+      <span>Клуб</span>
     </button>
-    <button onclick="navTo('profile')" data-nav="profile" class="mob-nav flex-1 flex flex-col items-center py-sm text-outline hover:text-primary transition-colors">
-      <span class="material-symbols-outlined" style="font-size:20px">person</span><span class="font-label text-[10px] mt-xs">Профиль</span>
+    <button onclick="navTo('profile')" data-mob-nav="profile" class="mob-nav-btn">
+      <span class="material-symbols-outlined filled" style="font-size:22px">person</span>
+      <span>Профиль</span>
     </button>
   </nav>
-</div>
+</div><!-- /screen-app -->
 
 <!-- Word popup -->
 <div id="word-popup-overlay" class="hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" onclick="hideWordPopup()"></div>

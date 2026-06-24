@@ -167,6 +167,18 @@ async function verifyLinkCode() {
   } catch(e) { _showErr('link-verify-error','Ошибка соединения'); }
 }
 
+// ── SIDEBAR ──
+function openSidebar() {
+  document.getElementById('app-sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('app-sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 // ── INIT ──
 async function initApp() {
   const authEl = document.getElementById('screen-auth');
@@ -218,23 +230,26 @@ async function loadUserData() {
 
 // ── NAVIGATION ──
 function navTo(section) {
-  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.page').forEach(p => { p.classList.add('hidden'); p.classList.remove('flex'); });
   const page = document.getElementById('page-' + section);
   if (page) { page.classList.remove('hidden'); page.classList.add('flex'); }
 
-  document.querySelectorAll('.nav-btn, .mob-nav').forEach(b => {
-    const active = b.dataset.nav === section;
-    b.classList.toggle('text-primary', active);
-    b.classList.toggle('bg-surface-container-low', active && b.classList.contains('nav-btn'));
-    b.classList.toggle('text-on-surface-variant', !active && b.classList.contains('nav-btn'));
-    b.classList.toggle('text-outline', !active && b.classList.contains('mob-nav'));
+  // Sidebar nav highlight
+  document.querySelectorAll('.nav-btn[data-nav]').forEach(b => {
+    b.classList.toggle('active-nav', b.dataset.nav === section);
+  });
+  // Bottom nav highlight
+  document.querySelectorAll('[data-mob-nav]').forEach(b => {
+    b.classList.toggle('active-nav', b.dataset.mobNav === section);
   });
 
-  if (section === 'dictionary') loadVocabTopics(null);
-  if (section === 'notebook') loadNotebook();
-  if (section === 'profile') loadProfile();
-  if (section === 'club' && document.getElementById('chat-box').children.length === 0) initClubGreeting();
-  document.getElementById('mobile-title').textContent = {main:'Главная',dictionary:'Словарь',notebook:'Блокнот',club:'Разговорный клуб',situations:'Ситуации',profile:'Профиль'}[section] || 'Talk2Learn';
+  // Update mobile title
+  const titles = {main:'Главная',dictionary:'Словарь',notebook:'Блокнот',club:'Клуб',situations:'Ситуации',profile:'Профиль'};
+  const el = document.getElementById('mobile-title');
+  if (el && titles[section]) el.textContent = titles[section];
+
+  // Close sidebar on mobile
+  closeSidebar();
 }
 
 function showPage(name) {
