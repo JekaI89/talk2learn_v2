@@ -1,5 +1,6 @@
 // ── Состояние ──
 let userId = 0, userEmail = '', isAdmin = false;
+let _clubRecording = false;
 let userNativeLang = 'ru', userTargetLang = 'en';
 let currentLevel = 'A1', currentCategory = 'lessons';
 let popupWord = '', popupContext = '';
@@ -739,16 +740,30 @@ function initClubGreeting() {
 }
 
 function addChatMsg(who, text, box) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;' + (who==='ai' ? 'justify-content:flex-start' : 'justify-content:flex-end');
+
   const div = document.createElement('div');
-  if (who==='ai') { div.className='bg-primary-container text-on-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm shadow-sm'; div.innerHTML=makeClickable(text); }
-  else { div.className='bg-surface-container text-on-surface p-3 rounded-2xl rounded-tr-none max-w-[85%] text-sm shadow-sm ml-auto'; div.textContent=text; }
-  box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
+  if (who === 'ai') {
+    div.style.cssText = 'background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);color:#191c1e;padding:10px 14px;border-radius:18px;border-top-left-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 1px 6px rgba(0,0,0,0.06)';
+    div.innerHTML = makeClickable(text);
+  } else {
+    div.style.cssText = 'background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;padding:10px 14px;border-radius:18px;border-top-right-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 2px 10px rgba(79,101,239,0.25)';
+    div.textContent = text;
+  }
+  wrap.appendChild(div);
+  box.appendChild(wrap);
+  box.scrollTo({top:box.scrollHeight, behavior:'smooth'});
+}
+
+function autoResizeClubInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
 async function sendClubMessage() {
   const inp=document.getElementById('chat-input'); const text=inp.value.trim(); if(!text)return;
-  inp.value=''; const box=document.getElementById('chat-box');
+  inp.value=''; inp.style.height='auto'; const box=document.getElementById('chat-box');
   addChatMsg('user',text,box);
   try {
     const fd=new FormData(); fd.append('user_id',userId); fd.append('text',text); fd.append('level',currentLevel); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
@@ -759,27 +774,52 @@ async function sendClubMessage() {
 }
 
 async function startClubRecording(e) {
-  e.preventDefault(); clubAudioChunks=[];
+  e.preventDefault();
+  if (_clubRecording) return;
+  clubAudioChunks = [];
   try {
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true}); clubStreamRef=stream;
-    let opts={}; if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opts={mimeType:'audio/webm;codecs=opus'};
-    clubMediaRecorder=new MediaRecorder(stream,opts);
-    clubMediaRecorder.ondataavailable=ev=>{if(ev.data?.size>0)clubAudioChunks.push(ev.data);};
-    clubMediaRecorder.onstop=async()=>{
-      const blob=new Blob(clubAudioChunks,{type:clubMediaRecorder.mimeType});
-      const box=document.getElementById('chat-box'); addChatMsg('user','🎙️ ...',box);
-      const fd=new FormData(); fd.append('user_id',userId); fd.append('file',blob,'voice'); fd.append('level',currentLevel); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
-      try{const data=await(await fetch('/api/web-club/voice',{method:'POST',body:fd})).json(); if(box.lastChild)box.removeChild(box.lastChild); addChatMsg('user',data.user_text||'🎤',box); addChatMsg('ai',data.ai_text,box); if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});}catch(e){addChatMsg('ai','Error.',box);}
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    clubStreamRef = stream;
+    let opts = {};
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) opts = {mimeType:'audio/webm;codecs=opus'};
+    clubMediaRecorder = new MediaRecorder(stream, opts);
+    clubMediaRecorder.ondataavailable = ev => { if (ev.data?.size > 0) clubAudioChunks.push(ev.data); };
+    clubMediaRecorder.onstop = async () => {
+      const blob = new Blob(clubAudioChunks, {type: clubMediaRecorder.mimeType});
+      const box = document.getElementById('chat-box');
+      addChatMsg('user', '🎙️ ...', box);
+      const fd = new FormData();
+      fd.append('user_id', userId); fd.append('file', blob, 'voice');
+      fd.append('level', currentLevel); fd.append('native_language', userNativeLang); fd.append('target_language', userTargetLang);
+      try {
+        const data = await (await fetch('/api/web-club/voice', {method:'POST', body:fd})).json();
+        const last = box.lastChild; if (last) box.removeChild(last);
+        addChatMsg('user', data.user_text || '🎤', box);
+        addChatMsg('ai', data.ai_text, box);
+        if (data.audio_url) new Audio(data.audio_url).play().catch(()=>{});
+      } catch(e) { addChatMsg('ai', 'Ошибка соединения.', box); }
     };
     clubMediaRecorder.start();
-    document.getElementById('club-mic-btn').querySelector('.material-symbols-outlined').style.color='#ef4444';
-  } catch(e){alert('Нужен HTTPS и разрешения для микрофона');}
+    _clubRecording = true;
+    const micIcon = document.getElementById('club-mic-btn');
+    micIcon.style.background = '#fee2e2';
+    micIcon.querySelector('.material-symbols-outlined').style.color = '#ef4444';
+    // Пульсация
+    micIcon.style.animation = 'micPulse 0.8s ease-in-out infinite';
+  } catch(e) { alert('Нужен HTTPS и разрешение на использование микрофона'); }
 }
+
 function stopClubRecording(e) {
   e.preventDefault();
-  document.getElementById('club-mic-btn').querySelector('.material-symbols-outlined').style.color='';
-  if(clubMediaRecorder?.state!=='inactive')clubMediaRecorder.stop();
-  clubStreamRef?.getTracks().forEach(t=>t.stop()); clubStreamRef=null;
+  if (!_clubRecording) return;
+  _clubRecording = false;
+  const micIcon = document.getElementById('club-mic-btn');
+  micIcon.style.background = '#f0f2f5';
+  micIcon.style.animation = '';
+  micIcon.querySelector('.material-symbols-outlined').style.color = '#434655';
+  if (clubMediaRecorder?.state !== 'inactive') clubMediaRecorder.stop();
+  clubStreamRef?.getTracks().forEach(t => t.stop());
+  clubStreamRef = null;
 }
 
 // ── СИТУАЦИИ ──
