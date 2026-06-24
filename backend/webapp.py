@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from contextlib import asynccontextmanager
 import os
 import asyncio
@@ -15,7 +15,11 @@ from api import users, lessons, dictionary, club, admin, auth
 
 # ====================== BOT ======================
 
+_bot_instance = None  # хранится для корректного shutdown
+
+
 async def start_telegram_bot():
+    global _bot_instance
     bot_token = os.environ.get("BOT_TOKEN", "")
     if not bot_token:
         print("⚠️ BOT_TOKEN не задан — Telegram-бот не запущен")
@@ -26,16 +30,33 @@ async def start_telegram_bot():
         from aiogram.enums import ParseMode
         from handlers import menu, speaking_club
 
-        bot = Bot(token=bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        _bot_instance = Bot(
+            token=bot_token,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        )
         dp = Dispatcher()
         dp.include_router(menu.router)
         dp.include_router(speaking_club.router)
+
         print("🤖 Telegram-бот запущен (polling)...")
-        await dp.start_polling(bot, allowed_updates=["message", "callback_query"])
+        await dp.start_polling(
+            _bot_instance,
+            allowed_updates=["message", "callback_query"],
+            drop_pending_updates=True,   # сбрасываем старую очередь при старте
+        )
     except asyncio.CancelledError:
-        print("🤖 Telegram-бот остановлен")
+        print("🤖 Telegram-бот: получен сигнал остановки")
     except Exception as e:
         print(f"❌ Ошибка Telegram-бота: {e}")
+    finally:
+        # Закрываем сессию — иначе следующий инстанс получит Conflict
+        if _bot_instance:
+            try:
+                await _bot_instance.session.close()
+            except Exception:
+                pass
+            _bot_instance = None
+        print("🤖 Telegram-бот остановлен")
 
 
 # ====================== AUDIO CLEANUP ======================
@@ -70,14 +91,16 @@ async def lifespan(app: FastAPI):
 
     yield
 
+    print("🛑 Остановка Talk2Learn...")
+
+    # Отменяем задачи и ждём корректного завершения
     bot_task.cancel()
     cleanup_task.cancel()
-    try:
-        await bot_task
-    except asyncio.CancelledError:
-        pass
+
+    await asyncio.gather(bot_task, cleanup_task, return_exceptions=True)
+
     await close_pool()
-    print("🛑 Остановка Talk2Learn...")
+    print("✅ Остановка завершена")
 
 
 # ====================== APP ======================
@@ -95,7 +118,24 @@ app.include_router(auth.router)
 # ====================== СТАТИКА ======================
 
 app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
-app.mount("/assets", StaticFiles(directory=WEB_DIR), name="web-assets")
+app.mount("/assets", StaticFiles(directory=WEB_DIR),  name="web-assets")
+
+
+# ====================== FAVICON ======================
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    # Минимальный 1x1 прозрачный ico в base64
+    import base64
+    ico = base64.b64decode(
+        "AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    )
+    return Response(content=ico, media_type="image/x-icon")
 
 
 # ====================== СТРАНИЦЫ ======================
