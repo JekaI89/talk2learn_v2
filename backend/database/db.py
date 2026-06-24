@@ -254,19 +254,6 @@ async def update_user_streak(user_id: int):
         """, new_streak, today, user_id)
 
 
-async def get_user_category_stats(user_id: int):
-    pool = await get_pool()
-    async with pool.acquire() as db:
-        stats = {}
-        for content_type in ["lesson", "grammar", "practice", "speaking"]:
-            row = await db.fetchrow("""
-                SELECT COUNT(*) as cnt FROM user_progress
-                WHERE user_id = $1 AND content_type = $2
-            """, user_id, content_type)
-            stats[content_type] = row["cnt"]
-        return stats
-
-
 # ==================== УРОКИ ====================
 
 async def add_lesson(level: str, title: str, lesson_text: str = "",
