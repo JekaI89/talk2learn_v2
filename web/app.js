@@ -743,53 +743,58 @@ async function loadProfile() {
       <div id="account-links-section"></div>
       <button onclick="logout()" class="w-full py-3 bg-red-50 text-red-600 border border-red-200 font-label font-bold text-sm rounded-xl hover:bg-red-100 transition-colors mt-3">
         Выйти из аккаунта
-      </button>\`;
+      </button>`;
     await loadAccountLinks();
   } catch(e){ c.innerHTML='<p class="text-error text-center py-8">Ошибка загрузки</p>'; }
 }
 
 async function loadAccountLinks() {
   try {
-    const status = await (await fetch(`/api/auth/status/${userId}`)).json();
+    const status = await (await fetch('/api/auth/status/' + userId)).json();
     const el = document.getElementById('account-links-section');
     if (!el) return;
     const hasEmail = status.email && status.email_verified;
-    const hasTg = !!status.telegram_id;
-    let html = '<div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 mb-3">';
-    html += '<p class="font-label text-xs text-outline uppercase tracking-wider mb-3">Аккаунты</p>';
-    // Email status
+    const hasTg    = !!status.telegram_id;
+    let html = '<div style="border:1px solid #e0e3e5;border-radius:16px;padding:16px;margin-bottom:12px">';
+    html += '<p style="font-size:11px;color:#737686;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Аккаунты</p>';
+
     if (hasEmail) {
-      html += `<div class="flex items-center justify-between py-2 border-b border-surface-variant"><div class="flex items-center gap-2"><span class="text-lg">✉️</span><div><div class="text-sm font-label font-bold text-on-surface">${status.email}</div><div class="text-xs text-green-600">✓ Подтверждён</div></div></div></div>`;
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e0e3e5">';
+      html += '<span style="font-size:20px">✉️</span>';
+      html += '<div><div style="font-size:13px;font-weight:600">' + status.email + '</div>';
+      html += '<div style="font-size:11px;color:#16a34a">✓ Подтверждён</div></div></div>';
     } else {
-      html += `<div class="py-2 border-b border-surface-variant" id="link-email-section">
-        <div class="flex items-center gap-2 mb-2"><span class="text-lg">✉️</span><span class="text-sm text-outline">Email не привязан</span></div>
-        <div id="link-email-form">
-          <input id="link-email-input" type="email" placeholder="Email" class="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm mb-2 focus:outline-none focus:border-primary bg-surface"/>
-          <input id="link-email-password" type="password" placeholder="Придумайте пароль" class="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm mb-2 focus:outline-none focus:border-primary bg-surface"/>
-          <button onclick="linkEmailAccount()" class="w-full py-2 bg-primary text-on-primary rounded-xl text-sm font-label font-bold">Привязать email</button>
-          <p id="link-email-error" class="text-error text-xs mt-1 hidden"></p>
-        </div>
-        <div id="link-email-verify" class="hidden">
-          <p class="text-xs text-on-surface-variant mb-2">Код отправлен на <strong id="link-email-display"></strong></p>
-          <input id="link-verify-code" type="text" maxlength="6" placeholder="000000" class="w-full border border-outline-variant rounded-xl px-3 py-2 text-xl text-center tracking-[0.3em] mb-2 focus:outline-none focus:border-primary bg-surface"/>
-          <button onclick="verifyLinkCode()" class="w-full py-2 bg-tertiary-container text-on-tertiary rounded-xl text-sm font-label font-bold">Подтвердить</button>
-          <p id="link-verify-error" class="text-error text-xs mt-1 hidden"></p>
-        </div>
-      </div>`;
+      html += '<div style="padding:8px 0;border-bottom:1px solid #e0e3e5">';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:20px">✉️</span><span style="font-size:13px;color:#737686">Email не привязан</span></div>';
+      html += '<div id="link-email-form">';
+      html += '<input id="link-email-input" type="email" placeholder="Email" style="width:100%;border:1px solid #c3c6d7;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:8px;box-sizing:border-box"/>';
+      html += '<input id="link-email-password" type="password" placeholder="Придумайте пароль" style="width:100%;border:1px solid #c3c6d7;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:8px;box-sizing:border-box"/>';
+      html += '<button onclick="linkEmailAccount()" style="width:100%;padding:10px;background:#4f46e5;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Привязать email</button>';
+      html += '<p id="link-email-error" style="color:#ba1a1a;font-size:12px;margin-top:4px;display:none"></p></div>';
+      html += '<div id="link-email-verify" style="display:none">';
+      html += '<p style="font-size:12px;color:#434655;margin-bottom:8px">Код отправлен на <strong id="link-email-display"></strong></p>';
+      html += '<input id="link-verify-code" type="text" maxlength="6" placeholder="000000" style="width:100%;border:1px solid #c3c6d7;border-radius:10px;padding:8px 12px;font-size:20px;text-align:center;letter-spacing:8px;margin-bottom:8px;box-sizing:border-box"/>';
+      html += '<button onclick="verifyLinkCode()" style="width:100%;padding:10px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Подтвердить</button>';
+      html += '<p id="link-verify-error" style="color:#ba1a1a;font-size:12px;margin-top:4px;display:none"></p></div></div>';
     }
-    // Telegram status
+
     if (hasTg) {
       const tgName = status.telegram_name || status.telegram_username || 'Telegram';
-      html += `<div class="flex items-center gap-2 pt-2"><span class="text-lg">✈️</span><div><div class="text-sm font-label font-bold text-on-surface">${tgName}</div><div class="text-xs text-green-600">✓ Привязан</div></div></div>`;
+      html += '<div style="display:flex;align-items:center;gap:8px;padding-top:8px">';
+      html += '<span style="font-size:20px">✈️</span>';
+      html += '<div><div style="font-size:13px;font-weight:600">' + tgName + '</div>';
+      html += '<div style="font-size:11px;color:#16a34a">✓ Привязан</div></div></div>';
     } else {
-      html += `<div class="pt-2"><div class="flex items-center gap-2 mb-2"><span class="text-lg">✈️</span><span class="text-sm text-outline">Telegram не привязан</span></div>
-        <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="RoleTalkAI_bot" data-size="medium" data-radius="8" data-onauth="linkTelegramAccount(user)" data-request-access="write"><\/script>
-      </div>`;
+      html += '<div style="padding-top:8px">';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:20px">✈️</span><span style="font-size:13px;color:#737686">Telegram не привязан</span></div>';
+      html += '<p style="font-size:12px;color:#737686">Войдите через Telegram для привязки</p></div>';
     }
+
     html += '</div>';
     el.innerHTML = html;
-  } catch(e){}
+  } catch(e) { console.error('loadAccountLinks error:', e); }
 }
+
 
 // ── НАСТРОЙКИ ЯЗЫКА ──
 function showLangSettings() {
