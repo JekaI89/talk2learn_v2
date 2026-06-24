@@ -306,36 +306,278 @@ async function loadNextLesson() {
 }
 
 function renderLesson(lesson) {
+  // Сохраняем текущий урок глобально
+  window._currentLesson = lesson;
+
   const iconMap = {grammar:'edit_note', vocabulary:'psychology', lesson:'menu_book'};
-  const icon = iconMap[lesson.type] || 'menu_book';
+  const typeLabels = {grammar:'ГРАММАТИКА', vocabulary:'ЛЕКСИКА', lesson:'УРОК'};
+  const typeColors = {grammar:{bg:'#f5f3ff',color:'#7c3aed'}, vocabulary:{bg:'#f0fdf4',color:'#16a34a'}, lesson:{bg:'#eef2ff',color:'#4f65ef'}};
+  const t = lesson.type || 'lesson';
+  const tc = typeColors[t] || typeColors.lesson;
+
+  // Обновляем хедер
+  document.getElementById('lesson-title-header').textContent = lesson.title || 'Урок';
+  const typeBadge = document.getElementById('lesson-type-badge');
+  typeBadge.textContent = typeLabels[t] || 'УРОК';
+  typeBadge.style.background = tc.bg; typeBadge.style.color = tc.color;
+  document.getElementById('lesson-level-badge').textContent = currentLevel;
+
+  // Прогресс-бар
   const p = lesson.progress || {};
   const total = p.total || 0, num = p.next_num || 1;
   const pct = total > 0 ? Math.round(((num-1)/total)*100) : 0;
-  const progressHtml = total > 0 ? `<div class="mb-4"><div class="flex justify-between text-xs text-outline font-label mb-1"><span>Урок ${num} из ${total}</span><span>${pct}%</span></div><div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full transition-all" style="width:${pct}%"></div></div></div>` : '';
+  document.getElementById('lesson-progress-bar').style.width = pct + '%';
+  document.getElementById('lesson-progress-label').textContent = total > 0 ? `${num-1} / ${total}` : '';
+
+  // Кнопка завершения — сохраняем данные
+  const btn = document.getElementById('lesson-complete-btn');
+  btn.dataset.lessonType = t; btn.dataset.lessonId = lesson.id;
+  btn.disabled = false;
+  btn.querySelector('.lesson-complete-label').textContent = '+5 XP';
+
+  // Вкладка "Урок" — основной текст
   document.getElementById('lesson-content').innerHTML = `
-    ${progressHtml}
-    <div class="flex items-center gap-2 mb-3"><span class="material-symbols-outlined filled text-primary-container">${icon}</span><span class="font-label text-xs text-outline uppercase tracking-wider">${lesson.type||'урок'} · ${currentLevel}</span></div>
-    <h1 class="font-headline font-extrabold text-on-surface text-2xl mb-4 leading-tight">${lesson.title}</h1>
-    <p class="font-label text-xs text-outline mb-2">💡 Нажмите на слово для перевода</p>
-    <div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 text-on-surface-variant leading-loose text-base font-body mb-6">${makeClickable(lesson.lesson_text||'')}</div>
-    <button id="complete-btn" onclick="completeLesson('${lesson.type||'lesson'}',${lesson.id})"
-      class="w-full py-3 rounded-xl bg-tertiary-container text-on-tertiary font-label font-bold uppercase tracking-wider text-sm hover:opacity-90 transition-opacity">
-      ✅ Просмотрено · +5 XP
-    </button>`;
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <div style="width:36px;height:36px;border-radius:10px;background:${tc.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span class="material-symbols-outlined filled" style="font-size:18px;color:${tc.color}">${iconMap[t]||'menu_book'}</span>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:${tc.color};text-transform:uppercase;letter-spacing:.06em">${typeLabels[t]||'УРОК'} · ${currentLevel}</div>
+        <div style="font-size:18px;font-weight:800;color:#191c1e;line-height:1.3">${lesson.title||''}</div>
+      </div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 12px;margin-bottom:16px;display:flex;align-items:center;gap:6px">
+      <span style="font-size:14px">💡</span>
+      <span style="font-size:12px;color:#92400e;font-weight:500">Нажмите на любое слово для перевода</span>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(195,198,215,0.3);border-radius:16px;padding:20px;line-height:1.9;font-size:15px;color:#434655;box-shadow:0 1px 8px rgba(0,0,0,0.04);margin-bottom:20px">${makeClickable(lesson.lesson_text||'')}</div>`;
+
+  // Вкладка "Лексика" — извлекаем слова из текста
+  const words = extractKeyWords(lesson.lesson_text || '', lesson.title);
+  renderVocabTab(words);
+
+  // Вкладка "Грамматика" — базовые конструкции
+  renderGrammarTab(lesson);
+
+  // Вкладка "Практика" — инициализируем чат
+  initLessonPractice(lesson);
+
+  // Активируем вкладку "Урок"
+  switchLessonTab('content');
+}
+
+function extractKeyWords(text, title) {
+  // Извлекаем уникальные слова длиннее 3 букв из текста урока
+  const stopWords = new Set(['the','and','for','are','but','not','you','all','can','her','was','one','our','out','day','get','has','him','his','how','its','let','may','now','old','own','say','she','too','use','way','who','did','its','off','put','set','two','any','come','give','most','some','take','than','them','then','they','this','that','have','from','been','when','will','with','your','were','what','also','each','into','just','know','more','much','over','such','well','year']);
+  const words = text.match(/[a-zA-Z]{4,}/g) || [];
+  const unique = [...new Set(words.map(w=>w.toLowerCase()))].filter(w=>!stopWords.has(w));
+  return unique.slice(0, 12);
+}
+
+function renderVocabTab(words) {
+  const el = document.getElementById('lesson-vocab-content');
+  if (!el) return;
+  if (!words.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 0;color:#9aa0b4;font-size:14px">В уроке нет ключевых слов</div>';
+    return;
+  }
+  const colors = ['#eef2ff','#f0fdf4','#fff7ed','#fdf4ff','#ecfeff','#fef3c7','#fce7f3','#f5f3ff'];
+  const textColors = ['#4f65ef','#16a34a','#ea580c','#9333ea','#0891b2','#d97706','#db2777','#7c3aed'];
+  el.innerHTML = `
+    <h3 style="font-size:14px;font-weight:700;color:#191c1e;margin:0 0 14px">Ключевые слова урока</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+      ${words.map((w,i) => `
+        <div onclick="showWordPopup('${w}','',this)" style="background:${colors[i%colors.length]};border:1px solid rgba(0,0,0,0.06);border-radius:12px;padding:12px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+          <div style="font-size:15px;font-weight:700;color:${textColors[i%textColors.length]}">${w}</div>
+          <div style="font-size:11px;color:#9aa0b4;margin-top:3px">нажмите для перевода</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderGrammarTab(lesson) {
+  const el = document.getElementById('lesson-grammar-content');
+  if (!el) return;
+  // Ищем паттерны в тексте
+  const text = lesson.lesson_text || '';
+  const patterns = [];
+  if (/I am|He is|She is|They are/i.test(text)) patterns.push({title:'To be (быть)', ex:'I am a student. She is happy.', rule:'am / is / are зависит от подлежащего'});
+  if (/can/i.test(text)) patterns.push({title:'Modal: can (мочь)', ex:'I can speak English.', rule:'can + глагол в базовой форме'});
+  if (/would like|want to/i.test(text)) patterns.push({title:'Would like / want to', ex:'I would like some water.', rule:'вежливая просьба или желание'});
+  if (/How much|How many/i.test(text)) patterns.push({title:'How much / How many', ex:'How much is it? How many apples?', rule:'much — неисчисляемые, many — исчисляемые'});
+  if (!patterns.length) patterns.push({title:'Структура урока', ex:lesson.title||'', rule:'Изучите текст урока, затем практикуйтесь в чате'});
+
+  el.innerHTML = `
+    <h3 style="font-size:14px;font-weight:700;color:#191c1e;margin:0 0 14px">Грамматика урока</h3>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${patterns.map(p=>`
+        <div style="background:#fff;border:1px solid rgba(195,198,215,0.3);border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.04)">
+          <div style="font-size:14px;font-weight:700;color:#4f65ef;margin-bottom:6px">${p.title}</div>
+          <div style="background:#f0f4ff;border-radius:8px;padding:8px 12px;font-size:13px;color:#191c1e;font-family:monospace;margin-bottom:6px">${p.ex}</div>
+          <div style="font-size:12px;color:#737686">${p.rule}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function initLessonPractice(lesson) {
+  const box = document.getElementById('lesson-chat-box');
+  if (!box) return;
+  box.innerHTML = '';
+  document.getElementById('lesson-practice-title').textContent = lesson.title || 'Практика по уроку';
+  document.getElementById('lesson-practice-hint').textContent = `Уровень ${currentLevel} · Поговорите с AI`;
+  const greeting = {
+    en: `Hi! Let's practice based on the lesson "${lesson.title}". Feel free to ask me anything or start a conversation! 😊`,
+    de: `Hallo! Lass uns basierend auf der Lektion "${lesson.title}" üben!`,
+    fr: `Bonjour! Pratiquons la leçon "${lesson.title}" ensemble!`,
+    es: `¡Hola! Vamos a practicar la lección "${lesson.title}".`,
+  };
+  addLessonMsg('ai', greeting[userTargetLang] || greeting.en, box);
+}
+
+function resetLessonChat() {
+  if (window._currentLesson) initLessonPractice(window._currentLesson);
+}
+
+function addLessonMsg(who, text, box) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;' + (who==='ai' ? 'justify-content:flex-start' : 'justify-content:flex-end');
+  const div = document.createElement('div');
+  if (who === 'ai') {
+    div.style.cssText = 'background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);color:#191c1e;padding:10px 14px;border-radius:18px;border-top-left-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 1px 6px rgba(0,0,0,0.05)';
+    div.innerHTML = makeClickable(text);
+  } else {
+    div.style.cssText = 'background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;padding:10px 14px;border-radius:18px;border-top-right-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 2px 10px rgba(79,101,239,0.2)';
+    div.textContent = text;
+  }
+  wrap.appendChild(div); box.appendChild(wrap);
+  box.scrollTo({top:box.scrollHeight, behavior:'smooth'});
+}
+
+async function sendLessonMessage() {
+  const inp = document.getElementById('lesson-chat-input');
+  const text = inp.value.trim(); if (!text) return;
+  inp.value = ''; inp.style.height = 'auto';
+  const box = document.getElementById('lesson-chat-box');
+  addLessonMsg('user', text, box);
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.style.cssText = 'display:flex;justify-content:flex-start';
+  typing.innerHTML = '<div style="background:#eef2ff;border:1px solid rgba(79,101,239,0.12);padding:10px 16px;border-radius:18px;border-top-left-radius:4px;font-size:20px;letter-spacing:4px">···</div>';
+  box.appendChild(typing); box.scrollTo({top:box.scrollHeight, behavior:'smooth'});
+
+  try {
+    const lesson = window._currentLesson || {};
+    const context = `You are an AI language tutor helping a student practice the lesson "${lesson.title||''}". Level: ${currentLevel}. Keep responses concise and encouraging.`;
+    const fd = new FormData();
+    fd.append('user_id', userId); fd.append('text', text); fd.append('level', currentLevel);
+    fd.append('situation', context); fd.append('native_language', userNativeLang); fd.append('target_language', userTargetLang);
+    const data = await (await fetch('/api/web-club/text', {method:'POST', body:fd})).json();
+    box.removeChild(typing);
+    addLessonMsg('ai', data.ai_text, box);
+    if (data.audio_url) new Audio(data.audio_url).play().catch(()=>{});
+  } catch(e) {
+    box.removeChild(typing);
+    addLessonMsg('ai', 'Ошибка соединения. Попробуйте ещё раз.', box);
+  }
+}
+
+let _lessonRecording = false, _lessonRecorder = null, _lessonStream = null, _lessonChunks = [];
+async function startLessonRecording(e) {
+  e.preventDefault();
+  if (_lessonRecording) return;
+  _lessonChunks = [];
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    _lessonStream = stream;
+    let opts = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? {mimeType:'audio/webm;codecs=opus'} : {};
+    _lessonRecorder = new MediaRecorder(stream, opts);
+    _lessonRecorder.ondataavailable = ev => { if (ev.data?.size>0) _lessonChunks.push(ev.data); };
+    _lessonRecorder.onstop = async () => {
+      const blob = new Blob(_lessonChunks, {type:_lessonRecorder.mimeType});
+      const box = document.getElementById('lesson-chat-box');
+      addLessonMsg('user', '🎙️ ...', box);
+      const fd = new FormData(); fd.append('user_id', userId); fd.append('file', blob, 'voice');
+      fd.append('level', currentLevel); fd.append('native_language', userNativeLang); fd.append('target_language', userTargetLang);
+      try {
+        const data = await (await fetch('/api/web-club/voice', {method:'POST',body:fd})).json();
+        if (box.lastChild) box.removeChild(box.lastChild);
+        addLessonMsg('user', data.user_text||'🎤', box);
+        addLessonMsg('ai', data.ai_text, box);
+        if (data.audio_url) new Audio(data.audio_url).play().catch(()=>{});
+      } catch(e) { addLessonMsg('ai', 'Ошибка.', box); }
+    };
+    _lessonRecorder.start(); _lessonRecording = true;
+    const btn = document.getElementById('lesson-mic-btn');
+    btn.style.background = '#fee2e2'; btn.style.animation = 'micPulse 0.8s ease-in-out infinite';
+    btn.querySelector('.material-symbols-outlined').style.color = '#ef4444';
+  } catch(e) { alert('Нужен HTTPS и разрешение на микрофон'); }
+}
+function stopLessonRecording(e) {
+  e.preventDefault();
+  if (!_lessonRecording) return; _lessonRecording = false;
+  const btn = document.getElementById('lesson-mic-btn');
+  btn.style.background = '#f0f2f5'; btn.style.animation = '';
+  btn.querySelector('.material-symbols-outlined').style.color = '#434655';
+  if (_lessonRecorder?.state !== 'inactive') _lessonRecorder.stop();
+  _lessonStream?.getTracks().forEach(t=>t.stop()); _lessonStream = null;
+}
+
+function switchLessonTab(name) {
+  // Кнопки
+  document.querySelectorAll('.lesson-tab').forEach(btn => {
+    const active = btn.dataset.tab === name;
+    btn.style.color = active ? '#4f65ef' : '#9aa0b4';
+    btn.style.borderBottomColor = active ? '#4f65ef' : 'transparent';
+    btn.style.fontWeight = active ? '700' : '600';
+  });
+  // Панели
+  document.querySelectorAll('.lesson-tab-panel').forEach(p => {
+    p.style.display = 'none';
+  });
+  const panel = document.getElementById('lesson-tab-' + name);
+  if (panel) {
+    panel.style.display = name === 'practice' ? 'flex' : 'block';
+  }
+  // Инициализация вкладки практики
+  if (name === 'practice') {
+    const box = document.getElementById('lesson-chat-box');
+    if (box && !box.children.length && window._currentLesson) initLessonPractice(window._currentLesson);
+  }
+}
+
+function loadLessonQuiz() {
+  if (currentCategory === 'practice') { loadPractice(); return; }
+  // Загружаем тест для текущего уровня
+  showPage('practice-mode');
+}
+
+function completeLessonFromHeader() {
+  const btn = document.getElementById('lesson-complete-btn');
+  const t = btn.dataset.lessonType || 'lesson';
+  const id = parseInt(btn.dataset.lessonId || '0');
+  if (id) completeLesson(t, id);
+}
+
+function autoResizeTA(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
 function renderLevelComplete() {
   const idx = LEVELS.indexOf(currentLevel);
   const hasNext = idx < LEVELS.length - 1;
   document.getElementById('lesson-content').innerHTML = `
-    <div class="text-center py-12">
-      <div class="text-6xl mb-4">🎉</div>
-      <h2 class="font-headline font-extrabold text-2xl text-on-surface mb-2">Уровень ${currentLevel} пройден!</h2>
-      <p class="text-on-surface-variant mb-6">Вы прошли все материалы уровня. Отличная работа!</p>
-      ${hasNext ? `<button onclick="currentLevel='${LEVELS[idx+1]}';loadNextLesson()" class="px-6 py-3 bg-primary-container text-on-primary font-label font-bold rounded-xl hover:opacity-90">Следующий: ${LEVELS[idx+1]} →</button>` : '<p class="text-tertiary-container font-bold">🏆 Вы прошли все уровни!</p>'}
-      <br><button onclick="showPage('levels')" class="mt-3 text-sm text-outline hover:text-on-surface transition-colors">← К выбору уровня</button>
+    <div style="text-align:center;padding:48px 16px">
+      <div style="font-size:64px;margin-bottom:16px">🎉</div>
+      <h2 style="font-size:22px;font-weight:800;color:#191c1e;margin:0 0 8px">Уровень ${currentLevel} пройден!</h2>
+      <p style="font-size:14px;color:#737686;margin:0 0 24px">Все материалы уровня изучены. Отличная работа!</p>
+      ${hasNext ? `<button onclick="currentLevel='${LEVELS[idx+1]}';loadNextLesson()" style="background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:14px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(79,101,239,0.3)">Следующий уровень: ${LEVELS[idx+1]} →</button>` : '<p style="font-size:16px;font-weight:700;color:#16a34a">🏆 Вы прошли все уровни!</p>'}
+      <br><button onclick="showPage('levels')" style="margin-top:12px;background:none;border:none;font-size:13px;color:#9aa0b4;cursor:pointer">← К выбору уровня</button>
     </div>`;
+  // Скрываем табы
+  document.getElementById('lesson-tabs').style.display = 'none';
 }
+
 
 async function completeLesson(type, id) {
   const btn = document.getElementById('complete-btn');

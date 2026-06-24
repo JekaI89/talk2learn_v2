@@ -284,6 +284,15 @@ body { font-family: 'Be Vietnam Pro', sans-serif; background: #f0f2f5; overflow-
 .clickable-word { cursor: pointer; border-bottom: 1.5px dashed rgba(37,99,235,0.4); border-radius: 4px; padding: 0 2px; transition: background 0.12s; }
 .clickable-word:hover { background: rgba(219,225,255,0.35); }
 
+/* ── Lesson tabs ── */
+#page-lesson { height: calc(100dvh - 56px); overflow: hidden; }
+@media (min-width: 768px) { #page-lesson { height: 100vh; } }
+#lesson-tabs::-webkit-scrollbar { display: none; }
+.lesson-tab-panel { box-sizing: border-box; }
+#lesson-tab-practice { flex-direction: column; }
+/* Hide tabs scrollbar Firefox */
+#lesson-tabs { scrollbar-width: none; }
+
 /* ── Mic pulse animation ── */
 @keyframes micPulse {
   0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
@@ -635,11 +644,133 @@ body { font-family: 'Be Vietnam Pro', sans-serif; background: #f0f2f5; overflow-
     </div>
 
     <!-- LESSON -->
-    <div id="page-lesson" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
-      <button onclick="showPage('levels')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
-        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> К уровням
-      </button>
-      <div id="lesson-content"></div>
+    <div id="page-lesson" class="page" style="flex-direction:column;height:calc(100dvh - 56px);overflow:hidden;max-width:800px;margin:0 auto;width:100%">
+
+      <!-- Lesson header -->
+      <div id="lesson-header" style="flex-shrink:0;background:#fff;border-bottom:1px solid rgba(195,198,215,0.3);padding:12px 16px;z-index:5">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <button onclick="showPage('levels')" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;display:flex;align-items:center;color:#737686;flex-shrink:0;transition:background 0.15s" onmouseenter="this.style.background='#f0f2f5'" onmouseleave="this.style.background='none'">
+            <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span>
+          </button>
+          <div style="flex:1;min-width:0">
+            <div id="lesson-title-header" style="font-size:14px;font-weight:700;color:#191c1e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Загрузка...</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+              <span id="lesson-type-badge" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;background:#eef2ff;color:#4f65ef">УРОК</span>
+              <span id="lesson-level-badge" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;background:#f0fdf4;color:#16a34a">A1</span>
+            </div>
+          </div>
+          <button id="lesson-complete-btn" onclick="completeLessonFromHeader()" style="background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:opacity 0.15s" onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'">
+            <span class="material-symbols-outlined" style="font-size:15px">check_circle</span>
+            <span class="lesson-complete-label">+5 XP</span>
+          </button>
+        </div>
+        <!-- Progress bar -->
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:5px;background:#f0f2f5;border-radius:3px;overflow:hidden">
+            <div id="lesson-progress-bar" style="height:100%;background:linear-gradient(90deg,#4f65ef,#7c3aed);border-radius:3px;transition:width 0.4s ease;width:0%"></div>
+          </div>
+          <span id="lesson-progress-label" style="font-size:11px;color:#9aa0b4;white-space:nowrap;font-weight:600">0 / 0</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div id="lesson-tabs" style="flex-shrink:0;background:#fff;border-bottom:1px solid rgba(195,198,215,0.3);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 4px">
+        <button class="lesson-tab active-lesson-tab" data-tab="content" onclick="switchLessonTab('content')" style="display:flex;align-items:center;gap:5px;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#9aa0b4;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s">
+          <span class="material-symbols-outlined filled" style="font-size:16px">menu_book</span> Урок
+        </button>
+        <button class="lesson-tab" data-tab="vocab" onclick="switchLessonTab('vocab')" style="display:flex;align-items:center;gap:5px;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#9aa0b4;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s">
+          <span class="material-symbols-outlined filled" style="font-size:16px">translate</span> Лексика
+        </button>
+        <button class="lesson-tab" data-tab="grammar" onclick="switchLessonTab('grammar')" style="display:flex;align-items:center;gap:5px;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#9aa0b4;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s">
+          <span class="material-symbols-outlined filled" style="font-size:16px">edit_note</span> Грамматика
+        </button>
+        <button class="lesson-tab" data-tab="practice" onclick="switchLessonTab('practice')" style="display:flex;align-items:center;gap:5px;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#9aa0b4;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s">
+          <span class="material-symbols-outlined filled" style="font-size:16px">chat</span> Практика
+        </button>
+        <button class="lesson-tab" data-tab="quiz" onclick="switchLessonTab('quiz')" style="display:flex;align-items:center;gap:5px;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#9aa0b4;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s">
+          <span class="material-symbols-outlined filled" style="font-size:16px">quiz</span> Тест
+        </button>
+      </div>
+
+      <!-- Tab panels -->
+      <div style="flex:1;overflow:hidden;position:relative">
+
+        <!-- CONTENT tab -->
+        <div id="lesson-tab-content" class="lesson-tab-panel" style="height:100%;overflow-y:auto;padding:20px 16px 32px">
+          <div id="lesson-content"></div>
+        </div>
+
+        <!-- VOCAB tab -->
+        <div id="lesson-tab-vocab" class="lesson-tab-panel" style="height:100%;overflow-y:auto;padding:20px 16px 32px;display:none">
+          <div id="lesson-vocab-content">
+            <div style="text-align:center;padding:48px 0;color:#9aa0b4">
+              <span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px">translate</span>
+              <div style="font-size:14px">Прочитайте урок — лексика появится здесь</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRAMMAR tab -->
+        <div id="lesson-tab-grammar" class="lesson-tab-panel" style="height:100%;overflow-y:auto;padding:20px 16px 32px;display:none">
+          <div id="lesson-grammar-content">
+            <div style="text-align:center;padding:48px 0;color:#9aa0b4">
+              <span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px">edit_note</span>
+              <div style="font-size:14px">Грамматические конструкции из этого урока</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRACTICE tab (AI chat) -->
+        <div id="lesson-tab-practice" class="lesson-tab-panel" style="height:100%;display:none;flex-direction:column;overflow:hidden">
+          <!-- Context card -->
+          <div style="flex-shrink:0;padding:12px 16px;background:#f7f9fb;border-bottom:1px solid rgba(195,198,215,0.2)">
+            <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#4f65ef,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-outlined filled" style="color:#fff;font-size:16px">smart_toy</span>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div id="lesson-practice-title" style="font-size:12px;font-weight:700;color:#4f65ef">Практика по уроку</div>
+                <div id="lesson-practice-hint" style="font-size:11px;color:#737686;margin-top:1px">Поговорите с AI по теме урока</div>
+              </div>
+              <button onclick="resetLessonChat()" title="Начать заново" style="background:rgba(79,101,239,0.08);border:none;border-radius:7px;padding:5px;cursor:pointer;display:flex;align-items:center">
+                <span class="material-symbols-outlined" style="font-size:16px;color:#4f65ef">refresh</span>
+              </button>
+            </div>
+          </div>
+          <!-- Chat messages -->
+          <div id="lesson-chat-box" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;padding-bottom:8px;-webkit-overflow-scrolling:touch"></div>
+          <!-- Input bar -->
+          <div style="flex-shrink:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);border-top:1px solid rgba(195,198,215,0.3);padding:10px 12px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:8px;box-shadow:0 -4px 20px rgba(0,0,0,0.05)">
+            <textarea id="lesson-chat-input" rows="1" placeholder="Напишите ответ..."
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendLessonMessage();}"
+              oninput="autoResizeTA(this)"
+              style="flex:1;resize:none;overflow:hidden;border:1.5px solid rgba(195,198,215,0.5);border-radius:20px;padding:10px 16px;font-size:14px;font-family:inherit;color:#191c1e;background:#f7f9fb;outline:none;line-height:1.4;max-height:120px;overflow-y:auto;transition:border-color 0.15s,background 0.15s;box-sizing:border-box;display:block"
+              onfocus="this.style.borderColor='#4f65ef';this.style.background='#fff'"
+              onblur="this.style.borderColor='rgba(195,198,215,0.5)';this.style.background='#f7f9fb'"></textarea>
+            <button id="lesson-mic-btn" onmousedown="startLessonRecording(event)" onmouseup="stopLessonRecording(event)" ontouchstart="startLessonRecording(event)" ontouchend="stopLessonRecording(event)"
+              style="width:44px;height:44px;flex-shrink:0;border-radius:50%;border:none;cursor:pointer;background:#f0f2f5;display:flex;align-items:center;justify-content:center;transition:all 0.15s">
+              <span class="material-symbols-outlined filled" style="font-size:20px;color:#434655">mic</span>
+            </button>
+            <button onclick="sendLessonMessage()"
+              style="width:44px;height:44px;flex-shrink:0;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#4f65ef,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(79,101,239,0.35);transition:transform 0.15s"
+              onmouseenter="this.style.transform='scale(1.06)'" onmouseleave="this.style.transform=''">
+              <span class="material-symbols-outlined filled" style="font-size:20px;color:#fff">send</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- QUIZ tab -->
+        <div id="lesson-tab-quiz" class="lesson-tab-panel" style="height:100%;overflow-y:auto;padding:20px 16px 32px;display:none">
+          <div id="lesson-quiz-content">
+            <div style="text-align:center;padding:48px 0;color:#9aa0b4">
+              <span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px">quiz</span>
+              <div style="font-size:14px;font-weight:600;margin-bottom:8px">Проверьте себя</div>
+              <button onclick="loadLessonQuiz()" style="background:#4f65ef;color:#fff;border:none;border-radius:12px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">Начать тест →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- PRACTICE -->
