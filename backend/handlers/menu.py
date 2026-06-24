@@ -20,7 +20,7 @@ async def cmd_start(message: types.Message):
     # Mini App открывается внутри Telegram
     builder.add(types.InlineKeyboardButton(
         text="🚀 Открыть Talk2Learn",
-        web_app=types.WebAppInfo(url=f"{base_url}/")
+        web_app=types.WebAppInfo(url=f"{base_url}/mini")
     ))
 
     # Разговорный клуб прямо в боте
@@ -32,7 +32,7 @@ async def cmd_start(message: types.Message):
     # Веб-сайт (открывается в браузере)
     builder.add(types.InlineKeyboardButton(
         text="🌐 Открыть сайт",
-        url=f"{base_url}/app?tg_id={user_id}"
+        url=f"{base_url}/?tg_id={user_id}"
     ))
 
     builder.adjust(1)
