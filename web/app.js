@@ -1326,11 +1326,33 @@ function showToast(msg, type='success') {
 }
 
 // ── СТАРТ ──
-window.onload = () => {
+window.onload = async () => {
+  // Авто-логин по tg_id из URL (бот передаёт ?tg_id=123456)
+  const params = new URLSearchParams(window.location.search);
+  const tgIdFromUrl = params.get('tg_id');
+  if (tgIdFromUrl && !localStorage.getItem('t2l_user_id')) {
+    try {
+      const res = await fetch('/api/auth/telegram/autologin', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({telegram_id: parseInt(tgIdFromUrl)})
+      });
+      if (res.ok) {
+        const data = await res.json();
+        userId = data.user_id;
+        localStorage.setItem('t2l_user_id', userId);
+        if (data.name) localStorage.setItem('t2l_name', data.name);
+        window.history.replaceState({}, '', window.location.pathname);
+        await initApp();
+        return;
+      }
+    } catch(e) {}
+  }
+
   const savedId = localStorage.getItem('t2l_user_id');
   if (savedId && parseInt(savedId) > 0) {
     userId = parseInt(savedId);
     userEmail = localStorage.getItem('t2l_email') || '';
-    initApp();
+    await initApp();
   }
 };

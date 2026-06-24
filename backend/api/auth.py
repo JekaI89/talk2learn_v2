@@ -404,6 +404,38 @@ async def link_email(data: LinkEmailRequest):
 
 # ─── /api/auth/status/{user_id} ──────────────────────────────────────────────
 
+class TelegramAutoLoginRequest(BaseModel):
+    telegram_id: int
+
+
+@router.post("/api/auth/telegram/autologin")
+async def telegram_autologin(data: TelegramAutoLoginRequest):
+    """
+    Авто-логин по telegram_id без верификации хэша.
+    Используется только когда ссылка пришла из самого бота (?tg_id=...).
+    Работает только для уже зарегистрированных пользователей.
+    """
+    pool = await get_pool()
+    async with pool.acquire() as db:
+        # Ищем пользователя по telegram_id
+        tg_row = await db.fetchrow(
+            "SELECT user_id FROM user_telegram WHERE telegram_id=$1", data.telegram_id
+        )
+        if not tg_row:
+            # Пользователь ещё не зарегистрирован через бота — отказ
+            raise HTTPException(404, "Пользователь не найден. Войдите через бота командой /start")
+
+        user_id = tg_row["user_id"]
+        user = await db.fetchrow("SELECT name, username FROM users WHERE user_id=$1", user_id)
+
+    return {
+        "status": "ok",
+        "user_id": user_id,
+        "name": user["name"] if user else "",
+        "username": user["username"] if user else "",
+    }
+
+
 @router.get("/api/auth/status/{user_id}")
 async def auth_status(user_id: int):
     """Возвращает статус привязок аккаунта."""
