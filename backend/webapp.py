@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from contextlib import asynccontextmanager
 import os
 import asyncio
 import time
+import logging
 from pathlib import Path
 
 from database.db import init_db, close_pool
@@ -12,51 +13,55 @@ from config import MINI_DIR, WEB_DIR, AUDIO_DIR
 
 from api import users, lessons, dictionary, club, admin, auth
 
+logger = logging.getLogger(__name__)
 
-# ====================== BOT ======================
+# ====================== BOT (WEBHOOK MODE) ======================
+# Webhook исключает TelegramConflictError при деплое:
+# новый инстанс просто перехватывает webhook у старого.
 
-_bot_instance = None  # хранится для корректного shutdown
+_bot = None
+_dp  = None
 
 
-async def start_telegram_bot():
-    global _bot_instance
+async def setup_bot():
+    global _bot, _dp
     bot_token = os.environ.get("BOT_TOKEN", "")
+    webapp_url = os.environ.get("WEBAPP_URL", "https://talk2learn-app.onrender.com").rstrip("/")
+
     if not bot_token:
-        print("⚠️ BOT_TOKEN не задан — Telegram-бот не запущен")
+        logger.warning("⚠️ BOT_TOKEN не задан — Telegram-бот не запущен")
         return
-    try:
-        from aiogram import Bot, Dispatcher
-        from aiogram.client.default import DefaultBotProperties
-        from aiogram.enums import ParseMode
-        from handlers import menu, speaking_club
 
-        _bot_instance = Bot(
-            token=bot_token,
-            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-        )
-        dp = Dispatcher()
-        dp.include_router(menu.router)
-        dp.include_router(speaking_club.router)
+    from aiogram import Bot, Dispatcher
+    from aiogram.client.default import DefaultBotProperties
+    from aiogram.enums import ParseMode
+    from handlers import menu, speaking_club
 
-        print("🤖 Telegram-бот запущен (polling)...")
-        await dp.start_polling(
-            _bot_instance,
-            allowed_updates=["message", "callback_query"],
-            drop_pending_updates=True,   # сбрасываем старую очередь при старте
-        )
-    except asyncio.CancelledError:
-        print("🤖 Telegram-бот: получен сигнал остановки")
-    except Exception as e:
-        print(f"❌ Ошибка Telegram-бота: {e}")
-    finally:
-        # Закрываем сессию — иначе следующий инстанс получит Conflict
-        if _bot_instance:
-            try:
-                await _bot_instance.session.close()
-            except Exception:
-                pass
-            _bot_instance = None
-        print("🤖 Telegram-бот остановлен")
+    _bot = Bot(token=bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    _dp  = Dispatcher()
+    _dp.include_router(menu.router)
+    _dp.include_router(speaking_club.router)
+
+    webhook_url = f"{webapp_url}/webhook/bot"
+    await _bot.set_webhook(
+        url=webhook_url,
+        drop_pending_updates=True,   # сбрасываем старую очередь
+        allowed_updates=["message", "callback_query"],
+    )
+    logger.info(f"🤖 Webhook установлен: {webhook_url}")
+
+
+async def teardown_bot():
+    global _bot, _dp
+    if _bot:
+        try:
+            await _bot.delete_webhook(drop_pending_updates=True)
+            await _bot.session.close()
+            logger.info("🤖 Webhook удалён, бот остановлен")
+        except Exception as e:
+            logger.error(f"Ошибка остановки бота: {e}")
+        _bot = None
+        _dp  = None
 
 
 # ====================== AUDIO CLEANUP ======================
@@ -71,36 +76,34 @@ async def audio_cleanup_loop():
                 if now - f.stat().st_mtime > 3600 and not f.unlink()
             )
             if cleaned:
-                print(f"🧹 Аудиоочистка: удалено {cleaned} файлов")
+                logger.info(f"🧹 Аудиоочистка: удалено {cleaned} файлов")
         except asyncio.CancelledError:
             break
         except Exception as e:
-            print(f"❌ Ошибка очистки аудио: {e}")
+            logger.error(f"Ошибка очистки аудио: {e}")
 
 
 # ====================== LIFESPAN ======================
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🚀 Запуск Talk2Learn...")
+    logging.basicConfig(level=logging.INFO)
+    logger.info("🚀 Запуск Talk2Learn...")
     os.makedirs(AUDIO_DIR, exist_ok=True)
-    await init_db()
 
-    bot_task     = asyncio.create_task(start_telegram_bot())
+    await init_db()
+    await setup_bot()
+
     cleanup_task = asyncio.create_task(audio_cleanup_loop())
 
     yield
 
-    print("🛑 Остановка Talk2Learn...")
-
-    # Отменяем задачи и ждём корректного завершения
-    bot_task.cancel()
+    logger.info("🛑 Остановка Talk2Learn...")
     cleanup_task.cancel()
-
-    await asyncio.gather(bot_task, cleanup_task, return_exceptions=True)
-
+    await asyncio.gather(cleanup_task, return_exceptions=True)
+    await teardown_bot()
     await close_pool()
-    print("✅ Остановка завершена")
+    logger.info("✅ Остановка завершена")
 
 
 # ====================== APP ======================
@@ -115,6 +118,19 @@ app.include_router(admin.router)
 app.include_router(auth.router)
 
 
+# ====================== WEBHOOK ENDPOINT ======================
+
+@app.post("/webhook/bot")
+async def bot_webhook(request: Request):
+    if _bot is None or _dp is None:
+        return Response(status_code=200)
+    from aiogram.types import Update
+    data = await request.json()
+    update = Update.model_validate(data, context={"bot": _bot})
+    await _dp.feed_update(_bot, update)
+    return Response(status_code=200)
+
+
 # ====================== СТАТИКА ======================
 
 app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
@@ -125,7 +141,6 @@ app.mount("/assets", StaticFiles(directory=WEB_DIR),  name="web-assets")
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    # Минимальный 1x1 прозрачный ico в base64
     import base64
     ico = base64.b64decode(
         "AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -165,8 +180,7 @@ async def serve_admin():
     return FileResponse(os.path.join(MINI_DIR, "admin.html"))
 
 
-# ====================== SITE (SPA роуты) ======================
-
+# SPA роуты
 @app.get("/site")
 @app.get("/site/")
 @app.get("/site/app")
