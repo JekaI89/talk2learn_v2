@@ -95,6 +95,7 @@ app.include_router(auth.router)
 # ====================== СТАТИКА ======================
 
 app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
+app.mount("/assets", StaticFiles(directory=WEB_DIR), name="web-assets")
 
 
 # ====================== СТРАНИЦЫ ======================
