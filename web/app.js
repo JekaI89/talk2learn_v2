@@ -26,15 +26,13 @@ function switchAuthTab(tab) {
   ['login','register'].forEach(t => {
     const btn = document.getElementById('tab-'+t);
     const panel = document.getElementById('auth-'+t);
-    if (t === tab) {
-      btn.classList.add('bg-white','text-on-surface','shadow-sm');
-      btn.classList.remove('text-on-surface-variant');
-      panel.classList.remove('hidden');
-    } else {
-      btn.classList.remove('bg-white','text-on-surface','shadow-sm');
-      btn.classList.add('text-on-surface-variant');
-      panel.classList.add('hidden');
-    }
+    const active = t === tab;
+    // кнопка
+    btn.style.background = active ? '#fff' : 'transparent';
+    btn.style.color = active ? 'var(--color-on-surface, #1a1a2e)' : 'var(--color-on-surface-variant, #6b7280)';
+    btn.style.boxShadow = active ? '0 1px 3px rgba(0,0,0,0.12)' : 'none';
+    // панель — display напрямую, без зависимости от Tailwind JIT
+    panel.style.display = active ? 'block' : 'none';
   });
 }
 
