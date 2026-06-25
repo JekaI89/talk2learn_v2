@@ -1,6 +1,8 @@
 import os
 import asyncio
 import json
+import urllib.parse
+import urllib.request
 from openai import AsyncOpenAI
 from gtts import gTTS
 
@@ -197,10 +199,11 @@ async def translate_word(
     if context.strip():
         user_content += f"\nContext: {context.strip()[:200]}"
 
+    models = ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"]
     for attempt in range(2):
         try:
             response = await client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model=models[attempt % len(models)],
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user",   "content": user_content}
@@ -221,10 +224,10 @@ async def translate_word(
         except Exception as e:
             print(f"❌ translate_word '{word}' attempt {attempt+1}: {e}")
 
-    # Fallback: простой перевод без JSON
+    # Fallback 1: простой перевод без JSON через Groq
     try:
         resp = await client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": f'Translate the {target_name} word "{word}" to {native_name}. Reply with just the translation, nothing else.'}],
             temperature=0.1, max_tokens=50,
         )
@@ -232,6 +235,21 @@ async def translate_word(
         if t:
             return {"translation": t, "transcription": "", "example": ""}
     except Exception as e:
-        print(f"❌ translate_word fallback: {e}")
+        print(f"❌ translate_word fallback Groq: {e}")
+
+    # Fallback 2: MyMemory (бесплатный API, без ключа)
+    try:
+        lang_pair = f"{target_lang}|{native_lang}"
+        url = f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(word)}&langpair={lang_pair}"
+        def _fetch():
+            with urllib.request.urlopen(url, timeout=5) as r:
+                return json.loads(r.read().decode())
+        data = await asyncio.to_thread(_fetch)
+        t = data.get("responseData", {}).get("translatedText", "").strip()
+        if t and t.lower() != word.lower():
+            print(f"✅ translate_word MyMemory fallback: {word} → {t}")
+            return {"translation": t, "transcription": "", "example": ""}
+    except Exception as e:
+        print(f"❌ translate_word fallback MyMemory: {e}")
 
     return {"translation": "", "transcription": "", "example": ""}
