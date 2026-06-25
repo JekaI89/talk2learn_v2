@@ -153,6 +153,26 @@ async def generate_voice(text: str, output_path: str, target_lang: str = 'en'):
 
 
 # ── Перевод слова ─────────────────────────────────────────────────────
+def _extract_json(raw: str) -> dict:
+    """Надёжное извлечение JSON из ответа LLM."""
+    # Убираем markdown
+    raw = raw.replace("```json", "").replace("```", "").strip()
+    # Пробуем прямой парсинг
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
+    # Ищем первый JSON-объект в тексте
+    import re
+    match = re.search(r'\{[^{}]+\}', raw, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group(0))
+        except json.JSONDecodeError:
+            pass
+    return {}
+
+
 async def translate_word(
     word: str,
     context: str = "",
@@ -162,40 +182,56 @@ async def translate_word(
     """
     Переводит слово с target_lang на native_lang.
     Возвращает {translation, transcription, example} или translation="" при ошибке.
+    Делает до 2 попыток при пустом переводе.
     """
     target_name = LANG_NAMES.get(target_lang, "English")
     native_name  = LANG_NAMES.get(native_lang, "Russian")
 
     system_prompt = (
-        f"You are a precise {target_name}-{native_name} dictionary assistant. "
-        f"Given a {target_name} word (and optionally the sentence it appeared in for context), "
-        "respond with ONLY a valid JSON object and nothing else — no markdown, no code fences, "
-        "no explanations. The JSON must have exactly these keys: "
-        f'"translation" (short accurate {native_name} translation of the word in this context), '
-        f'"transcription" (IPA transcription of the {target_name} word, e.g. /wɜːrd/), '
-        f'"example" (one short simple {target_name} sentence using the word).'
+        f"You are a {target_name}-{native_name} dictionary. "
+        f"Reply ONLY with a JSON object, no other text. "
+        f"Keys: translation ({native_name} meaning), transcription (IPA), example (short {target_name} sentence). "
+        'Example reply: {"translation":"привет","transcription":"/həˈloʊ/","example":"Hello, how are you?"}'
     )
     user_content = f"Word: {word}"
     if context.strip():
-        user_content += f"\nSentence: {context.strip()}"
+        user_content += f"\nContext: {context.strip()[:200]}"
 
+    for attempt in range(2):
+        try:
+            response = await client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user",   "content": user_content}
+                ],
+                temperature=0.1,
+                max_tokens=200,
+            )
+            raw  = response.choices[0].message.content.strip()
+            data = _extract_json(raw)
+            translation = str(data.get("translation", "")).strip()
+            if translation:
+                return {
+                    "translation":   translation,
+                    "transcription": str(data.get("transcription", "")).strip(),
+                    "example":       str(data.get("example", "")).strip()
+                }
+            print(f"⚠️ translate_word attempt {attempt+1}: empty translation, raw={raw[:100]}")
+        except Exception as e:
+            print(f"❌ translate_word '{word}' attempt {attempt+1}: {e}")
+
+    # Fallback: простой перевод без JSON
     try:
-        response = await client.chat.completions.create(
+        resp = await client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user",   "content": user_content}
-            ],
-            temperature=0.2
+            messages=[{"role": "user", "content": f'Translate the {target_name} word "{word}" to {native_name}. Reply with just the translation, nothing else.'}],
+            temperature=0.1, max_tokens=50,
         )
-        raw = response.choices[0].message.content.strip()
-        raw = raw.replace("```json", "").replace("```", "").strip()
-        data = json.loads(raw)
-        return {
-            "translation":   str(data.get("translation", "")).strip(),
-            "transcription": str(data.get("transcription", "")).strip(),
-            "example":       str(data.get("example", "")).strip()
-        }
+        t = resp.choices[0].message.content.strip().strip('"\'')
+        if t:
+            return {"translation": t, "transcription": "", "example": ""}
     except Exception as e:
-        print(f"❌ translate_word '{word}': {e}")
-        return {"translation": "", "transcription": "", "example": ""}
+        print(f"❌ translate_word fallback: {e}")
+
+    return {"translation": "", "transcription": "", "example": ""}
