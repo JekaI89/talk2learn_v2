@@ -901,7 +901,7 @@ body { font-family: 'Be Vietnam Pro', sans-serif; background: #f0f2f5; overflow-
           <textarea id="chat-input"
             placeholder="Напишите сообщение..."
             rows="1"
-            onkeydown="if(event.key='Enter'&&!event.shiftKey){event.preventDefault();sendClubMessage();}"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendClubMessage();}"
             oninput="autoResizeClubInput(this)"
             style="
               width:100%;resize:none;overflow:hidden;
