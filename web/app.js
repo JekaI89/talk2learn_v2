@@ -278,6 +278,8 @@ function navTo(section) {
 
   // Lazy load sections
   if (section === 'dictionary' && !_vocabTopicsCache.length) loadVocabTopics(null);
+  if (section === 'notebook') loadNotebook();
+  if (section === 'profile') loadProfile();
 }
 
 function showPage(name) {
