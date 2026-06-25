@@ -14,7 +14,14 @@ let currentPracticeQId = null, correctPracticeOption = null;
 
 const XP_PER_LEVEL = 50;
 const LEVELS = ['A1','A2','B1','B2','C1','C2'];
-const LEVEL_GRADIENTS = {A1:'from-green-400 to-teal-500',A2:'from-blue-400 to-indigo-500',B1:'from-orange-400 to-amber-500',B2:'from-pink-400 to-rose-500',C1:'from-red-400 to-purple-500',C2:'from-zinc-600 to-gray-800'};
+const LEVEL_META = {
+  A1: { gradient:'linear-gradient(135deg,#34d399,#0891b2)', bg:'#ecfdf5', color:'#065f46', label:'Начинающий',    desc:'Базовые фразы и простые диалоги',       emoji:'🌱' },
+  A2: { gradient:'linear-gradient(135deg,#60a5fa,#6366f1)', bg:'#eff6ff', color:'#1e3a8a', label:'Элементарный',  desc:'Повседневные ситуации и простой текст',  emoji:'📘' },
+  B1: { gradient:'linear-gradient(135deg,#fb923c,#f59e0b)', bg:'#fff7ed', color:'#92400e', label:'Средний',       desc:'Основные темы и несложные тексты',       emoji:'⚡' },
+  B2: { gradient:'linear-gradient(135deg,#f472b6,#ec4899)', bg:'#fdf2f8', color:'#831843', label:'Выше среднего', desc:'Сложные темы и беглая речь',             emoji:'🔥' },
+  C1: { gradient:'linear-gradient(135deg,#a78bfa,#7c3aed)', bg:'#f5f3ff', color:'#4c1d95', label:'Продвинутый',   desc:'Академический язык и нюансы',            emoji:'💎' },
+  C2: { gradient:'linear-gradient(135deg,#4b5563,#1f2937)', bg:'#f9fafb', color:'#111827', label:'Мастерство',    desc:'Свободное владение на уровне носителя',  emoji:'🏆' },
+};
 const TOPIC_ICONS = {'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠','Nature':'🌿','Emotions':'😊','Sports':'⚽','Technology':'💻'};
 const AI_GREETINGS = {en:"Hello! How can I help you today? Feel free to type or use the microphone!",de:"Hallo! Wie kann ich Ihnen heute helfen?",fr:"Bonjour ! Comment puis-je vous aider ?",es:"¡Hola! ¿En qué puedo ayudarte?",it:"Ciao! Come posso aiutarti?",zh:"你好！今天我能帮你什么？",ru:"Привет! Чем могу помочь?"};
 const SIT_GREETINGS = {shop:{en:"Welcome! How can I help you today?",ru:"Добро пожаловать! Чем могу помочь?"},restaurant:{en:"Good evening! Do you have a reservation?",ru:"Добрый вечер! У вас есть бронь?"},airport:{en:"Good morning! May I see your passport?",ru:"Доброе утро! Ваш паспорт, пожалуйста."},hotel:{en:"Welcome to our hotel! Do you have a reservation?",ru:"Добро пожаловать! Есть бронь?"},doctor:{en:"Hello! What brings you in today?",ru:"Здравствуйте! Что вас беспокоит?"},emergency:{en:"Emergency services, what is your emergency?",ru:"Служба спасения, что случилось?"}};
@@ -287,11 +294,29 @@ function startCategory(cat) {
 }
 
 function renderLevelsGrid() {
-  document.getElementById('levels-grid').innerHTML = LEVELS.map(lvl => `
-    <button onclick="selectLevel('${lvl}')" class="bg-gradient-to-br ${LEVEL_GRADIENTS[lvl]} rounded-2xl p-4 text-white text-left hover:scale-95 transition-transform shadow-sm">
-      <span class="text-xs text-white/70 block">Уровень</span>
-      <span class="font-headline font-extrabold text-2xl block">${lvl}</span>
-    </button>`).join('');
+  const catLabels = {lessons:'Уроки', grammar:'Грамматика', vocabulary:'Лексика', practice:'Практика'};
+  const labelEl = document.getElementById('levels-category-label');
+  if (labelEl) labelEl.textContent = 'Раздел: ' + (catLabels[currentCategory] || 'Уроки');
+
+  document.getElementById('levels-grid').innerHTML = LEVELS.map(lvl => {
+    const m = LEVEL_META[lvl];
+    return `<button onclick="selectLevel('${lvl}')"
+      style="background:#fff;border:1px solid rgba(195,198,215,0.25);border-radius:20px;padding:0;text-align:left;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:transform 0.18s,box-shadow 0.18s;overflow:hidden"
+      onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.12)'"
+      onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+      <!-- Gradient top -->
+      <div style="background:${m.gradient};padding:20px 18px 16px;position:relative;overflow:hidden">
+        <div style="font-size:32px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15))">${m.emoji}</div>
+        <div style="font-size:28px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1px">${lvl}</div>
+        <div style="position:absolute;right:-8px;bottom:-8px;font-size:64px;opacity:0.08;font-weight:900;color:#fff;line-height:1">${lvl}</div>
+      </div>
+      <!-- Info bottom -->
+      <div style="padding:12px 14px 14px">
+        <div style="font-size:13px;font-weight:700;color:#191c1e;margin-bottom:3px">${m.label}</div>
+        <div style="font-size:11px;color:#737686;line-height:1.4">${m.desc}</div>
+      </div>
+    </button>`;
+  }).join('');
 }
 
 function selectLevel(level) {
