@@ -357,7 +357,7 @@ async function handleWordTap(word, context) {
   document.getElementById('popup-status').textContent = '';
   const btn = document.getElementById('popup-add-btn');
   btn.disabled = false;
-  btn.textContent = '+ В мой словарь';
+  btn.textContent = '+ В мой блокнот';
   btn.className = 'w-full h-touch rounded-xl bg-secondary-container text-on-secondary font-label font-bold text-sm uppercase tracking-wider active:scale-[0.98] transition-transform';
   showWordPopup();
   try {
@@ -374,7 +374,8 @@ async function handleWordTap(word, context) {
       document.getElementById('popup-translation').textContent = data.message || 'Перевод недоступен';
     }
   } catch(e) {
-    document.getElementById('popup-translation').textContent = 'Ошибка соединения';
+    document.getElementById('popup-translation').textContent = 'Ошибка — проверьте соединение';
+    console.error('Translation error:', e);
   }
 }
 
@@ -388,24 +389,24 @@ async function addPopupWordToDict() {
     const data = await res.json();
     if (data.status === 'success') {
       document.getElementById('popup-status').textContent = '✅ Добавлено!';
-      btn.textContent = '✓ В словаре';
+      btn.textContent = '✓ В блокноте';
       btn.className = 'w-full h-touch rounded-xl bg-tertiary-container text-on-tertiary font-label font-bold text-sm uppercase tracking-wider active:scale-[0.98] transition-transform';
     } else {
       document.getElementById('popup-status').textContent = data.message || 'Ошибка';
-      btn.disabled = false; btn.textContent = '+ В мой словарь';
+      btn.disabled = false; btn.textContent = '+ В мой блокнот';
     }
   } catch(e) {
     document.getElementById('popup-status').textContent = 'Ошибка соединения';
-    btn.disabled = false; btn.textContent = '+ В мой словарь';
+    btn.disabled = false; btn.textContent = '+ В мой блокнот';
   }
 }
 
 function showWordPopup() {
-  document.getElementById('word-popup-overlay').classList.remove('hidden');
+  document.getElementById('word-popup-overlay').style.display = 'block';
   document.getElementById('word-popup').classList.remove('sheet-hidden');
 }
 function hideWordPopup() {
-  document.getElementById('word-popup-overlay').classList.add('hidden');
+  document.getElementById('word-popup-overlay').style.display = 'none';
   document.getElementById('word-popup').classList.add('sheet-hidden');
 }
 
