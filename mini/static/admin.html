@@ -745,5 +745,75 @@ function showToast(msg, type='success') {
 
 window.onload = () => showTab('stats');
 </script>
+<!-- Admin password overlay -->
+<div id="admin-auth-overlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1e1b4b,#312e81);display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:24px;padding:32px;width:100%;max-width:360px;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <span class="material-symbols-outlined filled" style="color:#fff;font-size:28px">admin_panel_settings</span>
+      </div>
+      <h2 style="font-size:20px;font-weight:800;color:#191c1e;margin:0 0 4px">Админ-панель</h2>
+      <p style="font-size:13px;color:#737686;margin:0">Talk2Learn · Введите пароль</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <input id="admin-password-input" type="password" placeholder="Пароль"
+        style="width:100%;border:1.5px solid #e0e3e5;border-radius:12px;padding:12px 16px;font-size:14px;color:#191c1e;outline:none;box-sizing:border-box;transition:border-color 0.15s"
+        onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#e0e3e5'"
+        onkeydown="if(event.key==='Enter')checkAdminPassword()"/>
+    </div>
+    <p id="admin-auth-error" style="color:#ba1a1a;font-size:12px;margin:0 0 12px;display:none">Неверный пароль</p>
+    <button onclick="checkAdminPassword()"
+      style="width:100%;padding:13px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.15s"
+      onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'">
+      Войти →
+    </button>
+  </div>
+</div>
+
+<script>
+// Храним пароль в памяти сессии для авто-fill в API запросы
+window._adminPass = '';
+
+function checkAdminPassword() {
+  const pwd = document.getElementById('admin-password-input').value;
+  const err = document.getElementById('admin-auth-error');
+  err.style.display = 'none';
+  if (!pwd) { err.textContent = 'Введите пароль'; err.style.display = 'block'; return; }
+
+  // Проверяем через API — если 401 значит пароль неверный
+  fetch('/api/admin/stats', {
+    headers: { 'Authorization': 'Basic ' + btoa('admin:' + pwd) }
+  }).then(res => {
+    if (res.ok) {
+      window._adminPass = pwd;
+      document.getElementById('admin-auth-overlay').style.display = 'none';
+      // Monkey-patch fetch для авто-подстановки Basic Auth
+      const origFetch = window.fetch;
+      window.fetch = (url, opts = {}) => {
+        if (typeof url === 'string' && url.startsWith('/api/admin')) {
+          opts.headers = { ...(opts.headers || {}), 'Authorization': 'Basic ' + btoa('admin:' + window._adminPass) };
+        }
+        return origFetch(url, opts);
+      };
+      // Загружаем данные
+      if (typeof loadStats === 'function') loadStats();
+    } else {
+      err.textContent = 'Неверный пароль';
+      err.style.display = 'block';
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('admin-password-input').focus();
+    }
+  }).catch(() => {
+    err.textContent = 'Ошибка соединения';
+    err.style.display = 'block';
+  });
+}
+
+// Фокус на поле при загрузке
+window.addEventListener('load', () => {
+  document.getElementById('admin-password-input').focus();
+});
+</script>
+
 </body>
 </html>

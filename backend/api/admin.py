@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from typing import Optional
 import traceback
+import secrets
 
+from config import ADMIN_IDS, ADMIN_PASSWORD
 from database.db import (
     get_admin_statistics,
     get_all_lessons,
@@ -18,7 +21,24 @@ from database.db import (
     delete_vocab_card,
 )
 
-router = APIRouter()
+security = HTTPBasic()
+
+def require_admin(credentials: HTTPBasicCredentials = Depends(security)) -> bool:
+    """HTTP Basic Auth для всех /api/admin/* роутов."""
+    correct_user = secrets.compare_digest(credentials.username.encode(), b"admin")
+    correct_pass = secrets.compare_digest(
+        credentials.password.encode(), ADMIN_PASSWORD.encode()
+    )
+    if not (correct_user and correct_pass):
+        raise HTTPException(
+            status_code=401,
+            detail="Неверные учётные данные",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return True
+
+AdminDep = Depends(require_admin)
+router = APIRouter(dependencies=[Depends(require_admin)])
 
 
 class AddLessonRequest(BaseModel):
@@ -73,7 +93,7 @@ class VocabCardUpdate(VocabCardCreate):
 # ====================== УРОКИ ======================
 
 @router.get("/api/admin/stats")
-async def admin_stats():
+async def admin_stats(_auth: bool = AdminDep):
     try:
         return await get_admin_statistics()
     except Exception as e:
@@ -98,7 +118,7 @@ async def admin_lessons(language: Optional[str] = Query(None)):
 
 
 @router.get("/api/admin/lessons_for_questions")
-async def admin_lessons_for_questions():
+async def admin_lessons_for_questions(_auth: bool = AdminDep):
     try:
         rows = await get_all_lessons()
         return [{"id": r["id"], "level": r["level"], "title": r["title"]} for r in rows]
@@ -200,7 +220,7 @@ async def admin_manage_user(data: ManageUserRequest):
 # ====================== VOCAB CARDS ======================
 
 @router.get("/api/admin/vocab")
-async def admin_vocab_all():
+async def admin_vocab_all(_auth: bool = AdminDep):
     try:
         rows = await get_all_vocab_cards_admin()
         return [dict(r) for r in rows]
