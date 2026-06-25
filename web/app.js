@@ -599,19 +599,55 @@ function autoResizeTA(el) {
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-function renderLevelComplete() {
+async function renderLevelComplete() {
   const idx = LEVELS.indexOf(currentLevel);
   const hasNext = idx < LEVELS.length - 1;
+
+  // Сколько раз уже проходили
+  let passInfo = '';
+  try {
+    const r = await fetch(`/api/lessons/session/${userId}/${currentLevel}`);
+    const d = await r.json();
+    if (d.total_passes > 1) {
+      passInfo = `<div style="display:inline-block;background:#f0fdf4;color:#16a34a;font-size:12px;font-weight:700;padding:4px 12px;border-radius:8px;margin-bottom:16px">🔄 Прохождение #${d.session}</div>`;
+    }
+  } catch(e) {}
+
   document.getElementById('lesson-content').innerHTML = `
     <div style="text-align:center;padding:48px 16px">
-      <div style="font-size:64px;margin-bottom:16px">🎉</div>
+      <div style="font-size:64px;margin-bottom:12px">🎉</div>
+      ${passInfo}
       <h2 style="font-size:22px;font-weight:800;color:#191c1e;margin:0 0 8px">Уровень ${currentLevel} пройден!</h2>
       <p style="font-size:14px;color:#737686;margin:0 0 24px">Все материалы уровня изучены. Отличная работа!</p>
-      ${hasNext ? `<button onclick="currentLevel='${LEVELS[idx+1]}';loadNextLesson()" style="background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:14px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(79,101,239,0.3)">Следующий уровень: ${LEVELS[idx+1]} →</button>` : '<p style="font-size:16px;font-weight:700;color:#16a34a">🏆 Вы прошли все уровни!</p>'}
-      <br><button onclick="showPage('levels')" style="margin-top:12px;background:none;border:none;font-size:13px;color:#9aa0b4;cursor:pointer">← К выбору уровня</button>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+        ${hasNext ? `<button onclick="currentLevel='${LEVELS[idx+1]}';loadNextLesson()" style="background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:14px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(79,101,239,0.3);width:240px">Следующий уровень: ${LEVELS[idx+1]} →</button>` : '<p style="font-size:16px;font-weight:700;color:#16a34a">🏆 Вы прошли все уровни!</p>'}
+        <button onclick="restartLevel('${currentLevel}')"
+          style="background:#fff;border:1.5px solid rgba(195,198,215,0.6);color:#434655;border-radius:14px;padding:11px 28px;font-size:14px;font-weight:600;cursor:pointer;width:240px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.15s"
+          onmouseenter="this.style.background='#f7f9fb'" onmouseleave="this.style.background='#fff'">
+          <span style="font-size:16px">🔄</span> Пройти ${currentLevel} заново
+        </button>
+        <button onclick="navTo('main')" style="background:none;border:none;font-size:13px;color:#9aa0b4;cursor:pointer;margin-top:4px">← На главную</button>
+      </div>
     </div>`;
-  // Скрываем табы
   document.getElementById('lesson-tabs').style.display = 'none';
+}
+
+async function restartLevel(level) {
+  try {
+    const res = await fetch('/api/lessons/restart', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: userId, level})
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Ошибка: ' + (data.detail || 'неизвестная')); return; }
+    showToast(`${level} начат заново! (${data.message})`);
+    // Возвращаем табы и загружаем первый урок
+    document.getElementById('lesson-tabs').style.display = '';
+    await loadNextLesson();
+  } catch(e) {
+    alert('Ошибка соединения');
+  }
 }
 
 

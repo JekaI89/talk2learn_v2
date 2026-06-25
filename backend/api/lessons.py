@@ -12,6 +12,9 @@ from database.db import (
     update_user_streak,
     get_random_practice_question,
     get_user_languages,
+    start_new_session,
+    get_current_session,
+    get_level_sessions_count,
 )
 
 router = APIRouter()
@@ -158,4 +161,39 @@ async def check_answer(data: AnswerCheckRequest):
         return {"status": "success", "is_correct": data.is_correct}
     except Exception as e:
         traceback.print_exc()
+        raise HTTPException(500, str(e))
+
+
+# ====================== СЕССИИ / ПЕРЕПРОХОЖДЕНИЕ ======================
+
+class NewSessionRequest(BaseModel):
+    user_id: int
+    level: str
+
+
+@router.post("/api/lessons/restart")
+async def restart_level(data: NewSessionRequest):
+    """Начать уровень заново. XP и стрик сохраняются."""
+    try:
+        new_session = await start_new_session(data.user_id, data.level)
+        passes = await get_level_sessions_count(data.user_id, data.level)
+        return {
+            "status": "success",
+            "session": new_session,
+            "total_passes": passes,
+            "message": f"Уровень {data.level} начат заново (прохождение #{new_session})"
+        }
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(500, str(e))
+
+
+@router.get("/api/lessons/session/{user_id}/{level}")
+async def get_session_info(user_id: int, level: str):
+    """Информация о текущей сессии пользователя."""
+    try:
+        session = await get_current_session(user_id, level)
+        passes = await get_level_sessions_count(user_id, level)
+        return {"session": session, "total_passes": passes}
+    except Exception as e:
         raise HTTPException(500, str(e))

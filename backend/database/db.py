@@ -120,7 +120,21 @@ async def init_db():
                 content_type TEXT,
                 content_id INTEGER,
                 completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                xp_earned INTEGER DEFAULT 10
+                xp_earned INTEGER DEFAULT 10,
+                session_id INTEGER DEFAULT 1
+            )
+        """)
+        await db.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS session_id INTEGER DEFAULT 1")
+
+        # COURSE_SESSIONS — перепрохождения курса
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS course_sessions (
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
+                level TEXT NOT NULL,
+                session_num INTEGER NOT NULL DEFAULT 1,
+                started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (user_id, level, session_num)
             )
         """)
         # ==================== DICTIONARY ====================
@@ -350,10 +364,14 @@ async def delete_lesson(lesson_id: int):
 
 
 async def get_next_uncompleted_lesson(user_id: int, level: str, content_type: str = None,
-                                      language: str = 'en'):
+                                      language: str = 'en', session_id: int = None):
     """
-    Первый непройденный урок уровня, с фильтром по языку (target_language пользователя).
+    Первый непройденный урок уровня в текущей сессии.
+    Если session_id не передан — определяется автоматически.
     """
+    if session_id is None:
+        session_id = await get_current_session(user_id, level)
+
     pool = await get_pool()
     async with pool.acquire() as db:
         if content_type:
@@ -367,10 +385,11 @@ async def get_next_uncompleted_lesson(user_id: int, level: str, content_type: st
                       WHERE up.user_id = $4
                         AND up.content_type = l.content_type
                         AND up.content_id = l.id
+                        AND up.session_id = $5
                   )
                 ORDER BY l.order_num, l.id
                 LIMIT 1
-            """, level, content_type, language, user_id)
+            """, level, content_type, language, user_id, session_id)
 
         return await db.fetchrow("""
             SELECT l.id, l.title, l.lesson_text, l.content_type
@@ -381,10 +400,11 @@ async def get_next_uncompleted_lesson(user_id: int, level: str, content_type: st
                   WHERE up.user_id = $3
                     AND up.content_type = l.content_type
                     AND up.content_id = l.id
+                    AND up.session_id = $4
               )
             ORDER BY l.order_num, l.id
             LIMIT 1
-        """, level, language, user_id)
+        """, level, language, user_id, session_id)
 
 
 # ==================== ВОПРОСЫ ====================
@@ -458,23 +478,27 @@ async def check_is_admin(user_id: int) -> bool:
 
 # ==================== ПРОГРЕСС ====================
 
-async def save_user_progress(user_id: int, content_type: str, content_id: int):
+async def save_user_progress(user_id: int, content_type: str, content_id: int,
+                             level: str = "A1"):
     xp_to_add = 5 if content_type in ["lesson", "grammar"] else 10
+    session_id = await get_current_session(user_id, level)
 
     pool = await get_pool()
     async with pool.acquire() as db:
+        # Проверяем только в рамках текущей сессии
         already = await db.fetchrow("""
             SELECT id FROM user_progress
             WHERE user_id = $1 AND content_type = $2 AND content_id = $3
-        """, user_id, content_type, content_id)
+              AND session_id = $4
+        """, user_id, content_type, content_id, session_id)
 
         if already:
             return {"status": "already_passed", "xp_earned": 0}
 
         await db.execute("""
-            INSERT INTO user_progress (user_id, content_type, content_id, xp_earned)
-            VALUES ($1, $2, $3, $4)
-        """, user_id, content_type, content_id, xp_to_add)
+            INSERT INTO user_progress (user_id, content_type, content_id, xp_earned, session_id)
+            VALUES ($1, $2, $3, $4, $5)
+        """, user_id, content_type, content_id, xp_to_add, session_id)
 
         await db.execute("""
             UPDATE users SET xp = xp + $1 WHERE user_id = $2
@@ -775,3 +799,42 @@ async def get_user_category_stats(user_id: int) -> dict:
             "completed": int(vocab_cards_done["cnt"])
         }
         return stats
+
+# ==================== COURSE SESSIONS ====================
+
+async def get_current_session(user_id: int, level: str) -> int:
+    """Возвращает номер текущей активной сессии для уровня (1 если не начинали заново)."""
+    pool = await get_pool()
+    async with pool.acquire() as db:
+        row = await db.fetchrow(
+            "SELECT MAX(session_num) as num FROM course_sessions WHERE user_id=$1 AND level=$2",
+            user_id, level
+        )
+        return row["num"] if row and row["num"] else 1
+
+
+async def start_new_session(user_id: int, level: str) -> int:
+    """Начинает новую сессию прохождения уровня. XP и стрик НЕ сбрасываются."""
+    pool = await get_pool()
+    async with pool.acquire() as db:
+        row = await db.fetchrow(
+            "SELECT MAX(session_num) as num FROM course_sessions WHERE user_id=$1 AND level=$2",
+            user_id, level
+        )
+        next_num = (row["num"] or 1) + 1
+        await db.execute(
+            "INSERT INTO course_sessions (user_id, level, session_num) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING",
+            user_id, level, next_num
+        )
+        return next_num
+
+
+async def get_level_sessions_count(user_id: int, level: str) -> int:
+    """Сколько раз пользователь проходил этот уровень."""
+    pool = await get_pool()
+    async with pool.acquire() as db:
+        row = await db.fetchrow(
+            "SELECT COUNT(*) as cnt FROM course_sessions WHERE user_id=$1 AND level=$2",
+            user_id, level
+        )
+        return row["cnt"] if row else 0
