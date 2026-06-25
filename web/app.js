@@ -1360,6 +1360,7 @@ async function handleWordTap(word, ctx) {
   document.getElementById('popup-translation').textContent='⏳ Перевод...';
   document.getElementById('popup-example').textContent='';
   document.getElementById('popup-status').textContent='';
+  document.getElementById('popup-retry-btn').style.display='none';
   document.getElementById('popup-add-btn').disabled=false;
   document.getElementById('popup-add-btn').textContent='+ В мой словарь';
   showWordPopup();
@@ -1369,9 +1370,16 @@ async function handleWordTap(word, ctx) {
       document.getElementById('popup-transcription').textContent=data.transcription||'';
       document.getElementById('popup-translation').textContent=data.translation||'—';
       document.getElementById('popup-example').textContent=data.context_example?`"${data.context_example}"`:'';}
-    else document.getElementById('popup-translation').textContent=data.message||'Ошибка';
-  } catch(e){document.getElementById('popup-translation').textContent='Ошибка соединения';}
+    else {
+      document.getElementById('popup-translation').textContent=data.message||'Ошибка';
+      document.getElementById('popup-retry-btn').style.display='block';
+    }
+  } catch(e){
+    document.getElementById('popup-translation').textContent='Ошибка соединения';
+    document.getElementById('popup-retry-btn').style.display='block';
+  }
 }
+function retryTranslation() { handleWordTap(popupWord, popupContext); }
 function showWordPopup() {
   document.getElementById('word-popup-overlay').classList.remove('hidden');
   document.getElementById('word-popup').classList.remove('hidden-popup');
