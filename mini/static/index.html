@@ -699,11 +699,11 @@ tailwind.config = {
     </div>
 
     <!-- ══════════ SITUATION CHAT ══════════ -->
-    <div id="screen-situation-chat" class="flex-col" style="display:none">
-      <div id="situation-hint-bar" class="px-md py-sm bg-[#fffbeb] border-b border-[#fde68a] text-xs text-[#92400e] font-label"></div>
+    <div id="screen-situation-chat" class="flex-col" style="display:none;height:calc(100dvh - 52px);overflow:hidden">
+      <div id="situation-hint-bar" class="px-md py-sm bg-[#fffbeb] border-b border-[#fde68a] text-xs text-[#92400e] font-label flex-shrink-0"></div>
       <div id="situation-chat-box" class="flex-1 overflow-y-auto p-md space-y-sm bg-surface"></div>
       <!-- Input -->
-      <div class="border-t border-surface-variant bg-surface-container-lowest px-md py-sm flex items-center gap-sm">
+      <div class="border-t border-surface-variant bg-surface-container-lowest px-md py-sm flex items-center gap-sm flex-shrink-0" style="padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))">
         <input id="situation-input" type="text" placeholder="Type your message..."
           class="flex-1 h-touch rounded-xl bg-surface-container px-md text-sm text-on-surface placeholder:text-outline font-body focus:outline-none focus:ring-2 focus:ring-primary-container"
           onkeydown="if(event.key==='Enter') sendSituationMessage()">
