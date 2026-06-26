@@ -281,14 +281,7 @@ tailwind.config = {
           <h1 class="font-headline font-extrabold text-on-surface text-2xl mb-sm">Ваш родной язык?</h1>
           <p class="font-body text-on-surface-variant text-sm">Переводы и подсказки будут на этом языке</p>
         </div>
-        <div class="grid grid-cols-2 gap-sm">
-          <button onclick="selectNativeLang('ru')" data-lang="ru" class="ob-native-btn p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">🇷🇺</div><div class="font-headline font-bold text-on-surface text-sm">Русский</div></button>
-          <button onclick="selectNativeLang('en')" data-lang="en" class="ob-native-btn p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">🇬🇧</div><div class="font-headline font-bold text-on-surface text-sm">Английский</div></button>
-          <button onclick="selectNativeLang('de')" data-lang="de" class="ob-native-btn p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">🇩🇪</div><div class="font-headline font-bold text-on-surface text-sm">Немецкий</div></button>
-          <button onclick="selectNativeLang('fr')" data-lang="fr" class="ob-native-btn p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">🇫🇷</div><div class="font-headline font-bold text-on-surface text-sm">Французский</div></button>
-          <button onclick="selectNativeLang('es')" data-lang="es" class="ob-native-btn p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">🇪🇸</div><div class="font-headline font-bold text-on-surface text-sm">Испанский</div></button>
-          <button onclick="selectNativeLang('zh')" data-lang="zh" class="ob-native-btn p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">🇨🇳</div><div class="font-headline font-bold text-on-surface text-sm">Китайский</div></button>
-        </div>
+        <div id="ob-native-grid" class="grid grid-cols-2 gap-sm"></div>
       </div>
 
       <!-- Шаг 1: Цель -->

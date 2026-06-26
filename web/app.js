@@ -1332,7 +1332,14 @@ async function saveLangSettings() {
 function obSelectTarget(lang) {
   obTarget=lang;
   document.querySelectorAll('.ob-lang').forEach(b=>{const a=b.dataset.lang===lang;b.classList.toggle('border-primary-container',a);b.classList.toggle('border-surface-variant',!a);});
-  setTimeout(()=>{document.getElementById('ob-step-0').classList.add('hidden');document.getElementById('ob-step-1').classList.remove('hidden');document.querySelectorAll('.ob-native').forEach(b=>{b.classList.toggle('hidden',b.dataset.lang===lang);});},280);
+  setTimeout(()=>{
+    document.getElementById('ob-step-0').classList.add('hidden');
+    document.getElementById('ob-native-grid').innerHTML = Object.keys(LANG_NATIVE_NAMES)
+      .filter(l=>l!==lang)
+      .map(l=>`<button onclick="obSelectNative('${l}')" class="elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">${LANG_FLAGS[l]}</div><div class="font-headline font-bold text-sm">${LANG_NATIVE_NAMES[l]}</div></button>`)
+      .join('');
+    document.getElementById('ob-step-1').classList.remove('hidden');
+  },280);
 }
 function obSelectNative(lang) {
   obNative=lang;
