@@ -1,17 +1,24 @@
 <!-- PRACTICE MODE -->
-<div id="page-practice-mode" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
-  <button onclick="showPage('levels')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
-    <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Назад
-  </button>
-  <h2 class="font-headline font-extrabold text-2xl text-on-surface">Режим практики</h2>
-  <div class="space-y-sm">
-    <button onclick="startPracticeMode('multiple_choice')" class="w-full elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="font-headline font-bold text-on-surface mb-xs">🎯 Тест с вариантами</div>
-      <div class="font-label text-xs text-on-surface-variant">Выберите правильный ответ из 4 вариантов</div>
-    </button>
-    <button onclick="startPracticeMode('sentence_builder')" class="w-full elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="font-headline font-bold text-on-surface mb-xs">🧩 Конструктор предложений</div>
-      <div class="font-label text-xs text-on-surface-variant">Составьте фразу из слов</div>
-    </button>
+<div id="page-practice-mode" class="page">
+  <div class="page-container" style="display:flex;flex-direction:column;gap:24px">
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onclick="showPage('levels')" style="background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;display:flex;align-items:center;color:#737686;transition:background 0.15s" onmouseenter="this.style.background='#f0f2f5'" onmouseleave="this.style.background='none'">
+        <span class="material-symbols-outlined" style="font-size:22px">arrow_back</span>
+      </button>
+      <h2 style="font-size:clamp(18px,3vw,24px);font-weight:800;color:#191c1e;margin:0" data-i18n="page_practice_mode">Режим практики</h2>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button onclick="startPracticeMode('multiple_choice')" class="elevated-card" style="border-radius:16px;padding:18px 20px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;width:100%" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+        <div style="font-size:15px;font-weight:700;color:#191c1e;margin-bottom:4px" data-i18n="practice_mc">🎯 Тест с вариантами</div>
+        <div style="font-size:12px;color:#737686" data-i18n="practice_mc_sub">Выберите правильный ответ из 4 вариантов</div>
+      </button>
+      <button onclick="startPracticeMode('sentence_builder')" class="elevated-card" style="border-radius:16px;padding:18px 20px;text-align:left;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;width:100%" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+        <div style="font-size:15px;font-weight:700;color:#191c1e;margin-bottom:4px" data-i18n="practice_sb">🧩 Конструктор предложений</div>
+        <div style="font-size:12px;color:#737686" data-i18n="practice_sb_sub">Составьте фразу из слов</div>
+      </button>
+    </div>
+
   </div>
 </div>
