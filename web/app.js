@@ -300,26 +300,28 @@ function startCategory(cat) {
 }
 
 function renderLevelsGrid() {
-  const catLabels = {lessons:'Уроки', grammar:'Грамматика', vocabulary:'Лексика', practice:'Практика'};
+  const t = (typeof UI_TRANSLATIONS !== 'undefined' && UI_TRANSLATIONS[userNativeLang]) || {};
+  const catKey = 'cat_' + currentCategory;
+  const catName = t[catKey] || currentCategory;
   const labelEl = document.getElementById('levels-category-label');
-  if (labelEl) labelEl.textContent = 'Раздел: ' + (catLabels[currentCategory] || 'Уроки');
+  if (labelEl) labelEl.textContent = (t.levels_section || 'Раздел:') + ' ' + catName;
 
   document.getElementById('levels-grid').innerHTML = LEVELS.map(lvl => {
     const m = LEVEL_META[lvl];
+    const label = t['lvl_' + lvl] || m.label;
+    const desc = t['lvl_' + lvl + '_desc'] || m.desc;
     return `<button onclick="selectLevel('${lvl}')"
       style="background:#fff;border:1px solid rgba(195,198,215,0.25);border-radius:20px;padding:0;text-align:left;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:transform 0.18s,box-shadow 0.18s;overflow:hidden"
       onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.12)'"
       onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
-      <!-- Gradient top -->
       <div style="background:${m.gradient};padding:20px 18px 16px;position:relative;overflow:hidden">
         <div style="font-size:32px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15))">${m.emoji}</div>
         <div style="font-size:28px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1px">${lvl}</div>
         <div style="position:absolute;right:-8px;bottom:-8px;font-size:64px;opacity:0.08;font-weight:900;color:#fff;line-height:1">${lvl}</div>
       </div>
-      <!-- Info bottom -->
       <div style="padding:12px 14px 14px">
-        <div style="font-size:13px;font-weight:700;color:#191c1e;margin-bottom:3px">${m.label}</div>
-        <div style="font-size:11px;color:#737686;line-height:1.4">${m.desc}</div>
+        <div style="font-size:13px;font-weight:700;color:#191c1e;margin-bottom:3px">${label}</div>
+        <div style="font-size:11px;color:#737686;line-height:1.4">${desc}</div>
       </div>
     </button>`;
   }).join('');
