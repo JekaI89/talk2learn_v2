@@ -1302,7 +1302,7 @@ function showLangSettings() {
     <div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 mb-4">
       <h3 class="font-headline font-bold text-on-surface mb-3">Язык изучения</h3>
       <div class="grid grid-cols-2 gap-2">
-        ${[['en','🇬🇧','Английский'],['de','🇩🇪','Немецкий'],['fr','🇫🇷','Французский'],['es','🇪🇸','Испанский'],['it','🇮🇹','Итальянский'],['zh','🇨🇳','Китайский']].map(([l,f,n])=>`<button onclick="setLangTarget('${l}')" data-tgt="${l}" class="ls-tgt p-3 border-2 ${userTargetLang===l?'border-primary-container bg-surface-container-low':'border-surface-variant'} rounded-xl text-center text-sm font-label hover:border-primary transition-colors"><div class="text-2xl">${f}</div><div class="font-bold text-on-surface">${n}</div></button>`).join('')}
+        ${[['en','🇬🇧','Английский']].map(([l,f,n])=>`<button onclick="setLangTarget('${l}')" data-tgt="${l}" class="ls-tgt p-3 border-2 ${userTargetLang===l?'border-primary-container bg-surface-container-low':'border-surface-variant'} rounded-xl text-center text-sm font-label hover:border-primary transition-colors"><div class="text-2xl">${f}</div><div class="font-bold text-on-surface">${n}</div></button>`).join('')}
       </div>
     </div>
     <div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 mb-4">
