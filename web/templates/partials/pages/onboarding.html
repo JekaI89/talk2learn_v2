@@ -1,0 +1,45 @@
+<!-- ONBOARDING -->
+<div id="page-onboarding" class="page p-md md:p-xl gap-lg max-w-lg w-full mx-auto">
+  <div id="ob-step-0">
+    <div class="text-center mb-lg"><div class="text-5xl mb-md">🌍</div>
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">Какой язык учим?</h2></div>
+    <div class="grid grid-cols-2 gap-sm">
+      <button onclick="obSelectTarget('en')" data-lang="en" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇬🇧</div><div class="font-headline font-bold text-sm">Английский</div></button>
+      <button onclick="obSelectTarget('de')" data-lang="de" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇩🇪</div><div class="font-headline font-bold text-sm">Немецкий</div></button>
+      <button onclick="obSelectTarget('fr')" data-lang="fr" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇫🇷</div><div class="font-headline font-bold text-sm">Французский</div></button>
+      <button onclick="obSelectTarget('es')" data-lang="es" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇪🇸</div><div class="font-headline font-bold text-sm">Испанский</div></button>
+      <button onclick="obSelectTarget('it')" data-lang="it" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇮🇹</div><div class="font-headline font-bold text-sm">Итальянский</div></button>
+      <button onclick="obSelectTarget('zh')" data-lang="zh" class="ob-lang elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇨🇳</div><div class="font-headline font-bold text-sm">Китайский</div></button>
+    </div>
+  </div>
+  <div id="ob-step-1" class="hidden">
+    <div class="text-center mb-lg"><div class="text-5xl mb-md">🗣️</div>
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">Ваш родной язык?</h2></div>
+    <div class="grid grid-cols-2 gap-sm">
+      <button onclick="obSelectNative('ru')" data-lang="ru" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇷🇺</div><div class="font-headline font-bold text-sm">Русский</div></button>
+      <button onclick="obSelectNative('en')" data-lang="en" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇬🇧</div><div class="font-headline font-bold text-sm">Английский</div></button>
+      <button onclick="obSelectNative('de')" data-lang="de" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇩🇪</div><div class="font-headline font-bold text-sm">Немецкий</div></button>
+      <button onclick="obSelectNative('fr')" data-lang="fr" class="ob-native elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">🇫🇷</div><div class="font-headline font-bold text-sm">Французский</div></button>
+    </div>
+  </div>
+  <div id="ob-step-2" class="hidden">
+    <div class="text-center mb-lg"><div class="text-5xl mb-md">📊</div>
+      <h2 class="font-headline font-extrabold text-2xl text-on-surface">Ваш уровень?</h2></div>
+    <div class="grid grid-cols-2 gap-sm">
+      <button onclick="obSelectLevel('A1')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-green-400 to-teal-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">A1</span><span class="font-label text-xs text-white/70 block mt-xs">Начинаю с нуля</span></button>
+      <button onclick="obSelectLevel('A2')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">A2</span><span class="font-label text-xs text-white/70 block mt-xs">Базовые фразы</span></button>
+      <button onclick="obSelectLevel('B1')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-orange-400 to-amber-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">B1</span><span class="font-label text-xs text-white/70 block mt-xs">Средний</span></button>
+      <button onclick="obSelectLevel('B2')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-pink-400 to-rose-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">B2</span><span class="font-label text-xs text-white/70 block mt-xs">Выше среднего</span></button>
+      <button onclick="obSelectLevel('C1')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-red-400 to-purple-500 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">C1</span><span class="font-label text-xs text-white/70 block mt-xs">Продвинутый</span></button>
+      <button onclick="obSelectLevel('C2')" class="rounded-[1.25rem] p-md bg-gradient-to-br from-zinc-600 to-gray-800 text-white text-left active:scale-95 transition-transform"><span class="font-label text-xs text-white/70 block">Уровень</span><span class="font-headline font-extrabold text-2xl">C2</span><span class="font-label text-xs text-white/70 block mt-xs">Мастер</span></button>
+    </div>
+  </div>
+  <div id="ob-step-3" class="hidden text-center py-xl">
+    <div class="text-6xl mb-md">🚀</div>
+    <h2 class="font-headline font-extrabold text-2xl text-on-surface mb-sm">Всё готово!</h2>
+    <p id="ob-ready-msg" class="text-on-surface-variant font-body mb-lg"></p>
+    <button onclick="finishOnboarding()" class="px-xl py-sm bg-tertiary-container text-on-tertiary font-label font-bold rounded-[1rem] active:scale-95 transition-transform text-sm">
+      Начать учиться →
+    </button>
+  </div>
+</div>

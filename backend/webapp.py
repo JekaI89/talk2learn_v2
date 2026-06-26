@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
+from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 import os
 import asyncio
@@ -136,6 +137,8 @@ async def bot_webhook(request: Request):
 app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
 app.mount("/assets", StaticFiles(directory=WEB_DIR),  name="web-assets")
 
+_web_templates = Jinja2Templates(directory=os.path.join(WEB_DIR, "templates"))
+
 
 # ====================== FAVICON ======================
 
@@ -155,7 +158,7 @@ async def favicon():
 
 # ====================== СТРАНИЦЫ ======================
 
-# Веб-сайт — главная страница
+# Веб-сайт — главная страница (Jinja2 templates)
 @app.get("/")
 @app.get("/app")
 @app.get("/web")
@@ -164,8 +167,8 @@ async def favicon():
 @app.get("/club")
 @app.get("/situations")
 @app.get("/profile")
-async def serve_web():
-    return FileResponse(os.path.join(WEB_DIR, "index.html"))
+async def serve_web(request: Request):
+    return _web_templates.TemplateResponse("index.html", {"request": request})
 
 
 # Mini App — только для Telegram WebApp
@@ -178,18 +181,6 @@ async def serve_mini():
 @app.get("/admin")
 async def serve_admin():
     return FileResponse(os.path.join(MINI_DIR, "admin.html"))
-
-
-# SPA роуты
-@app.get("/site")
-@app.get("/site/")
-@app.get("/site/app")
-@app.get("/site/lessons")
-@app.get("/site/dictionary")
-@app.get("/site/word")
-@app.get("/site/profile")
-async def serve_site():
-    return FileResponse(os.path.join(WEB_DIR, "app.html"))
 
 
 if __name__ == "__main__":

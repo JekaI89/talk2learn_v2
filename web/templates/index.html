@@ -1,0 +1,43 @@
+{% include "partials/head.html" %}
+
+{% include "partials/auth.html" %}
+
+<!-- ═══ APP SCREEN ═══ -->
+<div id="screen-app" class="screen">
+
+  {% include "partials/sidebar.html" %}
+
+  <div class="app-main">
+    <header class="mobile-header">
+      <button onclick="openSidebar()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center">
+        <span class="material-symbols-outlined" style="font-size:24px;color:#434655">menu</span>
+      </button>
+      <div id="mobile-avatar" style="width:32px;height:32px;background:#dbe4ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#4f65ef;flex-shrink:0">TL</div>
+      <span id="mobile-title" style="font-weight:700;font-size:14px;color:#191c1e;flex:1">Talk2Learn</span>
+      <span id="mobile-xp" style="font-size:12px;color:#737686;white-space:nowrap">⭐ 0 XP</span>
+    </header>
+    <!-- Pages -->
+
+    {% include "partials/pages/dashboard.html" %}
+    {% include "partials/pages/levels.html" %}
+    {% include "partials/pages/practice_mode.html" %}
+    {% include "partials/pages/lesson.html" %}
+    {% include "partials/pages/practice.html" %}
+    {% include "partials/pages/dictionary.html" %}
+    {% include "partials/pages/notebook.html" %}
+    {% include "partials/pages/club.html" %}
+    {% include "partials/pages/situations.html" %}
+    {% include "partials/pages/profile.html" %}
+    {% include "partials/pages/onboarding.html" %}
+
+  </div><!-- /app-main -->
+
+  {% include "partials/mobile_nav.html" %}
+
+</div><!-- /screen-app -->
+
+{% include "partials/word_popup.html" %}
+
+<script src="/assets/app.js"></script>
+</body>
+</html>
