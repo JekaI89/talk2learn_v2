@@ -8,7 +8,7 @@
         <span class="material-symbols-outlined filled" style="color:#fff;font-size:20px">mic</span>
       </div>
       <div>
-        <div style="font-size:15px;font-weight:700;color:#191c1e">Разговорный клуб</div>
+        <div style="font-size:15px;font-weight:700;color:#191c1e" data-i18n="nav_club">Разговорный клуб</div>
         <div style="font-size:12px;color:#737686">Уровень: <span id="club-level" style="color:#4f65ef;font-weight:700">A1</span> · AI-репетитор</div>
       </div>
     </div>
@@ -39,7 +39,7 @@
     <!-- Textarea -->
     <div style="flex:1;position:relative">
       <textarea id="chat-input"
-        placeholder="Напишите сообщение..."
+        placeholder="Напишите сообщение..." data-i18n-placeholder="placeholder_club"
         rows="1"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendClubMessage();}"
         oninput="autoResizeClubInput(this)"

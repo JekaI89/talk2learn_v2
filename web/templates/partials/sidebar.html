@@ -23,18 +23,18 @@
     </div>
   </div>
   <nav style="flex:1;display:flex;flex-direction:column;gap:2px;margin-top:4px">
-    <button onclick="navTo('main')" data-nav="main" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">home</span><span>Главная</span></button>
-    <button onclick="navTo('dictionary')" data-nav="dictionary" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">menu_book</span><span>Словарь</span></button>
-    <button onclick="navTo('notebook')" data-nav="notebook" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">book_2</span><span>Мой блокнот</span></button>
-    <button onclick="navTo('club')" data-nav="club" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">mic</span><span>Разговорный клуб</span></button>
-    <button onclick="navTo('situations')" data-nav="situations" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">theater_comedy</span><span>Ситуации</span></button>
-    <button onclick="navTo('profile')" data-nav="profile" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">person</span><span>Профиль</span></button>
+    <button onclick="navTo('main')" data-nav="main" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">home</span><span data-i18n="nav_home">Главная</span></button>
+    <button onclick="navTo('dictionary')" data-nav="dictionary" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">menu_book</span><span data-i18n="nav_dictionary">Словарь</span></button>
+    <button onclick="navTo('notebook')" data-nav="notebook" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">book_2</span><span data-i18n="nav_notebook">Мой блокнот</span></button>
+    <button onclick="navTo('club')" data-nav="club" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">mic</span><span data-i18n="nav_club">Разговорный клуб</span></button>
+    <button onclick="navTo('situations')" data-nav="situations" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">theater_comedy</span><span data-i18n="nav_situations">Ситуации</span></button>
+    <button onclick="navTo('profile')" data-nav="profile" class="nav-btn"><span class="material-symbols-outlined filled" style="font-size:20px">person</span><span data-i18n="nav_profile">Профиль</span></button>
   </nav>
   <div style="border-top:1px solid rgba(195,198,215,0.3);padding-top:8px;margin-top:4px">
     <a href="/admin" target="_blank" class="nav-btn admin-only" style="display:none;text-decoration:none;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;margin-bottom:4px">
       <span class="material-symbols-outlined filled" style="font-size:20px">admin_panel_settings</span>
-      <span>Админ-панель</span>
+      <span data-i18n="nav_admin">Админ-панель</span>
     </a>
-    <button onclick="logout()" class="nav-btn" style="color:#ba1a1a"><span class="material-symbols-outlined" style="font-size:20px">logout</span><span>Выйти</span></button>
+    <button onclick="logout()" class="nav-btn" style="color:#ba1a1a"><span class="material-symbols-outlined" style="font-size:20px">logout</span><span data-i18n="nav_logout">Выйти</span></button>
   </div>
 </aside>
