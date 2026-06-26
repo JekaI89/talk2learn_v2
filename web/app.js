@@ -216,6 +216,8 @@ async function initApp() {
     userTargetLang = langs.target || 'en';
   } catch(e) {}
 
+  applyTranslations();
+
   document.getElementById('club-level').textContent = currentLevel;
   initClubGreeting();
 
@@ -1320,6 +1322,7 @@ async function saveLangSettings() {
   try {
     await fetch('/api/user/languages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),native_language:lsNtv,target_language:lsTgt})});
     userNativeLang=lsNtv; userTargetLang=lsTgt;
+    applyTranslations();
     document.getElementById('ls-status').textContent='✅ Сохранено!';
     setTimeout(loadProfile,1000);
   } catch(e){document.getElementById('ls-status').textContent='Ошибка';}
@@ -1345,6 +1348,7 @@ async function finishOnboarding() {
   try {
     await fetch('/api/onboarding/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:parseInt(userId),level:obLevel,goal:'general',native_language:obNative,target_language:obTarget})});
     userNativeLang=obNative; userTargetLang=obTarget; currentLevel=obLevel;
+    applyTranslations();
     await loadUserData();
     navTo('main');
   } catch(e){navTo('main');}
