@@ -406,9 +406,10 @@ function renderLesson(lesson) {
 
 function extractKeyWords(text, title) {
   // Извлекаем уникальные слова длиннее 3 букв из текста урока
-  const stopWords = new Set(['the','and','for','are','but','not','you','all','can','her','was','one','our','out','day','get','has','him','his','how','its','let','may','now','old','own','say','she','too','use','way','who','did','its','off','put','set','two','any','come','give','most','some','take','than','them','then','they','this','that','have','from','been','when','will','with','your','were','what','also','each','into','just','know','more','much','over','such','well','year']);
-  const words = text.match(/[a-zA-Z]{4,}/g) || [];
-  const unique = [...new Set(words.map(w=>w.toLowerCase()))].filter(w=>!stopWords.has(w));
+  const stopWordsEn = new Set(['the','and','for','are','but','not','you','all','can','her','was','one','our','out','day','get','has','him','his','how','its','let','may','now','old','own','say','she','too','use','way','who','did','off','put','set','two','any','come','give','most','some','take','than','them','then','they','this','that','have','from','been','when','will','with','your','were','what','also','each','into','just','know','more','much','over','such','well','year']);
+  const stopWordsRu = new Set(['это','как','так','что','или','для','при','без','над','под','про','был','была','были','есть','его','её','их','мой','моя','мои','твой','наш','ваш','тот','эта','эти','тем','тех','все','всё','всех','уже','ещё','если','чтобы','того','этот','этого','этом','него','нее','них','который','которая','которое']);
+  const words = text.match(/[A-Za-zЀ-ӿ]{4,}/g) || [];
+  const unique = [...new Set(words.map(w=>w.toLowerCase()))].filter(w=>!stopWordsEn.has(w)&&!stopWordsRu.has(w));
   return unique.slice(0, 12);
 }
 
@@ -1289,6 +1290,8 @@ async function loadAccountLinks() {
 
 // ── НАСТРОЙКИ ЯЗЫКА ──
 function showLangSettings() {
+  lsTgt = userTargetLang;
+  lsNtv = userNativeLang;
   const html=`
     <div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-4 mb-4">
       <h3 class="font-headline font-bold text-on-surface mb-3">Язык изучения</h3>
