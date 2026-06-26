@@ -1,3 +1,6 @@
+const LANG_FLAGS = {'ru':'🇷🇺','en':'🇬🇧','de':'🇩🇪','fr':'🇫🇷','es':'🇪🇸','it':'🇮🇹','zh':'🇨🇳','ja':'🇯🇵','pt':'🇵🇹'};
+const LANG_NATIVE_NAMES = {'ru':'Русский','en':'English','de':'Deutsch','fr':'Français','es':'Español','it':'Italiano','zh':'中文','ja':'日本語','pt':'Português'};
+
 const UI_TRANSLATIONS = {
   ru: {
     // nav

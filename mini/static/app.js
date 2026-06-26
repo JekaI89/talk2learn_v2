@@ -1024,11 +1024,11 @@ function selectTargetLang(lang) {
   });
   setTimeout(() => {
     document.getElementById('ob-step-0').classList.add('hidden');
+    document.getElementById('ob-native-grid').innerHTML = Object.keys(LANG_NATIVE_NAMES)
+      .filter(l => l !== lang)
+      .map(l => `<button onclick="selectNativeLang('${l}')" class="p-md bg-surface-container-lowest border-2 border-surface-variant rounded-2xl text-center active:scale-95 transition-all"><div class="text-3xl mb-xs">${LANG_FLAGS[l]}</div><div class="font-headline font-bold text-on-surface text-sm">${LANG_NATIVE_NAMES[l]}</div></button>`)
+      .join('');
     document.getElementById('ob-step-05').classList.remove('hidden');
-    // Скрываем родной язык = целевому
-    document.querySelectorAll('.ob-native-btn').forEach(b => {
-      b.classList.toggle('hidden', b.dataset.lang === lang);
-    });
   }, 280);
 }
 
