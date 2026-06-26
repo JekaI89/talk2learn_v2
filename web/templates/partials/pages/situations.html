@@ -1,30 +1,30 @@
 <!-- SITUATIONS -->
 <div id="page-situations" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
-  <h2 class="font-headline font-extrabold text-2xl text-on-surface">🎭 Ситуации</h2>
+  <h2 class="font-headline font-extrabold text-2xl text-on-surface" data-i18n="page_situations">🎭 Ситуации</h2>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
     <button onclick="openSituation('shop','В магазине','shop')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="text-2xl mb-xs">🛒</div><div class="font-headline font-bold text-on-surface">В магазине</div>
-      <div class="font-label text-xs text-outline">Покупки и цены</div>
+      <div class="text-2xl mb-xs">🛒</div><div class="font-headline font-bold text-on-surface" data-i18n="sit_shop">В магазине</div>
+      <div class="font-label text-xs text-outline" data-i18n="sit_shop_sub">Покупки и цены</div>
     </button>
     <button onclick="openSituation('restaurant','В ресторане','restaurant')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="text-2xl mb-xs">🍽️</div><div class="font-headline font-bold text-on-surface">В ресторане</div>
-      <div class="font-label text-xs text-outline">Заказ еды</div>
+      <div class="text-2xl mb-xs">🍽️</div><div class="font-headline font-bold text-on-surface" data-i18n="sit_restaurant">В ресторане</div>
+      <div class="font-label text-xs text-outline" data-i18n="sit_restaurant_sub">Заказ еды</div>
     </button>
     <button onclick="openSituation('airport','В аэропорту','airport')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="text-2xl mb-xs">✈️</div><div class="font-headline font-bold text-on-surface">В аэропорту</div>
-      <div class="font-label text-xs text-outline">Регистрация на рейс</div>
+      <div class="text-2xl mb-xs">✈️</div><div class="font-headline font-bold text-on-surface" data-i18n="sit_airport">В аэропорту</div>
+      <div class="font-label text-xs text-outline" data-i18n="sit_airport_sub">Регистрация на рейс</div>
     </button>
     <button onclick="openSituation('hotel','В отеле','hotel')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="text-2xl mb-xs">🏨</div><div class="font-headline font-bold text-on-surface">В отеле</div>
-      <div class="font-label text-xs text-outline">Заселение и услуги</div>
+      <div class="text-2xl mb-xs">🏨</div><div class="font-headline font-bold text-on-surface" data-i18n="sit_hotel">В отеле</div>
+      <div class="font-label text-xs text-outline" data-i18n="sit_hotel_sub">Заселение и услуги</div>
     </button>
     <button onclick="openSituation('doctor','У врача','doctor')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="text-2xl mb-xs">🏥</div><div class="font-headline font-bold text-on-surface">У врача</div>
-      <div class="font-label text-xs text-outline">Симптомы и лечение</div>
+      <div class="text-2xl mb-xs">🏥</div><div class="font-headline font-bold text-on-surface" data-i18n="sit_doctor">У врача</div>
+      <div class="font-label text-xs text-outline" data-i18n="sit_doctor_sub">Симптомы и лечение</div>
     </button>
     <button onclick="openSituation('emergency','Экстренная помощь','emergency')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
-      <div class="text-2xl mb-xs">🚨</div><div class="font-headline font-bold text-on-surface">Экстренная помощь</div>
-      <div class="font-label text-xs text-outline">Срочные ситуации</div>
+      <div class="text-2xl mb-xs">🚨</div><div class="font-headline font-bold text-on-surface" data-i18n="sit_emergency">Экстренная помощь</div>
+      <div class="font-label text-xs text-outline" data-i18n="sit_emergency_sub">Срочные ситуации</div>
     </button>
   </div>
 </div>
@@ -42,7 +42,7 @@
   </div>
   <div id="sit-chat-box" class="flex-1 overflow-y-auto p-md space-y-sm"></div>
   <div class="p-sm border-t border-outline-variant/40 flex gap-sm flex-shrink-0 bg-surface-container-lowest/80 backdrop-blur-sm">
-    <input id="sit-input" type="text" placeholder="Напишите сообщение..."
+    <input id="sit-input" type="text" placeholder="Напишите сообщение..." data-i18n-placeholder="placeholder_club"
       class="flex-1 border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body focus:outline-none focus:border-primary bg-surface"
       onkeydown="if(event.key==='Enter')sendSitMessage()"/>
     <button onclick="sendSitMessage()" class="w-10 h-10 bg-primary-container text-on-primary rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
