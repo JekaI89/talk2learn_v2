@@ -1,0 +1,25 @@
+<!-- Word popup -->
+<div id="word-popup-overlay" class="hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" onclick="hideWordPopup()"></div>
+<div id="word-popup" class="hidden-popup fixed bottom-0 left-0 right-0 md:left-auto md:right-lg md:bottom-lg md:w-96 z-50 bg-surface-container-lowest rounded-t-[1.5rem] md:rounded-[1.5rem] shadow-2xl p-md pb-8">
+  <div class="w-10 h-1 bg-outline-variant rounded-full mx-auto mb-md md:hidden"></div>
+  <div class="flex justify-between items-start mb-sm">
+    <div>
+      <span id="popup-word" class="font-headline text-2xl font-extrabold text-on-surface"></span>
+      <span id="popup-transcription" class="text-sm text-outline ml-sm font-label"></span>
+    </div>
+    <button onclick="hideWordPopup()" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high active:scale-90 transition-all">
+      <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">close</span>
+    </button>
+  </div>
+  <div id="popup-translation" class="text-primary-container text-xl font-bold font-headline mb-xs"></div>
+  <div id="popup-example" class="text-on-surface-variant text-sm mb-md italic"></div>
+  <div id="popup-status" class="text-sm text-center text-tertiary-container font-label mb-xs min-h-[18px]"></div>
+  <button id="popup-retry-btn" onclick="retryTranslation()" style="display:none"
+    class="w-full h-touch-target-min rounded-[0.75rem] bg-surface-container text-on-surface font-label font-bold text-sm uppercase tracking-wider active:scale-[0.98] transition-transform mb-sm">
+    🔄 Повторить перевод
+  </button>
+  <button id="popup-add-btn" onclick="addWordToDict()"
+    class="w-full h-touch-target-min rounded-[0.75rem] bg-secondary-container text-on-secondary font-label font-bold text-sm uppercase tracking-wider active:scale-[0.98] transition-transform">
+    + В мой словарь
+  </button>
+</div>

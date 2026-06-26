@@ -1,0 +1,17 @@
+<!-- PRACTICE MODE -->
+<div id="page-practice-mode" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+  <button onclick="showPage('levels')" class="flex items-center gap-xs text-sm text-outline hover:text-on-surface transition-colors font-label">
+    <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Назад
+  </button>
+  <h2 class="font-headline font-extrabold text-2xl text-on-surface">Режим практики</h2>
+  <div class="space-y-sm">
+    <button onclick="startPracticeMode('multiple_choice')" class="w-full elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="font-headline font-bold text-on-surface mb-xs">🎯 Тест с вариантами</div>
+      <div class="font-label text-xs text-on-surface-variant">Выберите правильный ответ из 4 вариантов</div>
+    </button>
+    <button onclick="startPracticeMode('sentence_builder')" class="w-full elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="font-headline font-bold text-on-surface mb-xs">🧩 Конструктор предложений</div>
+      <div class="font-label text-xs text-on-surface-variant">Составьте фразу из слов</div>
+    </button>
+  </div>
+</div>

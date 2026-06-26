@@ -1,0 +1,56 @@
+<!-- SITUATIONS -->
+<div id="page-situations" class="page p-md md:p-xl gap-md max-w-2xl w-full mx-auto">
+  <h2 class="font-headline font-extrabold text-2xl text-on-surface">🎭 Ситуации</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+    <button onclick="openSituation('shop','В магазине','shop')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="text-2xl mb-xs">🛒</div><div class="font-headline font-bold text-on-surface">В магазине</div>
+      <div class="font-label text-xs text-outline">Покупки и цены</div>
+    </button>
+    <button onclick="openSituation('restaurant','В ресторане','restaurant')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="text-2xl mb-xs">🍽️</div><div class="font-headline font-bold text-on-surface">В ресторане</div>
+      <div class="font-label text-xs text-outline">Заказ еды</div>
+    </button>
+    <button onclick="openSituation('airport','В аэропорту','airport')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="text-2xl mb-xs">✈️</div><div class="font-headline font-bold text-on-surface">В аэропорту</div>
+      <div class="font-label text-xs text-outline">Регистрация на рейс</div>
+    </button>
+    <button onclick="openSituation('hotel','В отеле','hotel')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="text-2xl mb-xs">🏨</div><div class="font-headline font-bold text-on-surface">В отеле</div>
+      <div class="font-label text-xs text-outline">Заселение и услуги</div>
+    </button>
+    <button onclick="openSituation('doctor','У врача','doctor')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="text-2xl mb-xs">🏥</div><div class="font-headline font-bold text-on-surface">У врача</div>
+      <div class="font-label text-xs text-outline">Симптомы и лечение</div>
+    </button>
+    <button onclick="openSituation('emergency','Экстренная помощь','emergency')" class="elevated-card rounded-[1.25rem] p-md text-left active:scale-[0.99] transition-transform hover:shadow-md">
+      <div class="text-2xl mb-xs">🚨</div><div class="font-headline font-bold text-on-surface">Экстренная помощь</div>
+      <div class="font-label text-xs text-outline">Срочные ситуации</div>
+    </button>
+  </div>
+</div>
+
+<!-- SITUATION CHAT -->
+<div id="page-situation-chat" class="page flex-col max-w-2xl w-full mx-auto" style="height:calc(100vh - 52px)">
+  <div class="p-md border-b border-outline-variant/40 flex items-center gap-sm flex-shrink-0">
+    <button onclick="showPage('situations')" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container active:scale-90 transition-all">
+      <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px">arrow_back</span>
+    </button>
+    <div>
+      <div id="sit-title" class="font-headline font-bold text-on-surface text-sm"></div>
+      <div id="sit-hint" class="font-label text-xs text-outline"></div>
+    </div>
+  </div>
+  <div id="sit-chat-box" class="flex-1 overflow-y-auto p-md space-y-sm"></div>
+  <div class="p-sm border-t border-outline-variant/40 flex gap-sm flex-shrink-0 bg-surface-container-lowest/80 backdrop-blur-sm">
+    <input id="sit-input" type="text" placeholder="Напишите сообщение..."
+      class="flex-1 border border-outline-variant rounded-[0.75rem] px-md py-sm text-sm font-body focus:outline-none focus:border-primary bg-surface"
+      onkeydown="if(event.key==='Enter')sendSitMessage()"/>
+    <button onclick="sendSitMessage()" class="w-10 h-10 bg-primary-container text-on-primary rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
+      <span class="material-symbols-outlined" style="font-size:18px">send</span>
+    </button>
+    <button id="sit-mic-btn" onmousedown="startSitRecording(event)" onmouseup="stopSitRecording(event)"
+      class="w-10 h-10 bg-surface-container rounded-[0.75rem] flex items-center justify-center active:scale-90 transition-transform">
+      <span class="material-symbols-outlined" style="font-size:18px">mic</span>
+    </button>
+  </div>
+</div>
