@@ -176,51 +176,6 @@ function startPracticeMode(mode) {
 }
 
 // ─────────────────────────────────────────────
-// LESSONS
-// ─────────────────────────────────────────────
-async function openNextLesson() {
-  showScreen('screen-lesson', 'screen-levels');
-  const dataDiv = document.getElementById('lesson-data');
-  dataDiv.innerHTML = `<div class="flex items-center gap-sm text-outline py-xl justify-center">
-    <span class="material-symbols-outlined animate-spin">progress_activity</span> Загрузка...
-  </div>`;
-  const typeMap = { lessons:'lesson', grammar:'grammar', vocabulary:'vocabulary' };
-  const contentType = typeMap[currentCategory] || 'lesson';
-  try {
-    const res = await fetch(`/api/lessons/next/${currentLevel}?user_id=${userId}&content_type=${contentType}`);
-    const lesson = await res.json();
-    if (lesson.completed) { showLevelComplete(); return; }
-    renderLesson(lesson);
-  } catch(e) {
-    dataDiv.innerHTML = `<p class="text-error text-center py-lg">Ошибка загрузки</p>`;
-  }
-}
-
-function renderLesson(lesson) {
-  const dataDiv = document.getElementById('lesson-data');
-  const iconMap = { grammar:'edit_note', vocabulary:'psychology', lesson:'menu_book' };
-  const icon = iconMap[lesson.type] || 'menu_book';
-  const rawText = lesson.lesson_text || 'Текст урока пуст.';
-  const clickableBody = makeTextClickable(rawText, rawText);
-
-  dataDiv.innerHTML = `
-    <div class="flex items-center gap-sm mb-md">
-      <span class="material-symbols-outlined filled text-primary-container">${icon}</span>
-      <span class="font-label text-xs text-outline uppercase tracking-wider">${lesson.type || 'урок'} · ${currentLevel}</span>
-    </div>
-    <h1 class="font-headline font-extrabold text-on-surface text-2xl mb-lg leading-tight">${lesson.title}</h1>
-    <p class="font-label text-xs text-outline mb-sm">💡 Нажмите на слово для перевода</p>
-    <div class="bg-surface-container-lowest border border-surface-variant rounded-2xl p-lg text-on-surface-variant leading-loose text-base font-body lesson-text-body mb-xl">
-      ${clickableBody}
-    </div>
-    <button id="complete-lesson-btn" onclick="submitProgress('${lesson.type||'lesson'}', ${lesson.id})"
-      class="w-full h-touch rounded-xl bg-tertiary-container text-on-tertiary font-label font-bold uppercase tracking-wider text-sm active:scale-[0.98] transition-transform shadow-md">
-      <span data-i18n="btn_complete">✅ Просмотрено · +5 XP</span>
-    </button>
-  `;
-}
-
-// ─────────────────────────────────────────────
 // LEVEL COMPLETE
 // ─────────────────────────────────────────────
 function showLevelComplete() {
