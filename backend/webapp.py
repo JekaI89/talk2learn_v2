@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
-from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 import os
 import asyncio
@@ -14,23 +13,23 @@ from config import MINI_DIR, WEB_DIR, AUDIO_DIR
 
 from api import users, lessons, dictionary, club, admin, auth
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ====================== BOT (WEBHOOK MODE) ======================
-# Webhook исключает TelegramConflictError при деплое:
-# новый инстанс просто перехватывает webhook у старого.
+# ====================== BOT ======================
 
 _bot = None
 _dp  = None
+_bot_task = None
 
 
-async def setup_bot():
+async def start_telegram_bot():
     global _bot, _dp
     bot_token = os.environ.get("BOT_TOKEN", "")
     webapp_url = os.environ.get("WEBAPP_URL", "https://talk2learn-app.onrender.com").rstrip("/")
 
     if not bot_token:
-        logger.warning("⚠️ BOT_TOKEN не задан — Telegram-бот не запущен")
+        logger.warning("⚠️ BOT_TOKEN не задан — бот не запущен")
         return
 
     from aiogram import Bot, Dispatcher
@@ -43,24 +42,30 @@ async def setup_bot():
     _dp.include_router(menu.router)
     _dp.include_router(speaking_club.router)
 
-    webhook_url = f"{webapp_url}/webhook/bot"
-    await _bot.set_webhook(
-        url=webhook_url,
-        drop_pending_updates=True,   # сбрасываем старую очередь
-        allowed_updates=["message", "callback_query"],
-    )
-    logger.info(f"🤖 Webhook установлен: {webhook_url}")
+    # Удаляем старый webhook если был, затем запускаем polling
+    try:
+        await _bot.delete_webhook(drop_pending_updates=True)
+        logger.info("🤖 Webhook удалён, запускаем polling...")
+    except Exception as e:
+        logger.warning(f"delete_webhook: {e}")
 
-
-async def teardown_bot():
-    global _bot, _dp
-    if _bot:
+    try:
+        logger.info("🤖 Telegram-бот запущен (polling)...")
+        await _dp.start_polling(
+            _bot,
+            allowed_updates=["message", "callback_query"],
+            drop_pending_updates=True,
+        )
+    except asyncio.CancelledError:
+        logger.info("🤖 Polling остановлен")
+    except Exception as e:
+        logger.error(f"❌ Polling error: {e}")
+    finally:
         try:
-            await _bot.delete_webhook(drop_pending_updates=True)
             await _bot.session.close()
-            logger.info("🤖 Webhook удалён, бот остановлен")
-        except Exception as e:
-            logger.error(f"Ошибка остановки бота: {e}")
+            logger.info("🤖 Bot session closed")
+        except Exception:
+            pass
         _bot = None
         _dp  = None
 
@@ -88,23 +93,22 @@ async def audio_cleanup_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.basicConfig(level=logging.INFO)
+    global _bot_task
     logger.info("🚀 Запуск Talk2Learn...")
     os.makedirs(AUDIO_DIR, exist_ok=True)
-
     await init_db()
-    await setup_bot()
 
+    _bot_task    = asyncio.create_task(start_telegram_bot())
     cleanup_task = asyncio.create_task(audio_cleanup_loop())
 
     yield
 
-    logger.info("🛑 Остановка Talk2Learn...")
+    logger.info("🛑 Остановка...")
+    _bot_task.cancel()
     cleanup_task.cancel()
-    await asyncio.gather(cleanup_task, return_exceptions=True)
-    await teardown_bot()
+    await asyncio.gather(_bot_task, cleanup_task, return_exceptions=True)
     await close_pool()
-    logger.info("✅ Остановка завершена")
+    logger.info("✅ Остановлено")
 
 
 # ====================== APP ======================
@@ -119,27 +123,6 @@ app.include_router(admin.router)
 app.include_router(auth.router)
 
 
-# ====================== WEBHOOK ENDPOINT ======================
-
-@app.post("/webhook/bot")
-async def bot_webhook(request: Request):
-    if _bot is None or _dp is None:
-        return Response(status_code=200)
-    from aiogram.types import Update
-    data = await request.json()
-    update = Update.model_validate(data, context={"bot": _bot})
-    await _dp.feed_update(_bot, update)
-    return Response(status_code=200)
-
-
-# ====================== СТАТИКА ======================
-
-app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
-app.mount("/assets", StaticFiles(directory=WEB_DIR),  name="web-assets")
-
-_web_templates = Jinja2Templates(directory=os.path.join(WEB_DIR, "templates"))
-
-
 # ====================== FAVICON ======================
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -148,17 +131,13 @@ async def favicon():
     ico = base64.b64decode(
         "AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     )
     return Response(content=ico, media_type="image/x-icon")
 
 
 # ====================== СТРАНИЦЫ ======================
 
-# Веб-сайт — главная страница (Jinja2 templates)
 @app.get("/")
 @app.get("/app")
 @app.get("/web")
@@ -167,11 +146,10 @@ async def favicon():
 @app.get("/club")
 @app.get("/situations")
 @app.get("/profile")
-async def serve_web(request: Request):
-    return _web_templates.TemplateResponse("index.html", {"request": request})
+async def serve_web():
+    return FileResponse(os.path.join(WEB_DIR, "index.html"))
 
 
-# Mini App — только для Telegram WebApp
 @app.get("/mini")
 @app.get("/mini/")
 async def serve_mini():
@@ -181,6 +159,23 @@ async def serve_mini():
 @app.get("/admin")
 async def serve_admin():
     return FileResponse(os.path.join(MINI_DIR, "admin.html"))
+
+
+@app.get("/site")
+@app.get("/site/")
+@app.get("/site/app")
+@app.get("/site/lessons")
+@app.get("/site/dictionary")
+@app.get("/site/word")
+@app.get("/site/profile")
+async def serve_site():
+    return FileResponse(os.path.join(WEB_DIR, "app.html"))
+
+
+# ====================== СТАТИКА ======================
+
+app.mount("/static", StaticFiles(directory=MINI_DIR), name="static")
+app.mount("/assets", StaticFiles(directory=WEB_DIR),  name="web-assets")
 
 
 if __name__ == "__main__":
