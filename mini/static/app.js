@@ -393,6 +393,51 @@ function initClubGreeting() {
   chatBox.appendChild(wrap);
 }
 
+const SITUATION_GREETINGS = {
+  shop: {
+    en: "Hello! Welcome to our store. How can I help you today?",
+    de: "Hallo! Willkommen in unserem Geschäft. Wie kann ich Ihnen helfen?",
+    fr: "Bonjour! Bienvenue dans notre magasin. Comment puis-je vous aider?",
+    es: "¡Hola! Bienvenido a nuestra tienda. ¿En qué puedo ayudarle?",
+    it: "Buongiorno! Benvenuto nel nostro negozio. Come posso aiutarla?",
+  },
+  restaurant: {
+    en: "Good evening! Welcome. Do you have a reservation, or would you like a table for how many?",
+    de: "Guten Abend! Willkommen. Haben Sie eine Reservierung?",
+    fr: "Bonsoir! Bienvenue. Avez-vous une réservation?",
+    es: "¡Buenas tardes! Bienvenido. ¿Tiene reserva?",
+    it: "Buonasera! Benvenuto. Ha una prenotazione?",
+  },
+  airport: {
+    en: "Good morning! May I see your passport and ticket, please?",
+    de: "Guten Morgen! Darf ich bitte Ihren Reisepass und Ihr Ticket sehen?",
+    fr: "Bonjour! Puis-je voir votre passeport et votre billet, s'il vous plaît?",
+    es: "¡Buenos días! ¿Puede mostrarme su pasaporte y su billete?",
+    it: "Buongiorno! Posso vedere il suo passaporto e il biglietto?",
+  },
+  hotel: {
+    en: "Welcome to our hotel! Do you have a reservation?",
+    de: "Willkommen in unserem Hotel! Haben Sie eine Reservierung?",
+    fr: "Bienvenue dans notre hôtel! Avez-vous une réservation?",
+    es: "¡Bienvenido a nuestro hotel! ¿Tiene una reserva?",
+    it: "Benvenuto nel nostro hotel! Ha una prenotazione?",
+  },
+  doctor: {
+    en: "Hello! I'm Dr. Smith. Please have a seat. What brings you in today?",
+    de: "Hallo! Ich bin Dr. Müller. Bitte setzen Sie sich. Was führt Sie heute zu mir?",
+    fr: "Bonjour! Je suis le Dr. Martin. Asseyez-vous. Qu'est-ce qui vous amène?",
+    es: "¡Hola! Soy el Dr. García. Por favor siéntese. ¿Qué le trae hoy?",
+    it: "Buongiorno! Sono il Dott. Rossi. Si accomodi. Cosa la porta da me oggi?",
+  },
+  emergency: {
+    en: "Emergency services, what's your emergency?",
+    de: "Notruf, was ist Ihr Notfall?",
+    fr: "Services d'urgence, quelle est votre urgence?",
+    es: "Servicios de emergencia, ¿cuál es su emergencia?",
+    it: "Pronto soccorso, qual è la sua emergenza?",
+  },
+};
+
 function openSituation(situationKey, title, situation) {
   currentSituation = situation;
   showScreen('screen-situation-chat', 'screen-situations');
@@ -419,17 +464,19 @@ function openSituation(situationKey, title, situation) {
 
 function appendSituationMessage(who, text) {
   const box = document.getElementById('situation-chat-box');
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;' + (who === 'ai' ? 'justify-content:flex-start' : 'justify-content:flex-end');
   const div = document.createElement('div');
   if (who === 'ai') {
-    div.className = 'bg-primary-container text-on-primary p-md rounded-2xl rounded-tl-none max-w-[85%] text-sm shadow-sm';
+    div.style.cssText = 'background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);color:#191c1e;padding:10px 14px;border-radius:18px;border-top-left-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 1px 6px rgba(0,0,0,0.06)';
     div.innerHTML = makeTextClickable(text, text);
-    setTimeout(() => div.querySelectorAll('.clickable-word').forEach(el => el.style.borderBottomColor='rgba(255,255,255,0.4)'), 0);
   } else {
-    div.className = 'bg-surface-container text-on-surface p-md rounded-2xl rounded-tr-none max-w-[85%] text-sm shadow-sm ml-auto';
+    div.style.cssText = 'background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;padding:10px 14px;border-radius:18px;border-top-right-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 2px 10px rgba(79,101,239,0.25)';
     div.textContent = text;
   }
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
+  wrap.appendChild(div);
+  box.appendChild(wrap);
+  box.scrollTo({top: box.scrollHeight, behavior: 'smooth'});
 }
 
 async function sendSituationMessage() {
