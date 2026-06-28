@@ -16,58 +16,52 @@ from api import users, lessons, dictionary, club, admin, auth
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ====================== BOT ======================
-
 _bot = None
 _dp  = None
-_bot_task = None
 
+
+# ====================== BOT ======================
 
 async def start_telegram_bot():
     global _bot, _dp
     bot_token = os.environ.get("BOT_TOKEN", "")
-    webapp_url = os.environ.get("WEBAPP_URL", "https://talk2learn-app.onrender.com").rstrip("/")
-
     if not bot_token:
         logger.warning("⚠️ BOT_TOKEN не задан — бот не запущен")
         return
-
-    from aiogram import Bot, Dispatcher
-    from aiogram.client.default import DefaultBotProperties
-    from aiogram.enums import ParseMode
-    from handlers import menu, speaking_club
-
-    _bot = Bot(token=bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    _dp  = Dispatcher()
-    _dp.include_router(menu.router)
-    _dp.include_router(speaking_club.router)
-
-    # Удаляем старый webhook если был, затем запускаем polling
     try:
-        await _bot.delete_webhook(drop_pending_updates=True)
-        logger.info("🤖 Webhook удалён, запускаем polling...")
-    except Exception as e:
-        logger.warning(f"delete_webhook: {e}")
+        from aiogram import Bot, Dispatcher
+        from aiogram.client.default import DefaultBotProperties
+        from aiogram.enums import ParseMode
+        from handlers import menu, speaking_club
 
-    try:
-        logger.info("🤖 Telegram-бот запущен (polling)...")
+        _bot = Bot(token=bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        _dp  = Dispatcher()
+        _dp.include_router(menu.router)
+        _dp.include_router(speaking_club.router)
+
+        try:
+            await _bot.delete_webhook(drop_pending_updates=True)
+        except Exception:
+            pass
+
+        logger.info("🤖 Бот запущен (polling)...")
         await _dp.start_polling(
             _bot,
             allowed_updates=["message", "callback_query"],
             drop_pending_updates=True,
         )
     except asyncio.CancelledError:
-        logger.info("🤖 Polling остановлен")
+        pass
     except Exception as e:
-        logger.error(f"❌ Polling error: {e}")
+        logger.error(f"❌ Бот: {e}")
     finally:
-        try:
-            await _bot.session.close()
-            logger.info("🤖 Bot session closed")
-        except Exception:
-            pass
-        _bot = None
-        _dp  = None
+        if _bot:
+            try:
+                await _bot.session.close()
+            except Exception:
+                pass
+            _bot = None
+            _dp  = None
 
 
 # ====================== AUDIO CLEANUP ======================
@@ -77,36 +71,46 @@ async def audio_cleanup_loop():
         try:
             await asyncio.sleep(1800)
             now = time.time()
-            cleaned = sum(
-                1 for f in Path(AUDIO_DIR).glob("*.mp3")
-                if now - f.stat().st_mtime > 3600 and not f.unlink()
-            )
-            if cleaned:
-                logger.info(f"🧹 Аудиоочистка: удалено {cleaned} файлов")
+            for f in list(Path(AUDIO_DIR).glob("*.mp3")):
+                try:
+                    if now - f.stat().st_mtime > 3600:
+                        f.unlink()
+                except Exception:
+                    pass
         except asyncio.CancelledError:
             break
-        except Exception as e:
-            logger.error(f"Ошибка очистки аудио: {e}")
+        except Exception:
+            pass
 
 
 # ====================== LIFESPAN ======================
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _bot_task
     logger.info("🚀 Запуск Talk2Learn...")
     os.makedirs(AUDIO_DIR, exist_ok=True)
-    await init_db()
 
-    _bot_task    = asyncio.create_task(start_telegram_bot())
+    # БД и бот запускаем в фоне — порт открывается сразу
+    # Это исправляет Timeout на Render (сервер должен ответить за ~30 сек)
+    async def startup():
+        try:
+            await asyncio.wait_for(init_db(), timeout=25.0)
+            logger.info("✅ БД готова")
+        except asyncio.TimeoutError:
+            logger.error("❌ init_db timeout — продолжаем без БД")
+        except Exception as e:
+            logger.error(f"❌ init_db: {e}")
+
+    asyncio.create_task(startup())
+    bot_task     = asyncio.create_task(start_telegram_bot())
     cleanup_task = asyncio.create_task(audio_cleanup_loop())
 
     yield
 
     logger.info("🛑 Остановка...")
-    _bot_task.cancel()
+    bot_task.cancel()
     cleanup_task.cancel()
-    await asyncio.gather(_bot_task, cleanup_task, return_exceptions=True)
+    await asyncio.gather(bot_task, cleanup_task, return_exceptions=True)
     await close_pool()
     logger.info("✅ Остановлено")
 
@@ -127,7 +131,6 @@ app.include_router(auth.router)
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    # 1x1 прозрачный PNG (проще чем ICO, всегда корректный base64)
     import base64
     png = base64.b64decode(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
