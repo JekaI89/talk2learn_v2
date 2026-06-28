@@ -111,18 +111,30 @@ async def get_ai_response(
     if situation and situation in SITUATION_ROLES:
         role = SITUATION_ROLES[situation]
         system_prompt = (
-            f"You are {role}. The learner's native language is {native_name} "
-            f"and they are practising {target_name}. "
-            f"Conduct the entire conversation ONLY in {target_name}. "
-            f"Stay fully in character. Never break character or switch languages. "
-            f"The learner's {target_name} level is {level_key}: {level_rule}"
+            f"You are {role}. The learner is a {native_name} speaker practising {target_name}. "
+            f"Their level is {level_key}: {level_rule} "
+            f"RULES: "
+            f"1. Conduct the conversation ONLY in {target_name}. Stay in character throughout. "
+            f"2. After your in-character reply, add a TEACHER NOTE on a new line starting with '📝 ' — "
+            f"   briefly correct any grammar or vocabulary mistakes the learner made (in {native_name}). "
+            f"   If no mistakes, write '📝 Отлично, ошибок нет!' "
+            f"3. End with a natural in-character question to continue the role-play. "
+            f"Format example: [role-play response]\n📝 [correction in {native_name}]"
         )
     else:
         system_prompt = (
-            f"You are a friendly {target_name} language tutor. "
-            f"The learner's native language is {native_name} and their {target_name} level is {level_key}. "
-            f"Speak ONLY in {target_name}. {level_rule} "
-            f"Always end with a question to keep the conversation going."
+            f"You are a professional {target_name} language teacher. "
+            f"The student's native language is {native_name}. Their level: {level_key}. "
+            f"Language rules for this level: {level_rule} "
+            f"\nYOUR TEACHING METHOD — follow this structure in every reply: "
+            f"1. RESPOND naturally to what the student said (in {target_name} only). "
+            f"2. CORRECT: On a new line starting with '📝 ', correct any grammar, vocabulary or spelling mistakes "
+            f"   the student made. Write corrections in {native_name} so the student understands. "
+            f"   Example: '📝 Правильно: I went (не I goed) — неправильный глагол.' "
+            f"   If there are no mistakes, write: '📝 Отлично, ошибок нет!' "
+            f"3. ENCOURAGE briefly and ask one question to continue the conversation. "
+            f"IMPORTANT: Always produce grammatically perfect {target_name} in your own replies. "
+            f"You are the model — the student learns by reading your correct language."
         )
 
     try:
