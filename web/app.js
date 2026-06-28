@@ -411,32 +411,150 @@ function renderLesson(lesson) {
 }
 
 function extractKeyWords(text, title) {
-  // Извлекаем уникальные слова длиннее 3 букв из текста урока
-  const stopWordsEn = new Set(['the','and','for','are','but','not','you','all','can','her','was','one','our','out','day','get','has','him','his','how','its','let','may','now','old','own','say','she','too','use','way','who','did','off','put','set','two','any','come','give','most','some','take','than','them','then','they','this','that','have','from','been','when','will','with','your','were','what','also','each','into','just','know','more','much','over','such','well','year']);
-  const stopWordsRu = new Set(['это','как','так','что','или','для','при','без','над','под','про','был','была','были','есть','его','её','их','мой','моя','мои','твой','наш','ваш','тот','эта','эти','тем','тех','все','всё','всех','уже','ещё','если','чтобы','того','этот','этого','этом','него','нее','них','который','которая','которое']);
-  const words = text.match(/[A-Za-zЀ-ӿ]{4,}/g) || [];
-  const unique = [...new Set(words.map(w=>w.toLowerCase()))].filter(w=>!stopWordsEn.has(w)&&!stopWordsRu.has(w));
+  // Только английские слова из текста урока (латиница)
+  const stopWordsEn = new Set([
+    'the','and','for','are','but','not','you','all','can','her','was','one','our','out',
+    'day','get','has','him','his','how','its','let','may','now','old','own','say','she',
+    'too','use','way','who','did','off','put','set','two','any','come','give','most',
+    'some','take','than','them','then','they','this','that','have','from','been','when',
+    'will','with','your','were','what','also','each','into','just','know','more','much',
+    'over','such','well','year','used','very','also','about','which','their','there',
+    'here','where','these','those','have','been','said','made','like','time','look',
+    'make','good','here','verb','form','word','mean','used','note','example'
+  ]);
+  // Берём только латинские слова длиной 3+ символов
+  const words = text.match(/[A-Za-z]{3,}/g) || [];
+  const unique = [...new Set(words.map(w => w.toLowerCase()))]
+    .filter(w => !stopWordsEn.has(w));
   return unique.slice(0, 12);
 }
+
+// Кэш переводов чтобы не делать повторные запросы
+const _vocabCache = {};
 
 function renderVocabTab(words) {
   const el = document.getElementById('lesson-vocab-content');
   if (!el) return;
   if (!words.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 0;color:#9aa0b4;font-size:14px">В уроке нет ключевых слов</div>';
+    el.innerHTML = `<div style="text-align:center;padding:48px 0;color:#9aa0b4">
+      <div style="font-size:32px;margin-bottom:8px">📭</div>
+      <div style="font-size:14px">В уроке нет английских слов для изучения</div>
+    </div>`;
     return;
   }
-  const colors = ['#eef2ff','#f0fdf4','#fff7ed','#fdf4ff','#ecfeff','#fef3c7','#fce7f3','#f5f3ff'];
-  const textColors = ['#4f65ef','#16a34a','#ea580c','#9333ea','#0891b2','#d97706','#db2777','#7c3aed'];
   el.innerHTML = `
-    <h3 style="font-size:14px;font-weight:700;color:#191c1e;margin:0 0 14px">Ключевые слова урока</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
-      ${words.map((w,i) => `
-        <div onclick="showWordPopup('${w}','',this)" style="background:${colors[i%colors.length]};border:1px solid rgba(0,0,0,0.06);border-radius:12px;padding:12px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-          <div style="font-size:15px;font-weight:700;color:${textColors[i%textColors.length]}">${w}</div>
-          <div style="font-size:11px;color:#9aa0b4;margin-top:3px">нажмите для перевода</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h3 style="font-size:14px;font-weight:700;color:#191c1e">Слова из урока</h3>
+      <span style="font-size:12px;color:#9aa0b4">${words.length} слов — нажмите для перевода</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="vocab-cards-list">
+      ${words.map(w => `
+        <div id="wcard-${w}" onclick="translateVocabCard('${w}')"
+          style="background:#fff;border:1.5px solid rgba(195,198,215,0.4);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;gap:12px"
+          onmouseenter="this.style.borderColor='#4f65ef';this.style.boxShadow='0 2px 12px rgba(79,101,239,0.12)'"
+          onmouseleave="this.style.borderColor='rgba(195,198,215,0.4)';this.style.boxShadow=''">
+          <div style="min-width:0">
+            <div style="font-size:16px;font-weight:700;color:#191c1e">${w}</div>
+            <div id="wcard-tr-${w}" style="font-size:13px;color:#9aa0b4;margin-top:2px">нажмите для перевода</div>
+            <div id="wcard-ex-${w}" style="font-size:12px;color:#737686;margin-top:4px;display:none;font-style:italic"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <button onclick="event.stopPropagation();speakVocabWord('${w}')"
+              style="width:32px;height:32px;border-radius:50%;border:none;background:#f0f2f5;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s"
+              title="Произнести" onmouseenter="this.style.background='#e0e3e8'" onmouseleave="this.style.background='#f0f2f5'">
+              <span class="material-symbols-outlined" style="font-size:16px;color:#434655">volume_up</span>
+            </button>
+            <button onclick="event.stopPropagation();addVocabToNotebook('${w}')"
+              id="wcard-add-${w}"
+              style="width:32px;height:32px;border-radius:50%;border:none;background:#eef2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s"
+              title="В блокнот" onmouseenter="this.style.background='#dbe4ff'" onmouseleave="this.style.background='#eef2ff'">
+              <span class="material-symbols-outlined" style="font-size:16px;color:#4f65ef">bookmark_add</span>
+            </button>
+          </div>
         </div>`).join('')}
     </div>`;
+}
+
+async function translateVocabCard(word) {
+  const trEl = document.getElementById('wcard-tr-' + word);
+  const exEl = document.getElementById('wcard-ex-' + word);
+  if (!trEl) return;
+
+  // Уже переведено
+  if (_vocabCache[word]) {
+    const c = _vocabCache[word];
+    trEl.style.color = '#4f65ef';
+    trEl.textContent = c.translation + (c.transcription ? '  ' + c.transcription : '');
+    if (c.example) { exEl.textContent = c.example; exEl.style.display = 'block'; }
+    return;
+  }
+
+  // Показываем загрузку
+  trEl.textContent = '⏳ перевод...';
+  trEl.style.color = '#9aa0b4';
+
+  try {
+    const res = await fetch('/api/dictionary/translate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        user_id: userId,
+        word,
+        native_language: userNativeLang || 'ru',
+        target_language: userTargetLang || 'en',
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.translation) {
+      _vocabCache[word] = data;
+      trEl.style.color = '#4f65ef';
+      trEl.textContent = data.translation + (data.transcription ? '  ' + data.transcription : '');
+      if (data.context_example) { exEl.textContent = data.context_example; exEl.style.display = 'block'; }
+    } else {
+      trEl.textContent = 'не удалось получить перевод';
+      trEl.style.color = '#e34948';
+    }
+  } catch(e) {
+    trEl.textContent = 'ошибка соединения';
+    trEl.style.color = '#e34948';
+  }
+}
+
+function speakVocabWord(word) {
+  const audio = new Audio('/api/tts/word?word=' + encodeURIComponent(word));
+  audio.play().catch(() => {});
+}
+
+async function addVocabToNotebook(word) {
+  const btn = document.getElementById('wcard-add-' + word);
+  if (!btn) return;
+  const cached = _vocabCache[word];
+  if (!cached) {
+    await translateVocabCard(word);
+  }
+  const c = _vocabCache[word];
+  if (!c) return;
+  try {
+    const res = await fetch('/api/dictionary/add', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        user_id: userId,
+        word,
+        translation: c.translation || '',
+        transcription: c.transcription || '',
+        context_example: c.context_example || '',
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      btn.style.background = '#dcfce7';
+      btn.querySelector('.material-symbols-outlined').textContent = 'bookmark';
+      btn.querySelector('.material-symbols-outlined').style.color = '#16a34a';
+      btn.title = 'Добавлено в блокнот';
+      showToast('✅ ' + word + ' добавлено в блокнот');
+    }
+  } catch(e) {}
 }
 
 function renderGrammarTab(lesson) {
