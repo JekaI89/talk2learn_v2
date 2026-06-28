@@ -258,10 +258,14 @@ async function loadUserData() {
 }
 
 // ── NAVIGATION ──
+const FLEX_PAGES_WEB = new Set(['main','dictionary','club','lesson','flashcards','situation-chat']);
+
 function navTo(section) {
-  document.querySelectorAll('.page').forEach(p => { p.classList.add('hidden'); p.classList.remove('flex'); });
+  document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
   const page = document.getElementById('page-' + section);
-  if (page) { page.classList.remove('hidden'); page.classList.add('flex'); }
+  if (page) {
+    page.style.display = FLEX_PAGES_WEB.has(section) ? 'flex' : 'block';
+  }
 
   // Sidebar nav highlight
   document.querySelectorAll('.nav-btn[data-nav]').forEach(b => {
@@ -286,10 +290,14 @@ function navTo(section) {
   if (section === 'profile') loadProfile();
 }
 
+const FLEX_PAGES_WEB2 = new Set(['main','dictionary','club','lesson','flashcards','situation-chat','levels']);
+
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => { p.classList.add('hidden'); p.classList.remove('flex'); });
+  document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
   const page = document.getElementById('page-' + name);
-  if (page) { page.classList.remove('hidden'); page.classList.add('flex'); }
+  if (page) {
+    page.style.display = FLEX_PAGES_WEB2.has(name) ? 'flex' : 'block';
+  }
 }
 
 // ── LESSONS ──
