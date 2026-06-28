@@ -127,13 +127,12 @@ app.include_router(auth.router)
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
+    # 1x1 прозрачный PNG (проще чем ICO, всегда корректный base64)
     import base64
-    ico = base64.b64decode(
-        "AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    png = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
     )
-    return Response(content=ico, media_type="image/x-icon")
+    return Response(content=png, media_type="image/png")
 
 
 # ====================== СТРАНИЦЫ ======================

@@ -258,13 +258,20 @@ async function loadUserData() {
 }
 
 // ── NAVIGATION ──
-const FLEX_PAGES_WEB = new Set(['main','dictionary','club','lesson','flashcards','situation-chat']);
+const FLEX_COL_PAGES = new Set(['main','dictionary','club','lesson','flashcards','situation-chat','profile','notebook']);
 
 function navTo(section) {
-  document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.style.flexDirection = '';
+  });
   const page = document.getElementById('page-' + section);
   if (page) {
-    page.style.display = FLEX_PAGES_WEB.has(section) ? 'flex' : 'block';
+    page.style.display = 'block';
+    if (FLEX_COL_PAGES.has(section)) {
+      page.style.display = 'flex';
+      page.style.flexDirection = 'column';
+    }
   }
 
   // Sidebar nav highlight
@@ -290,13 +297,18 @@ function navTo(section) {
   if (section === 'profile') loadProfile();
 }
 
-const FLEX_PAGES_WEB2 = new Set(['main','dictionary','club','lesson','flashcards','situation-chat','levels']);
-
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.style.flexDirection = '';
+  });
   const page = document.getElementById('page-' + name);
   if (page) {
-    page.style.display = FLEX_PAGES_WEB2.has(name) ? 'flex' : 'block';
+    page.style.display = 'block';
+    if (FLEX_COL_PAGES.has(name)) {
+      page.style.display = 'flex';
+      page.style.flexDirection = 'column';
+    }
   }
 }
 
