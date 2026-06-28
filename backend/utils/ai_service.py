@@ -138,12 +138,12 @@ async def get_ai_response(
 
     try:
         response = await client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="mixtral-8x7b-32768",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user",   "content": user_text}
             ],
-            temperature=0.7
+            temperature=0.6
         )
         reply = response.choices[0].message.content.strip()
         print(f"💬 AI [{target_name}/{level_key}][{situation or 'club'}]: {reply[:80]}")
