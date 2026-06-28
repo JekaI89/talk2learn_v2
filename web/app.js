@@ -258,7 +258,7 @@ async function loadUserData() {
 }
 
 // ── NAVIGATION ──
-const FLEX_COL_PAGES = new Set(['main','dictionary','club','lesson','flashcards','situation-chat','profile','notebook']);
+const FLEX_COL_PAGES = new Set(['main','dictionary','club','lesson','flashcards','situation-chat','profile','notebook','onboarding']);
 
 function navTo(section) {
   document.querySelectorAll('.page').forEach(p => {
@@ -1473,25 +1473,30 @@ async function saveLangSettings() {
 // ── ОНБОРДИНГ ──
 function obSelectTarget(lang) {
   obTarget=lang;
-  document.querySelectorAll('.ob-lang').forEach(b=>{const a=b.dataset.lang===lang;b.classList.toggle('border-primary-container',a);b.classList.toggle('border-surface-variant',!a);});
+  document.querySelectorAll('.ob-lang').forEach(b=>{
+    b.style.outline = b.dataset.lang===lang ? '3px solid #4f65ef' : '';
+  });
   setTimeout(()=>{
-    document.getElementById('ob-step-0').classList.add('hidden');
+    document.getElementById('ob-step-0').style.display='none';
     document.getElementById('ob-native-grid').innerHTML = Object.keys(LANG_NATIVE_NAMES)
       .filter(l=>l!==lang)
-      .map(l=>`<button onclick="obSelectNative('${l}')" class="elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">${LANG_FLAGS[l]}</div><div class="font-headline font-bold text-sm">${LANG_NATIVE_NAMES[l]}</div></button>`)
+      .map(l=>`<button onclick="obSelectNative('${l}')" style="background:#fff;border:1px solid rgba(195,198,215,0.4);border-radius:16px;padding:14px;text-align:center;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform=''"><div style="font-size:28px;margin-bottom:4px">${LANG_FLAGS[l]}</div><div style="font-size:13px;font-weight:700;color:#191c1e">${LANG_NATIVE_NAMES[l]}</div></button>`)
       .join('');
-    document.getElementById('ob-step-1').classList.remove('hidden');
-  },280);
+    document.getElementById('ob-step-1').style.display='block';
+  },200);
 }
 function obSelectNative(lang) {
   obNative=lang;
-  setTimeout(()=>{document.getElementById('ob-step-1').classList.add('hidden');document.getElementById('ob-step-2').classList.remove('hidden');},280);
+  setTimeout(()=>{
+    document.getElementById('ob-step-1').style.display='none';
+    document.getElementById('ob-step-2').style.display='block';
+  },200);
 }
 function obSelectLevel(level) {
   obLevel=level;
-  document.getElementById('ob-step-2').classList.add('hidden');
+  document.getElementById('ob-step-2').style.display='none';
   document.getElementById('ob-ready-msg').textContent=`Язык: ${obTarget.toUpperCase()}, уровень ${level}`;
-  document.getElementById('ob-step-3').classList.remove('hidden');
+  document.getElementById('ob-step-3').style.display='block';
 }
 async function finishOnboarding() {
   try {
