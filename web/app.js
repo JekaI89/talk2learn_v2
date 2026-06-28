@@ -221,10 +221,13 @@ async function initApp() {
   document.getElementById('club-level').textContent = currentLevel;
   initClubGreeting();
 
+  // Онбординг только для новых пользователей (нет XP и нет прогресса)
+  // Существующие пользователи всегда идут на главную
   try {
     const res = await fetch(`/api/onboarding/${userId}`);
     const data = await res.json();
-    if (!data.onboarding_done) { showPage('onboarding'); return; }
+    const isNewUser = !data.onboarding_done && (data.xp === 0 || data.xp === undefined);
+    if (isNewUser) { showPage('onboarding'); return; }
   } catch(e) {}
 
   navTo('main');
