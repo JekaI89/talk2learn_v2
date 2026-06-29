@@ -862,12 +862,7 @@ function showVfCard(card) {
   vfCurrentCard = card;
   vfFlipped = false;
 
-  // Emoji
-  let emoji = '📖';
-  try { emoji = String.fromCodePoint(parseInt(card.emoji_code, 16)); } catch(e) {}
-  document.getElementById('vf-emoji').textContent = emoji;
-
-  // Градиент фона эмодзи по уровню
+  // Градиент фона по уровню
   const gradMap = {
     'A1':'linear-gradient(135deg,#4ade80,#2dd4bf)',
     'A2':'linear-gradient(135deg,#60a5fa,#818cf8)',
@@ -876,7 +871,93 @@ function showVfCard(card) {
     'C1':'linear-gradient(135deg,#f87171,#a855f7)',
     'C2':'linear-gradient(135deg,#71717a,#374151)',
   };
-  document.getElementById('vf-emoji-bg').style.background = gradMap[card.level] || gradMap['A1'];
+  const bg = gradMap[card.level] || gradMap['A1'];
+  document.getElementById('vf-emoji-bg').style.background = bg;
+
+  // Картинка: Twemoji через CDN (красивые iOS-style иконки)
+  const emojiEl = document.getElementById('vf-emoji');
+  // emoji_code может быть: unicode char (🐱), hex (1F431), или текст (cat)
+  let emojiChar = card.emoji_code || '📖';
+  // Если hex — конвертируем в символ
+  if (/^[0-9A-Fa-f]{4,6}$/.test(emojiChar)) {
+    try { emojiChar = String.fromCodePoint(parseInt(emojiChar, 16)); } catch(e) {}
+  }
+  // Если текстовый код (cat, dog) — маппим на emoji
+  const textToEmoji = {
+    'cat':'🐱','dog':'🐶','bird':'🐦','fish':'🐟','horse':'🐴',
+    'cow':'🐄','pig':'🐷','sheep':'🐑','rabbit':'🐰','duck':'🦆',
+    'bear':'🐻','lion':'🦁','elephant':'🐘','monkey':'🐒','snake':'🐍',
+    'frog':'🐸','tiger':'🐯','wolf':'🐺','fox':'🦊','mouse':'🐭',
+    'chicken':'🐔','penguin':'🐧','dolphin':'🐬','turtle':'🐢','bee':'🐝',
+    'butterfly':'🦋','ant':'🐜','spider':'🕷','deer':'🦌','hamster':'🐹',
+    'apple':'🍎','banana':'🍌','bread':'🍞','egg':'🥚','rice':'🍚',
+    'soup':'🍲','pizza':'🍕','burger':'🍔','cake':'🎂','salad':'🥗',
+    'cheese':'🧀','butter':'🧈','milk':'🥛','orange':'🍊','lemon':'🍋',
+    'tomato':'🍅','potato':'🥔','carrot':'🥕','onion':'🧅','garlic':'🧄',
+    'pasta':'🍝','sandwich':'🥪','ice-cream':'🍦','chocolate':'🍫','cookie':'🍪',
+    'honey':'🍯','strawberry':'🍓','grapes':'🍇','watermelon':'🍉','mushroom':'🍄',
+    'corn':'🌽','pepper':'🌶','cucumber':'🥒','meat':'🥩',
+    'water':'💧','coffee':'☕','juice':'🧃','drink':'🥤','beer':'🍺',
+    'wine':'🍷','champagne':'🍾',
+    'house':'🏠','door':'🚪','kitchen':'🍳','bed':'🛏','bath':'🛁',
+    'window':'🪟','chair':'🪑','sofa':'🛋','lamp':'💡','clock':'🕐',
+    'mirror':'🪞','stairs':'🪜','ice':'🧊','tv':'📺','phone':'📱',
+    'pc':'💻','books':'📚','key':'🔑','bag':'👜','box':'📦',
+    'cup':'☕','plate':'🍽','spoon':'🥄',
+    'red':'🔴','blue':'🔵','green':'🟢','yellow':'🟡','orange-color':'🟠',
+    'purple':'🟣','pink':'🩷','black':'⚫','white':'⚪','grey':'🩶',
+    'brown':'🟫','gold':'🌟','silver':'⭐',
+    'woman':'👩','man':'👨','girl':'👧','boy':'👦','granny':'👵',
+    'grandpa':'👴','bride':'👰','groom':'🤵','baby':'👶','child':'🧒',
+    'parents':'👨‍👩‍👦','family':'👨‍👩‍👧‍👦',
+    'head':'🗣','hair':'💇','eye':'👁','ear':'👂','nose':'👃',
+    'mouth':'👄','tooth':'🦷','tongue':'👅','arm':'💪','hand':'🤚',
+    'finger':'☝','leg':'🦵','foot':'🦶','heart':'❤','face':'😊',
+    'thumbs-up':'👍','nail':'💅','body':'🙆',
+    'shirt':'👕','pants':'👖','dress':'👗','jacket':'🧥','shoes':'👟',
+    'boots':'👢','socks':'🧦','hat':'🎩','scarf':'🧣','gloves':'🧤',
+    'sweater':'🧶','underwear':'👙','suit':'👔','button':'🔘',
+    'sun':'☀','rain':'🌧','snow':'❄','cloud':'☁','wind':'💨',
+    'storm':'⛈','lightning':'⚡','fog':'🌫','rainbow':'🌈',
+    'hot':'🥵','cold':'🥶','warm':'🌤','cool':'🌬',
+    'morning':'🌅','evening':'🌆','night':'🌙','date':'📅','week':'📆',
+    'month':'🗓','hour':'⏰','minute':'⏱','holiday':'🎉',
+    'tree':'🌳','flower':'🌸','grass':'🌿','river':'🏞','sea':'🌊',
+    'mountain':'⛰','forest':'🌲','beach':'🏖','moon':'🌕','earth':'🌍',
+    'island':'🏝','desert':'🏜','rock':'🪨','leaf':'🍃','plant':'🌱',
+    'school':'🏫','teacher':'👩‍🏫','student':'🧑‍🎓','book':'📖',
+    'pen':'🖊','pencil':'✏','paper':'📄','notebook':'📓','homework':'📝',
+    'word':'💬','question':'❓','letter':'🔤','number':'🔢',
+    'car':'🚗','bus':'🚌','train':'🚂','plane':'✈','bike':'🚲',
+    'taxi':'🚕','boat':'⛵','ship':'🚢','moto':'🏍','truck':'🚛',
+    'tram':'🚃','subway':'🚇','heli':'🚁','road':'🛣',
+    'city':'🏙','village':'🏡','shop':'🏪','market':'🛒','hospital':'🏥',
+    'bank':'🏦','park':'🌳','restaurant':'🍽','hotel':'🏨',
+    'museum':'🏛','cinema':'🎬','church':'⛪','office':'🏢',
+    'factory':'🏭','farm':'🚜','zoo-icon':'🦁','gym':'🏋',
+    'wave':'👋','pray':'🙏','yes':'✅','no':'❌','ok':'👍',
+    'help':'🆘','smile':'😊','handshake':'🤝','excuse':'🙋',
+    'eat':'🍴','sleep':'😴','walk':'🚶','run':'🏃','sit':'🪑',
+    'stand':'🧍','speak':'🗣','say':'💬','buy':'🛒','give':'🤝',
+    'take':'🤚','make':'🛠','like':'❤','want':'💭','need':'📋',
+    'work':'💼','play':'🎮','read':'📖','write':'✍','watch':'📺',
+    'cook':'🍳','clean':'🧹',
+    'big':'🔵','small':'🔹','new':'✨','old':'🏚','sad':'😢',
+    'fast':'⚡','slow':'🐢','dirty':'🪣','beautiful':'🌸','free':'🆓',
+    'busy':'💼','understand':'🧠',
+  };
+  if (textToEmoji[emojiChar]) emojiChar = textToEmoji[emojiChar];
+
+  // Показываем через Twemoji img (красивые иконки)
+  const codePoint = [...emojiChar].map(c => c.codePointAt(0).toString(16)).join('-');
+  const twemojiUrl = `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoint}.png`;
+
+  emojiEl.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = twemojiUrl;
+  img.style.cssText = 'width:72px;height:72px;object-fit:contain';
+  img.onerror = () => { img.style.display='none'; emojiEl.textContent = emojiChar; };
+  emojiEl.appendChild(img);
 
   document.getElementById('vf-word').textContent = card.word;
   document.getElementById('vf-level-badge').textContent = card.level;
