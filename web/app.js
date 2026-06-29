@@ -429,7 +429,7 @@ function renderLesson(lesson) {
       <span style="font-size:14px">💡</span>
       <span style="font-size:12px;color:#92400e;font-weight:500">Нажмите на любое слово для перевода</span>
     </div>
-    <div style="background:#fff;border:1px solid rgba(195,198,215,0.3);border-radius:16px;padding:20px;line-height:1.9;font-size:15px;color:#434655;box-shadow:0 1px 8px rgba(0,0,0,0.04);margin-bottom:20px">${makeClickable(lesson.lesson_text||'')}</div>`;
+    <div style="background:#fff;border:1px solid rgba(195,198,215,0.3);border-radius:16px;padding:20px;box-shadow:0 1px 8px rgba(0,0,0,0.04);margin-bottom:20px">${formatLessonText(lesson.lesson_text||'')}</div>`;
 
   // Вкладка "Лексика" — извлекаем слова из текста
   const words = extractKeyWords(lesson.lesson_text || '', lesson.title);
@@ -1624,3 +1624,62 @@ window.onload = async () => {
     await initApp();
   }
 };
+
+// ── FORMAT LESSON TEXT ──
+function formatLessonText(raw) {
+  if (!raw) return '';
+  var NEWLINE = '\n', BULLET = '\u2022', EM_DASH = '\u2014';
+  var lines = raw.split(NEWLINE);
+  // Если текст одной строкой — разбиваем по bullet
+  if (lines.length <= 2 && raw.indexOf(BULLET) !== -1) {
+    var parts = raw.split(BULLET);
+    var out = '';
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k].trim();
+      if (!p) continue;
+      if (k === 0 && p.length < 80) {
+        out += '<div style="font-weight:700;font-size:15px;color:#191c1e;margin-bottom:12px">' + makeClickable(p) + '</div>';
+      } else if (p.indexOf(EM_DASH) !== -1 && p.length < 100) {
+        var sp = p.split(EM_DASH);
+        out += '<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(195,198,215,0.2)">' +
+          '<span style="font-weight:600;color:#191c1e;min-width:110px;flex-shrink:0">' + makeClickable(sp[0].trim()) + '</span>' +
+          '<span style="color:#9aa0b4;flex-shrink:0"> — </span>' +
+          '<span style="color:#4f65ef;font-weight:500">' + makeClickable(sp.slice(1).join(EM_DASH).trim()) + '</span></div>';
+      } else {
+        out += '<div style="display:flex;gap:8px;padding:4px 0;font-size:14px;color:#434655;line-height:1.6">' +
+          '<span style="color:#4f65ef;flex-shrink:0">\u2022</span><span>' + makeClickable(p) + '</span></div>';
+      }
+    }
+    return out;
+  }
+  // Многострочный текст
+  var html = '';
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) { html += '<div style="height:6px"></div>'; continue; }
+    var firstChar = line.charCodeAt(0);
+    var isBullet = firstChar === 0x2022 || firstChar === 0x2013 || firstChar === 0x2014 || line[0] === '-';
+    if (isBullet) {
+      var item = line.replace(/^[\u2022\u2013\u2014\-]\s*/, '');
+      if (item.indexOf(EM_DASH) !== -1 && item.length < 100) {
+        var parts2 = item.split(EM_DASH);
+        html += '<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(195,198,215,0.2)">' +
+          '<span style="font-weight:600;color:#191c1e;min-width:110px;flex-shrink:0">' + makeClickable(parts2[0].trim()) + '</span>' +
+          '<span style="color:#9aa0b4;flex-shrink:0"> — </span>' +
+          '<span style="color:#4f65ef;font-weight:500">' + makeClickable(parts2.slice(1).join(EM_DASH).trim()) + '</span></div>';
+      } else {
+        html += '<div style="display:flex;gap:8px;padding:4px 0;font-size:14px;color:#434655;line-height:1.6">' +
+          '<span style="color:#4f65ef;flex-shrink:0">\u2022</span><span>' + makeClickable(item) + '</span></div>';
+      }
+    } else if (line.indexOf(EM_DASH) !== -1 && line.length < 100 && !line.match(/[.!?]$/)) {
+      var sp2 = line.split(EM_DASH);
+      html += '<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(195,198,215,0.2)">' +
+        '<span style="font-weight:600;color:#191c1e;min-width:110px;flex-shrink:0">' + makeClickable(sp2[0].trim()) + '</span>' +
+        '<span style="color:#9aa0b4;flex-shrink:0"> — </span>' +
+        '<span style="color:#4f65ef;font-weight:500">' + makeClickable(sp2.slice(1).join(EM_DASH).trim()) + '</span></div>';
+    } else {
+      html += '<p style="font-size:14px;color:#434655;line-height:1.8;margin:3px 0">' + makeClickable(line) + '</p>';
+    }
+  }
+  return html || makeClickable(raw);
+}
