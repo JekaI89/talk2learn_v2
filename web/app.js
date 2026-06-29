@@ -22,7 +22,15 @@ const LEVEL_META = {
   C1: { gradient:'linear-gradient(135deg,#a78bfa,#7c3aed)', bg:'#f5f3ff', color:'#4c1d95', label:'Продвинутый',   desc:'Академический язык и нюансы',            emoji:'💎' },
   C2: { gradient:'linear-gradient(135deg,#4b5563,#1f2937)', bg:'#f9fafb', color:'#111827', label:'Мастерство',    desc:'Свободное владение на уровне носителя',  emoji:'🏆' },
 };
-const TOPIC_ICONS = {'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠','Nature':'🌿','Emotions':'😊','Sports':'⚽','Technology':'💻'};
+const TOPIC_ICONS = {
+  'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠','Nature':'🌿',
+  'Emotions':'😊','Sports':'⚽','Technology':'💻',
+  'Drinks':'🥤','Colors':'🎨','Family':'👨‍👩‍👧‍👦','Body':'🫀',
+  'Clothes':'👗','Weather':'🌤️','Time':'⏰','School':'🏫',
+  'Places':'🗺️','Greetings':'👋','Actions':'🏃','Adjectives':'✨',
+  'Numbers':'🔢','Work':'💼','Health':'🏥','Travel':'✈️',
+  'Shopping':'🛒','Hobby':'🎨','Music':'🎵','Art':'🖼️',
+};
 const AI_GREETINGS = {en:"Hello! How can I help you today? Feel free to type or use the microphone!",de:"Hallo! Wie kann ich Ihnen heute helfen?",fr:"Bonjour ! Comment puis-je vous aider ?",es:"¡Hola! ¿En qué puedo ayudarte?",it:"Ciao! Come posso aiutarti?",zh:"你好！今天我能帮你什么？",ru:"Привет! Чем могу помочь?"};
 const SIT_GREETINGS = {shop:{en:"Welcome! How can I help you today?",ru:"Добро пожаловать! Чем могу помочь?"},restaurant:{en:"Good evening! Do you have a reservation?",ru:"Добрый вечер! У вас есть бронь?"},airport:{en:"Good morning! May I see your passport?",ru:"Доброе утро! Ваш паспорт, пожалуйста."},hotel:{en:"Welcome to our hotel! Do you have a reservation?",ru:"Добро пожаловать! Есть бронь?"},doctor:{en:"Hello! What brings you in today?",ru:"Здравствуйте! Что вас беспокоит?"},emergency:{en:"Emergency services, what is your emergency?",ru:"Служба спасения, что случилось?"}};
 const SIT_HINTS = {shop:'🛒 Вы покупатель. Попросите найти товар.',restaurant:'🍽️ Вы гость. Закажите блюдо.',airport:'✈️ Вы пассажир. Пройдите регистрацию.',hotel:'🏨 Вы гость. Заселитесь.',doctor:'🏥 Вы пациент. Опишите симптомы.',emergency:'🚨 Срочно опишите ситуацию.'};

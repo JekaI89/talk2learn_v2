@@ -757,6 +757,10 @@ async function openPersonalDictionary() {
 const TOPIC_ICONS = {
   'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠',
   'Nature':'🌿','Emotions':'😊','Sports':'⚽','Technology':'💻',
+  'Drinks':'🥤','Colors':'🎨','Family':'👨‍👩‍👧‍👦','Body':'🫀',
+  'Clothes':'👗','Weather':'🌤️','Time':'⏰','School':'🏫',
+  'Places':'🗺️','Greetings':'👋','Actions':'🏃','Adjectives':'✨',
+  'Numbers':'🔢','Work':'💼','Health':'🏥','Travel':'✈️',
 };
 const LEVEL_COLORS = {
   'A1':'from-green-400 to-teal-500','A2':'from-blue-400 to-indigo-500',
