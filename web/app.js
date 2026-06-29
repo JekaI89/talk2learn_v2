@@ -259,7 +259,9 @@ async function loadUserData() {
     document.getElementById('sidebar-name').textContent = name;
     document.getElementById('sidebar-streak').textContent = streak;
     const statStreakEl = document.getElementById('stat-streak');
-    if (statStreakEl) statStreakEl.textContent = streak;
+    if (statStreakEl) statStreakEl.textContent = streak + ' дней';
+    const statXpEl = document.getElementById('stat-xp');
+    if (statXpEl) statXpEl.textContent = xp + ' XP';
     document.getElementById('sidebar-xp').textContent = xp;
     document.getElementById('sidebar-avatar').textContent = name[0].toUpperCase();
     document.getElementById('mobile-avatar').textContent = name[0].toUpperCase();
