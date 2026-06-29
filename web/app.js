@@ -212,8 +212,13 @@ async function initApp() {
   const appEl  = document.getElementById('screen-app');
   authEl.classList.remove('active');
   authEl.style.display = 'none';
-  appEl.style.display  = '';   // сбросить принудительный display:none от logout
+  appEl.style.display  = 'flex';
+  appEl.style.flexDirection = 'row';
   appEl.classList.add('active');
+
+  // Показываем главную СРАЗУ — до всех fetch запросов
+  // Это убирает белый экран пока грузятся данные
+  navTo('main');
 
   await loadUserData();
 
@@ -237,8 +242,7 @@ async function initApp() {
     const isNewUser = !data.onboarding_done && (data.xp === 0 || data.xp === undefined);
     if (isNewUser) { showPage('onboarding'); return; }
   } catch(e) {}
-
-  navTo('main');
+  // navTo('main') уже вызван в начале initApp
 }
 
 async function loadUserData() {
