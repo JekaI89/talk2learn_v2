@@ -194,6 +194,21 @@ function showLevelComplete() {
   showScreen('screen-level-complete');
 }
 
+async function restartCurrentLevel() {
+  try {
+    await fetch('/api/lessons/restart', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: userId, level: currentLevel})
+    });
+    showToast('🔄 Уровень ' + currentLevel + ' начат заново!');
+    showScreen('screen-main');
+    await loadNextLesson();
+  } catch(e) {
+    showToast('Ошибка соединения');
+  }
+}
+
 function goNextLevel() {
   const idx = LEVELS.indexOf(currentLevel);
   if (idx < LEVELS.length - 1) {
