@@ -181,6 +181,7 @@ async def init_db():
         """)
         await db.execute("ALTER TABLE vocabulary_cards ADD COLUMN IF NOT EXISTS card_language TEXT DEFAULT 'en'")
         await db.execute("ALTER TABLE vocabulary_cards ADD COLUMN IF NOT EXISTS native_language TEXT DEFAULT 'ru'")
+        await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_vocab_word_topic_level ON vocabulary_cards(word, topic, level)")
 
         # ==================== USER_AUTH ====================
         await db.execute("""
