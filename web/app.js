@@ -1,6 +1,7 @@
 // ── Состояние ──
 let userId = 0, userEmail = '', isAdmin = false;
 let _clubRecording = false;
+let _clubHistory = [];  // история разговора для контекста
 let userNativeLang = 'ru', userTargetLang = 'en';
 let currentLevel = 'A1', currentCategory = 'lessons';
 let popupWord = '', popupContext = '';
@@ -668,10 +669,15 @@ async function sendLessonMessage() {
   try {
     const lesson = window._currentLesson || {};
     const context = `You are an AI language tutor helping a student practice the lesson "${lesson.title||''}". Level: ${currentLevel}. Keep responses concise and encouraging.`;
-    const fd = new FormData();
-    fd.append('user_id', userId); fd.append('text', text); fd.append('level', currentLevel);
-    fd.append('situation', context); fd.append('native_language', userNativeLang); fd.append('target_language', userTargetLang);
-    const data = await (await fetch('/api/web-club/text', {method:'POST', body:fd})).json();
+    const data = await (await fetch('/api/web-club/text', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: userId, text, level: currentLevel,
+        situation: context || '', native_language: userNativeLang, target_language: userTargetLang,
+        history: _clubHistory.slice(-20)
+      })
+    })).json();
+    if (data.ai_text) _clubHistory.push({role:'assistant', content:data.ai_text});
     box.removeChild(typing);
     addLessonMsg('ai', data.ai_text, box);
     if (data.audio_url) new Audio(data.audio_url).play().catch(()=>{});
@@ -1221,6 +1227,7 @@ async function toggleWordStatus(word, status) {
 
 // ── РАЗГОВОРНЫЙ КЛУБ ──
 function initClubGreeting() {
+  _clubHistory = [];  // сбрасываем историю при новом разговоре
   const box = document.getElementById('chat-box');
   if (!box) return;
   box.innerHTML='';
@@ -1252,10 +1259,17 @@ function autoResizeClubInput(el) {
 async function sendClubMessage() {
   const inp=document.getElementById('chat-input'); const text=inp.value.trim(); if(!text)return;
   inp.value=''; inp.style.height='auto'; const box=document.getElementById('chat-box');
+  _clubHistory.push({role:'user', content:text});
   addChatMsg('user',text,box);
   try {
-    const fd=new FormData(); fd.append('user_id',userId); fd.append('text',text); fd.append('level',currentLevel); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
-    const data=await (await fetch('/api/web-club/text',{method:'POST',body:fd})).json();
+    const data=await (await fetch('/api/web-club/text',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: userId, text, level: currentLevel,
+        situation: '', native_language: userNativeLang, target_language: userTargetLang,
+        history: []
+      })
+    })).json();
     addChatMsg('ai',data.ai_text,box);
     if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});
   } catch(e){addChatMsg('ai','Connection error.',box);}

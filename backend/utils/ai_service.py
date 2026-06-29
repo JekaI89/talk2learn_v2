@@ -38,12 +38,19 @@ GTTS_LANG = {
 }
 
 LEVEL_RULES = {
-    "A1": "Use VERY simple, short sentences (10-20 words). Elementary vocabulary only. Always end with one simple question.",
-    "A2": "Use simple grammar, 2-3 sentences. Basic conjugations. Ask a straightforward question at the end.",
-    "B1": "Use natural intermediate vocabulary (conditionals, perfect tenses). 3-4 sentences. Ask open-ended questions.",
-    "B2": "Speak naturally with idiomatic expressions, phrasal verbs, complex structures.",
-    "C1": "Use sophisticated vocabulary, complex grammatical nuances. Native-level flow.",
-    "C2": "Use sophisticated vocabulary, precise metaphors, complex nuances. Native-level flow.",
+    "A1": "Vocabulary: basic nouns, verbs, adjectives (200-500 words). Grammar: present simple, 'to be', 'have got'. Sentences: 5-12 words max. Topics: family, food, home, daily routine, simple feelings. Ask ONE very simple question.",
+    "A2": "Vocabulary: ~1000 words, common phrases. Grammar: past simple, future 'going to', comparatives. 2-3 sentences. Topics: work, transport, weather, hobbies, travel. Ask a clear simple question.",
+    "B1": "Vocabulary: ~2000 words, some idioms. Grammar: present perfect, conditionals (1st/2nd), passive. 3-4 sentences. Topics: news, environment, culture, opinions. Ask an open question.",
+    "B2": "Vocabulary: ~4000 words, phrasal verbs, idiomatic expressions. Complex structures, nuanced opinions. Topics: society, technology, abstract ideas. Engage in real debate.",
+    "C1": "Near-native fluency. Sophisticated lexis, humor, implicit meaning, complex arguments. Any topic.",
+    "C2": "Full native-level fluency. Metaphors, irony, cultural references, precise nuance.",
+}
+
+CONVERSATION_TOPICS = {
+    "A1": ["your name and age", "your family", "your favorite food", "your daily routine", "where you live", "pets", "colors and numbers", "the weather today"],
+    "A2": ["your job or studies", "your last weekend", "your hobbies", "a place you like", "your morning routine", "shopping", "your hometown"],
+    "B1": ["a recent trip", "your opinion on social media", "a book or film you liked", "environmental issues", "future plans", "work-life balance"],
+    "B2": ["technology and society", "political issues", "cultural differences", "career ambitions", "ethical dilemmas", "art and creativity"],
 }
 
 SITUATION_ROLES = {
@@ -101,7 +108,8 @@ async def get_ai_response(
     user_level: str = "A1",
     situation: str = "",
     target_lang: str = "en",
-    native_lang: str = "ru"
+    native_lang: str = "ru",
+    history: list = None
 ) -> str:
     target_name = LANG_NAMES.get(target_lang, "English")
     native_name  = LANG_NAMES.get(native_lang, "Russian")
@@ -122,28 +130,39 @@ async def get_ai_response(
             f"3. End with a natural in-character question to keep the conversation going."
         )
     else:
+        import random
+        topics = CONVERSATION_TOPICS.get(level_key, CONVERSATION_TOPICS["A1"])
+        topic_hint = random.choice(topics)
         system_prompt = (
-            f"You are a native {target_name} speaker having a natural conversation. "
-            f"The person you are talking to is learning {target_name} (their native language is {native_name}, level {level_key}). "
-            f"{level_rule} "
-            f"RULES: "
-            f"1. Speak ONLY in {target_name}. Never switch to {native_name} or any other language. "
-            f"2. Your {target_name} must always be grammatically perfect — you are the model. "
-            f"3. If the learner makes a mistake, correct it gently and naturally in {target_name}, "
-            f"   the way a native speaker would — brief, friendly, not like a teacher grading. "
-            f"   Example: 'By the way, we usually say \'I went\' — \'go\' is irregular! But I understood you.' "
-            f"4. If no mistakes — just continue naturally without mentioning it. "
-            f"5. Always end with a question to keep the conversation going."
+            f"You are Alex, a friendly native {target_name} speaker chatting with a language learner. "
+            f"Learner level: {level_key}. {level_rule} "
+            f"PERSONALITY: warm, curious, encouraging. You love asking about people's lives, opinions, experiences. "
+            f"VARIETY RULES — critical: "
+            f"1. NEVER repeat phrases you've already said. NEVER say 'That's great!', 'That sounds wonderful!', 'You are happy', 'That's amazing!' more than once per conversation. "
+            f"2. Vary your reactions: sometimes express surprise, sometimes share your own opinion, sometimes disagree gently, sometimes tell a short anecdote. "
+            f"3. Don't always ask the same type of question. Mix: yes/no, open-ended, follow-up, hypothetical. "
+            f"4. If the learner gives a short answer, dig deeper — ask a follow-up about details. "
+            f"5. Speak ONLY in {target_name}. Grammatically perfect always. "
+            f"6. Gently correct mistakes the natural way: weave the correct form into your reply. "
+            f"7. Keep responses {('short — 1-2 sentences max' if level_key in ('A1','A2') else '2-4 sentences')}. "
+            f"If the conversation is just starting, ask about: {topic_hint}."
         )
 
     try:
+        # Строим messages с историей (последние 10 обменов = 20 сообщений)
+        messages = [{"role": "system", "content": system_prompt}]
+        if history:
+            for msg in history[-20:]:
+                role = msg.get("role", "user")
+                if role not in ("user", "assistant"): continue
+                messages.append({"role": role, "content": msg.get("content", "")})
+        messages.append({"role": "user", "content": user_text})
+
         response = await client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user",   "content": user_text}
-            ],
-            temperature=0.6
+            messages=messages,
+            temperature=0.8,
+            max_tokens=300,
         )
         reply = response.choices[0].message.content.strip()
         print(f"💬 AI [{target_name}/{level_key}][{situation or 'club'}]: {reply[:80]}")
