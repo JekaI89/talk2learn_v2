@@ -1454,8 +1454,15 @@ async function sendSitMessage() {
   const inp=document.getElementById('sit-input'); const text=inp.value.trim(); if(!text)return;
   inp.value=''; const box=document.getElementById('sit-chat-box'); addSitMsg('user',text,box);
   try {
-    const fd=new FormData(); fd.append('user_id',userId); fd.append('text',text); fd.append('level',currentLevel); fd.append('situation',currentSituation); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
-    const data=await(await fetch('/api/web-club/text',{method:'POST',body:fd})).json();
+    const res = await fetch('/api/web-club/text', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        user_id: userId, text, level: currentLevel, situation: currentSituation,
+        native_language: userNativeLang, target_language: userTargetLang, history: []
+      })
+    });
+    const data = await res.json();
     addSitMsg('ai',data.ai_text,box); if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});
   } catch(e){addSitMsg('ai','Connection error.',box);}
 }
