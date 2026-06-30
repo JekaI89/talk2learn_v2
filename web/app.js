@@ -859,10 +859,17 @@ async function showQuizResult() {
       <div style="font-size:56px;margin-bottom:12px">${emoji}</div>
       <h3 style="font-size:20px;font-weight:800;color:#191c1e;margin:0 0 8px">${_quizCorrect} из ${total} верно</h3>
       <div style="font-size:32px;font-weight:800;color:${pct>=70?'#4f65ef':'#f97316'};margin-bottom:20px">${pct}%</div>
-      <button onclick="loadNextLesson()" style="width:100%;background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(79,101,239,0.3)">
+      <button onclick="finishQuizAndContinue()" style="width:100%;background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(79,101,239,0.3)">
         Следующий урок →
       </button>
     </div>`;
+}
+
+function finishQuizAndContinue() {
+  // Восстанавливаем разметку панели урока, удалённую квизом
+  const panel = document.getElementById('lesson-tab-content');
+  panel.innerHTML = '<div id="lesson-content"></div><div style="padding:24px 0 8px"><button id="lesson-complete-btn" onclick="completeLessonFromHeader()" style="width:100%;background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:16px;padding:18px 24px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 24px rgba(79,101,239,0.35)"><span class="material-symbols-outlined" style="font-size:22px">check_circle</span><span class="lesson-complete-label">Прочитал · +5 XP</span></button></div>';
+  loadNextLesson();
 }
 
 function autoResizeTA(el) {
