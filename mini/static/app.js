@@ -194,6 +194,21 @@ function showLevelComplete() {
   showScreen('screen-level-complete');
 }
 
+async function restartCurrentLevel() {
+  try {
+    await fetch('/api/lessons/restart', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: userId, level: currentLevel})
+    });
+    showToast('🔄 Уровень ' + currentLevel + ' начат заново!');
+    showScreen('screen-main');
+    await loadNextLesson();
+  } catch(e) {
+    showToast('Ошибка соединения');
+  }
+}
+
 function goNextLevel() {
   const idx = LEVELS.indexOf(currentLevel);
   if (idx < LEVELS.length - 1) {
@@ -393,6 +408,51 @@ function initClubGreeting() {
   chatBox.appendChild(wrap);
 }
 
+const SITUATION_GREETINGS = {
+  shop: {
+    en: "Hello! Welcome to our store. How can I help you today?",
+    de: "Hallo! Willkommen in unserem Geschäft. Wie kann ich Ihnen helfen?",
+    fr: "Bonjour! Bienvenue dans notre magasin. Comment puis-je vous aider?",
+    es: "¡Hola! Bienvenido a nuestra tienda. ¿En qué puedo ayudarle?",
+    it: "Buongiorno! Benvenuto nel nostro negozio. Come posso aiutarla?",
+  },
+  restaurant: {
+    en: "Good evening! Welcome. Do you have a reservation, or would you like a table for how many?",
+    de: "Guten Abend! Willkommen. Haben Sie eine Reservierung?",
+    fr: "Bonsoir! Bienvenue. Avez-vous une réservation?",
+    es: "¡Buenas tardes! Bienvenido. ¿Tiene reserva?",
+    it: "Buonasera! Benvenuto. Ha una prenotazione?",
+  },
+  airport: {
+    en: "Good morning! May I see your passport and ticket, please?",
+    de: "Guten Morgen! Darf ich bitte Ihren Reisepass und Ihr Ticket sehen?",
+    fr: "Bonjour! Puis-je voir votre passeport et votre billet, s'il vous plaît?",
+    es: "¡Buenos días! ¿Puede mostrarme su pasaporte y su billete?",
+    it: "Buongiorno! Posso vedere il suo passaporto e il biglietto?",
+  },
+  hotel: {
+    en: "Welcome to our hotel! Do you have a reservation?",
+    de: "Willkommen in unserem Hotel! Haben Sie eine Reservierung?",
+    fr: "Bienvenue dans notre hôtel! Avez-vous une réservation?",
+    es: "¡Bienvenido a nuestro hotel! ¿Tiene una reserva?",
+    it: "Benvenuto nel nostro hotel! Ha una prenotazione?",
+  },
+  doctor: {
+    en: "Hello! I'm Dr. Smith. Please have a seat. What brings you in today?",
+    de: "Hallo! Ich bin Dr. Müller. Bitte setzen Sie sich. Was führt Sie heute zu mir?",
+    fr: "Bonjour! Je suis le Dr. Martin. Asseyez-vous. Qu'est-ce qui vous amène?",
+    es: "¡Hola! Soy el Dr. García. Por favor siéntese. ¿Qué le trae hoy?",
+    it: "Buongiorno! Sono il Dott. Rossi. Si accomodi. Cosa la porta da me oggi?",
+  },
+  emergency: {
+    en: "Emergency services, what's your emergency?",
+    de: "Notruf, was ist Ihr Notfall?",
+    fr: "Services d'urgence, quelle est votre urgence?",
+    es: "Servicios de emergencia, ¿cuál es su emergencia?",
+    it: "Pronto soccorso, qual è la sua emergenza?",
+  },
+};
+
 function openSituation(situationKey, title, situation) {
   currentSituation = situation;
   showScreen('screen-situation-chat', 'screen-situations');
@@ -419,17 +479,19 @@ function openSituation(situationKey, title, situation) {
 
 function appendSituationMessage(who, text) {
   const box = document.getElementById('situation-chat-box');
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;' + (who === 'ai' ? 'justify-content:flex-start' : 'justify-content:flex-end');
   const div = document.createElement('div');
   if (who === 'ai') {
-    div.className = 'bg-primary-container text-on-primary p-md rounded-2xl rounded-tl-none max-w-[85%] text-sm shadow-sm';
+    div.style.cssText = 'background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid rgba(79,101,239,0.12);color:#191c1e;padding:10px 14px;border-radius:18px;border-top-left-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 1px 6px rgba(0,0,0,0.06)';
     div.innerHTML = makeTextClickable(text, text);
-    setTimeout(() => div.querySelectorAll('.clickable-word').forEach(el => el.style.borderBottomColor='rgba(255,255,255,0.4)'), 0);
   } else {
-    div.className = 'bg-surface-container text-on-surface p-md rounded-2xl rounded-tr-none max-w-[85%] text-sm shadow-sm ml-auto';
+    div.style.cssText = 'background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;padding:10px 14px;border-radius:18px;border-top-right-radius:4px;max-width:82%;font-size:14px;line-height:1.5;box-shadow:0 2px 10px rgba(79,101,239,0.25)';
     div.textContent = text;
   }
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
+  wrap.appendChild(div);
+  box.appendChild(wrap);
+  box.scrollTo({top: box.scrollHeight, behavior: 'smooth'});
 }
 
 async function sendSituationMessage() {
@@ -710,6 +772,10 @@ async function openPersonalDictionary() {
 const TOPIC_ICONS = {
   'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠',
   'Nature':'🌿','Emotions':'😊','Sports':'⚽','Technology':'💻',
+  'Drinks':'🥤','Colors':'🎨','Family':'👨‍👩‍👧‍👦','Body':'🫀',
+  'Clothes':'👗','Weather':'🌤️','Time':'⏰','School':'🏫',
+  'Places':'🗺️','Greetings':'👋','Actions':'🏃','Adjectives':'✨',
+  'Numbers':'🔢','Work':'💼','Health':'🏥','Travel':'✈️',
 };
 const LEVEL_COLORS = {
   'A1':'from-green-400 to-teal-500','A2':'from-blue-400 to-indigo-500',
@@ -815,12 +881,7 @@ function showVfCard(card) {
   vfCurrentCard = card;
   vfFlipped = false;
 
-  // Emoji
-  let emoji = '📖';
-  try { emoji = String.fromCodePoint(parseInt(card.emoji_code, 16)); } catch(e) {}
-  document.getElementById('vf-emoji').textContent = emoji;
-
-  // Градиент фона эмодзи по уровню
+  // Градиент фона по уровню
   const gradMap = {
     'A1':'linear-gradient(135deg,#4ade80,#2dd4bf)',
     'A2':'linear-gradient(135deg,#60a5fa,#818cf8)',
@@ -829,7 +890,93 @@ function showVfCard(card) {
     'C1':'linear-gradient(135deg,#f87171,#a855f7)',
     'C2':'linear-gradient(135deg,#71717a,#374151)',
   };
-  document.getElementById('vf-emoji-bg').style.background = gradMap[card.level] || gradMap['A1'];
+  const bg = gradMap[card.level] || gradMap['A1'];
+  document.getElementById('vf-emoji-bg').style.background = bg;
+
+  // Картинка: Twemoji через CDN (красивые iOS-style иконки)
+  const emojiEl = document.getElementById('vf-emoji');
+  // emoji_code может быть: unicode char (🐱), hex (1F431), или текст (cat)
+  let emojiChar = card.emoji_code || '📖';
+  // Если hex — конвертируем в символ
+  if (/^[0-9A-Fa-f]{4,6}$/.test(emojiChar)) {
+    try { emojiChar = String.fromCodePoint(parseInt(emojiChar, 16)); } catch(e) {}
+  }
+  // Если текстовый код (cat, dog) — маппим на emoji
+  const textToEmoji = {
+    'cat':'🐱','dog':'🐶','bird':'🐦','fish':'🐟','horse':'🐴',
+    'cow':'🐄','pig':'🐷','sheep':'🐑','rabbit':'🐰','duck':'🦆',
+    'bear':'🐻','lion':'🦁','elephant':'🐘','monkey':'🐒','snake':'🐍',
+    'frog':'🐸','tiger':'🐯','wolf':'🐺','fox':'🦊','mouse':'🐭',
+    'chicken':'🐔','penguin':'🐧','dolphin':'🐬','turtle':'🐢','bee':'🐝',
+    'butterfly':'🦋','ant':'🐜','spider':'🕷','deer':'🦌','hamster':'🐹',
+    'apple':'🍎','banana':'🍌','bread':'🍞','egg':'🥚','rice':'🍚',
+    'soup':'🍲','pizza':'🍕','burger':'🍔','cake':'🎂','salad':'🥗',
+    'cheese':'🧀','butter':'🧈','milk':'🥛','orange':'🍊','lemon':'🍋',
+    'tomato':'🍅','potato':'🥔','carrot':'🥕','onion':'🧅','garlic':'🧄',
+    'pasta':'🍝','sandwich':'🥪','ice-cream':'🍦','chocolate':'🍫','cookie':'🍪',
+    'honey':'🍯','strawberry':'🍓','grapes':'🍇','watermelon':'🍉','mushroom':'🍄',
+    'corn':'🌽','pepper':'🌶','cucumber':'🥒','meat':'🥩',
+    'water':'💧','coffee':'☕','juice':'🧃','drink':'🥤','beer':'🍺',
+    'wine':'🍷','champagne':'🍾',
+    'house':'🏠','door':'🚪','kitchen':'🍳','bed':'🛏','bath':'🛁',
+    'window':'🪟','chair':'🪑','sofa':'🛋','lamp':'💡','clock':'🕐',
+    'mirror':'🪞','stairs':'🪜','ice':'🧊','tv':'📺','phone':'📱',
+    'pc':'💻','books':'📚','key':'🔑','bag':'👜','box':'📦',
+    'cup':'☕','plate':'🍽','spoon':'🥄',
+    'red':'🔴','blue':'🔵','green':'🟢','yellow':'🟡','orange-color':'🟠',
+    'purple':'🟣','pink':'🩷','black':'⚫','white':'⚪','grey':'🩶',
+    'brown':'🟫','gold':'🌟','silver':'⭐',
+    'woman':'👩','man':'👨','girl':'👧','boy':'👦','granny':'👵',
+    'grandpa':'👴','bride':'👰','groom':'🤵','baby':'👶','child':'🧒',
+    'parents':'👨‍👩‍👦','family':'👨‍👩‍👧‍👦',
+    'head':'🗣','hair':'💇','eye':'👁','ear':'👂','nose':'👃',
+    'mouth':'👄','tooth':'🦷','tongue':'👅','arm':'💪','hand':'🤚',
+    'finger':'☝','leg':'🦵','foot':'🦶','heart':'❤','face':'😊',
+    'thumbs-up':'👍','nail':'💅','body':'🙆',
+    'shirt':'👕','pants':'👖','dress':'👗','jacket':'🧥','shoes':'👟',
+    'boots':'👢','socks':'🧦','hat':'🎩','scarf':'🧣','gloves':'🧤',
+    'sweater':'🧶','underwear':'👙','suit':'👔','button':'🔘',
+    'sun':'☀','rain':'🌧','snow':'❄','cloud':'☁','wind':'💨',
+    'storm':'⛈','lightning':'⚡','fog':'🌫','rainbow':'🌈',
+    'hot':'🥵','cold':'🥶','warm':'🌤','cool':'🌬',
+    'morning':'🌅','evening':'🌆','night':'🌙','date':'📅','week':'📆',
+    'month':'🗓','hour':'⏰','minute':'⏱','holiday':'🎉',
+    'tree':'🌳','flower':'🌸','grass':'🌿','river':'🏞','sea':'🌊',
+    'mountain':'⛰','forest':'🌲','beach':'🏖','moon':'🌕','earth':'🌍',
+    'island':'🏝','desert':'🏜','rock':'🪨','leaf':'🍃','plant':'🌱',
+    'school':'🏫','teacher':'👩‍🏫','student':'🧑‍🎓','book':'📖',
+    'pen':'🖊','pencil':'✏','paper':'📄','notebook':'📓','homework':'📝',
+    'word':'💬','question':'❓','letter':'🔤','number':'🔢',
+    'car':'🚗','bus':'🚌','train':'🚂','plane':'✈','bike':'🚲',
+    'taxi':'🚕','boat':'⛵','ship':'🚢','moto':'🏍','truck':'🚛',
+    'tram':'🚃','subway':'🚇','heli':'🚁','road':'🛣',
+    'city':'🏙','village':'🏡','shop':'🏪','market':'🛒','hospital':'🏥',
+    'bank':'🏦','park':'🌳','restaurant':'🍽','hotel':'🏨',
+    'museum':'🏛','cinema':'🎬','church':'⛪','office':'🏢',
+    'factory':'🏭','farm':'🚜','zoo-icon':'🦁','gym':'🏋',
+    'wave':'👋','pray':'🙏','yes':'✅','no':'❌','ok':'👍',
+    'help':'🆘','smile':'😊','handshake':'🤝','excuse':'🙋',
+    'eat':'🍴','sleep':'😴','walk':'🚶','run':'🏃','sit':'🪑',
+    'stand':'🧍','speak':'🗣','say':'💬','buy':'🛒','give':'🤝',
+    'take':'🤚','make':'🛠','like':'❤','want':'💭','need':'📋',
+    'work':'💼','play':'🎮','read':'📖','write':'✍','watch':'📺',
+    'cook':'🍳','clean':'🧹',
+    'big':'🔵','small':'🔹','new':'✨','old':'🏚','sad':'😢',
+    'fast':'⚡','slow':'🐢','dirty':'🪣','beautiful':'🌸','free':'🆓',
+    'busy':'💼','understand':'🧠',
+  };
+  if (textToEmoji[emojiChar]) emojiChar = textToEmoji[emojiChar];
+
+  // Показываем через Twemoji img (красивые иконки)
+  const codePoint = [...emojiChar].map(c => c.codePointAt(0).toString(16)).join('-');
+  const twemojiUrl = `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoint}.png`;
+
+  emojiEl.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = twemojiUrl;
+  img.style.cssText = 'width:72px;height:72px;object-fit:contain';
+  img.onerror = () => { img.style.display='none'; emojiEl.textContent = emojiChar; };
+  emojiEl.appendChild(img);
 
   document.getElementById('vf-word').textContent = card.word;
   document.getElementById('vf-level-badge').textContent = card.level;

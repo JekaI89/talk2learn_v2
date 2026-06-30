@@ -131,10 +131,21 @@ async def register_user(data: RegisterUserRequest):
 async def check_onboarding(user_id: int):
     try:
         done = await get_onboarding_status(user_id)
-        return {"onboarding_done": done}
+        # Получаем XP пользователя
+        pool = await get_pool()
+        async with pool.acquire() as db:
+            row = await db.fetchrow(
+                "SELECT xp, streak FROM users WHERE user_id = $1", user_id
+            )
+        xp = row["xp"] if row else 0
+        streak = row["streak"] if row else 0
+        # Если есть XP или стрик — пользователь уже активный, онбординг не нужен
+        if xp > 0 or streak > 0:
+            done = True
+        return {"onboarding_done": done, "xp": xp}
     except Exception as e:
         traceback.print_exc()
-        return {"onboarding_done": False}
+        return {"onboarding_done": True, "xp": 0}
 
 
 @router.post("/api/onboarding/complete")

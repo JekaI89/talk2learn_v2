@@ -1,6 +1,7 @@
 // ── Состояние ──
 let userId = 0, userEmail = '', isAdmin = false;
 let _clubRecording = false;
+let _clubHistory = [];  // история разговора для контекста
 let userNativeLang = 'ru', userTargetLang = 'en';
 let currentLevel = 'A1', currentCategory = 'lessons';
 let popupWord = '', popupContext = '';
@@ -22,7 +23,15 @@ const LEVEL_META = {
   C1: { gradient:'linear-gradient(135deg,#a78bfa,#7c3aed)', bg:'#f5f3ff', color:'#4c1d95', label:'Продвинутый',   desc:'Академический язык и нюансы',            emoji:'💎' },
   C2: { gradient:'linear-gradient(135deg,#4b5563,#1f2937)', bg:'#f9fafb', color:'#111827', label:'Мастерство',    desc:'Свободное владение на уровне носителя',  emoji:'🏆' },
 };
-const TOPIC_ICONS = {'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠','Nature':'🌿','Emotions':'😊','Sports':'⚽','Technology':'💻'};
+const TOPIC_ICONS = {
+  'Animals':'🐾','Food':'🍽️','Transport':'🚀','Home':'🏠','Nature':'🌿',
+  'Emotions':'😊','Sports':'⚽','Technology':'💻',
+  'Drinks':'🥤','Colors':'🎨','Family':'👨‍👩‍👧‍👦','Body':'🫀',
+  'Clothes':'👗','Weather':'🌤️','Time':'⏰','School':'🏫',
+  'Places':'🗺️','Greetings':'👋','Actions':'🏃','Adjectives':'✨',
+  'Numbers':'🔢','Work':'💼','Health':'🏥','Travel':'✈️',
+  'Shopping':'🛒','Hobby':'🎨','Music':'🎵','Art':'🖼️',
+};
 const AI_GREETINGS = {en:"Hello! How can I help you today? Feel free to type or use the microphone!",de:"Hallo! Wie kann ich Ihnen heute helfen?",fr:"Bonjour ! Comment puis-je vous aider ?",es:"¡Hola! ¿En qué puedo ayudarte?",it:"Ciao! Come posso aiutarti?",zh:"你好！今天我能帮你什么？",ru:"Привет! Чем могу помочь?"};
 const SIT_GREETINGS = {shop:{en:"Welcome! How can I help you today?",ru:"Добро пожаловать! Чем могу помочь?"},restaurant:{en:"Good evening! Do you have a reservation?",ru:"Добрый вечер! У вас есть бронь?"},airport:{en:"Good morning! May I see your passport?",ru:"Доброе утро! Ваш паспорт, пожалуйста."},hotel:{en:"Welcome to our hotel! Do you have a reservation?",ru:"Добро пожаловать! Есть бронь?"},doctor:{en:"Hello! What brings you in today?",ru:"Здравствуйте! Что вас беспокоит?"},emergency:{en:"Emergency services, what is your emergency?",ru:"Служба спасения, что случилось?"}};
 const SIT_HINTS = {shop:'🛒 Вы покупатель. Попросите найти товар.',restaurant:'🍽️ Вы гость. Закажите блюдо.',airport:'✈️ Вы пассажир. Пройдите регистрацию.',hotel:'🏨 Вы гость. Заселитесь.',doctor:'🏥 Вы пациент. Опишите симптомы.',emergency:'🚨 Срочно опишите ситуацию.'};
@@ -204,8 +213,13 @@ async function initApp() {
   const appEl  = document.getElementById('screen-app');
   authEl.classList.remove('active');
   authEl.style.display = 'none';
-  appEl.style.display  = '';   // сбросить принудительный display:none от logout
+  appEl.style.display  = 'flex';
+  appEl.style.flexDirection = 'row';
   appEl.classList.add('active');
+
+  // Показываем главную СРАЗУ — до всех fetch запросов
+  // Это убирает белый экран пока грузятся данные
+  navTo('main');
 
   await loadUserData();
 
@@ -221,13 +235,15 @@ async function initApp() {
   document.getElementById('club-level').textContent = currentLevel;
   initClubGreeting();
 
+  // Онбординг только для новых пользователей (нет XP и нет прогресса)
+  // Существующие пользователи всегда идут на главную
   try {
     const res = await fetch(`/api/onboarding/${userId}`);
     const data = await res.json();
-    if (!data.onboarding_done) { showPage('onboarding'); return; }
+    const isNewUser = !data.onboarding_done && (data.xp === 0 || data.xp === undefined);
+    if (isNewUser) { showPage('onboarding'); return; }
   } catch(e) {}
-
-  navTo('main');
+  // navTo('main') уже вызван в начале initApp
 }
 
 async function loadUserData() {
@@ -244,7 +260,9 @@ async function loadUserData() {
     document.getElementById('sidebar-name').textContent = name;
     document.getElementById('sidebar-streak').textContent = streak;
     const statStreakEl = document.getElementById('stat-streak');
-    if (statStreakEl) statStreakEl.textContent = streak;
+    if (statStreakEl) statStreakEl.textContent = streak + ' дней';
+    const statXpEl = document.getElementById('stat-xp');
+    if (statXpEl) statXpEl.textContent = xp + ' XP';
     document.getElementById('sidebar-xp').textContent = xp;
     document.getElementById('sidebar-avatar').textContent = name[0].toUpperCase();
     document.getElementById('mobile-avatar').textContent = name[0].toUpperCase();
@@ -258,10 +276,21 @@ async function loadUserData() {
 }
 
 // ── NAVIGATION ──
+const FLEX_COL_PAGES = new Set(['main','dictionary','club','lesson','flashcards','situation-chat','profile','notebook','onboarding']);
+
 function navTo(section) {
-  document.querySelectorAll('.page').forEach(p => { p.classList.add('hidden'); p.classList.remove('flex'); });
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.style.flexDirection = '';
+  });
   const page = document.getElementById('page-' + section);
-  if (page) { page.classList.remove('hidden'); page.classList.add('flex'); }
+  if (page) {
+    page.style.display = 'block';
+    if (FLEX_COL_PAGES.has(section)) {
+      page.style.display = 'flex';
+      page.style.flexDirection = 'column';
+    }
+  }
 
   // Sidebar nav highlight
   document.querySelectorAll('.nav-btn[data-nav]').forEach(b => {
@@ -287,9 +316,18 @@ function navTo(section) {
 }
 
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => { p.classList.add('hidden'); p.classList.remove('flex'); });
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.style.flexDirection = '';
+  });
   const page = document.getElementById('page-' + name);
-  if (page) { page.classList.remove('hidden'); page.classList.add('flex'); }
+  if (page) {
+    page.style.display = 'block';
+    if (FLEX_COL_PAGES.has(name)) {
+      page.style.display = 'flex';
+      page.style.flexDirection = 'column';
+    }
+  }
 }
 
 // ── LESSONS ──
@@ -394,7 +432,7 @@ function renderLesson(lesson) {
       <span style="font-size:14px">💡</span>
       <span style="font-size:12px;color:#92400e;font-weight:500">Нажмите на любое слово для перевода</span>
     </div>
-    <div style="background:#fff;border:1px solid rgba(195,198,215,0.3);border-radius:16px;padding:20px;line-height:1.9;font-size:15px;color:#434655;box-shadow:0 1px 8px rgba(0,0,0,0.04);margin-bottom:20px">${makeClickable(lesson.lesson_text||'')}</div>`;
+    <div style="background:#fff;border:1px solid rgba(195,198,215,0.3);border-radius:16px;padding:20px;box-shadow:0 1px 8px rgba(0,0,0,0.04);margin-bottom:20px">${formatLessonText(lesson.lesson_text||'')}</div>`;
 
   // Вкладка "Лексика" — извлекаем слова из текста
   const words = extractKeyWords(lesson.lesson_text || '', lesson.title);
@@ -411,32 +449,150 @@ function renderLesson(lesson) {
 }
 
 function extractKeyWords(text, title) {
-  // Извлекаем уникальные слова длиннее 3 букв из текста урока
-  const stopWordsEn = new Set(['the','and','for','are','but','not','you','all','can','her','was','one','our','out','day','get','has','him','his','how','its','let','may','now','old','own','say','she','too','use','way','who','did','off','put','set','two','any','come','give','most','some','take','than','them','then','they','this','that','have','from','been','when','will','with','your','were','what','also','each','into','just','know','more','much','over','such','well','year']);
-  const stopWordsRu = new Set(['это','как','так','что','или','для','при','без','над','под','про','был','была','были','есть','его','её','их','мой','моя','мои','твой','наш','ваш','тот','эта','эти','тем','тех','все','всё','всех','уже','ещё','если','чтобы','того','этот','этого','этом','него','нее','них','который','которая','которое']);
-  const words = text.match(/[A-Za-zЀ-ӿ]{4,}/g) || [];
-  const unique = [...new Set(words.map(w=>w.toLowerCase()))].filter(w=>!stopWordsEn.has(w)&&!stopWordsRu.has(w));
+  // Только английские слова из текста урока (латиница)
+  const stopWordsEn = new Set([
+    'the','and','for','are','but','not','you','all','can','her','was','one','our','out',
+    'day','get','has','him','his','how','its','let','may','now','old','own','say','she',
+    'too','use','way','who','did','off','put','set','two','any','come','give','most',
+    'some','take','than','them','then','they','this','that','have','from','been','when',
+    'will','with','your','were','what','also','each','into','just','know','more','much',
+    'over','such','well','year','used','very','also','about','which','their','there',
+    'here','where','these','those','have','been','said','made','like','time','look',
+    'make','good','here','verb','form','word','mean','used','note','example'
+  ]);
+  // Берём только латинские слова длиной 3+ символов
+  const words = text.match(/[A-Za-z]{3,}/g) || [];
+  const unique = [...new Set(words.map(w => w.toLowerCase()))]
+    .filter(w => !stopWordsEn.has(w));
   return unique.slice(0, 12);
 }
+
+// Кэш переводов чтобы не делать повторные запросы
+const _vocabCache = {};
 
 function renderVocabTab(words) {
   const el = document.getElementById('lesson-vocab-content');
   if (!el) return;
   if (!words.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 0;color:#9aa0b4;font-size:14px">В уроке нет ключевых слов</div>';
+    el.innerHTML = `<div style="text-align:center;padding:48px 0;color:#9aa0b4">
+      <div style="font-size:32px;margin-bottom:8px">📭</div>
+      <div style="font-size:14px">В уроке нет английских слов для изучения</div>
+    </div>`;
     return;
   }
-  const colors = ['#eef2ff','#f0fdf4','#fff7ed','#fdf4ff','#ecfeff','#fef3c7','#fce7f3','#f5f3ff'];
-  const textColors = ['#4f65ef','#16a34a','#ea580c','#9333ea','#0891b2','#d97706','#db2777','#7c3aed'];
   el.innerHTML = `
-    <h3 style="font-size:14px;font-weight:700;color:#191c1e;margin:0 0 14px">Ключевые слова урока</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
-      ${words.map((w,i) => `
-        <div onclick="showWordPopup('${w}','',this)" style="background:${colors[i%colors.length]};border:1px solid rgba(0,0,0,0.06);border-radius:12px;padding:12px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-          <div style="font-size:15px;font-weight:700;color:${textColors[i%textColors.length]}">${w}</div>
-          <div style="font-size:11px;color:#9aa0b4;margin-top:3px">нажмите для перевода</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h3 style="font-size:14px;font-weight:700;color:#191c1e">Слова из урока</h3>
+      <span style="font-size:12px;color:#9aa0b4">${words.length} слов — нажмите для перевода</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="vocab-cards-list">
+      ${words.map(w => `
+        <div id="wcard-${w}" onclick="translateVocabCard('${w}')"
+          style="background:#fff;border:1.5px solid rgba(195,198,215,0.4);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;gap:12px"
+          onmouseenter="this.style.borderColor='#4f65ef';this.style.boxShadow='0 2px 12px rgba(79,101,239,0.12)'"
+          onmouseleave="this.style.borderColor='rgba(195,198,215,0.4)';this.style.boxShadow=''">
+          <div style="min-width:0">
+            <div style="font-size:16px;font-weight:700;color:#191c1e">${w}</div>
+            <div id="wcard-tr-${w}" style="font-size:13px;color:#9aa0b4;margin-top:2px">нажмите для перевода</div>
+            <div id="wcard-ex-${w}" style="font-size:12px;color:#737686;margin-top:4px;display:none;font-style:italic"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <button onclick="event.stopPropagation();speakVocabWord('${w}')"
+              style="width:32px;height:32px;border-radius:50%;border:none;background:#f0f2f5;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s"
+              title="Произнести" onmouseenter="this.style.background='#e0e3e8'" onmouseleave="this.style.background='#f0f2f5'">
+              <span class="material-symbols-outlined" style="font-size:16px;color:#434655">volume_up</span>
+            </button>
+            <button onclick="event.stopPropagation();addVocabToNotebook('${w}')"
+              id="wcard-add-${w}"
+              style="width:32px;height:32px;border-radius:50%;border:none;background:#eef2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s"
+              title="В блокнот" onmouseenter="this.style.background='#dbe4ff'" onmouseleave="this.style.background='#eef2ff'">
+              <span class="material-symbols-outlined" style="font-size:16px;color:#4f65ef">bookmark_add</span>
+            </button>
+          </div>
         </div>`).join('')}
     </div>`;
+}
+
+async function translateVocabCard(word) {
+  const trEl = document.getElementById('wcard-tr-' + word);
+  const exEl = document.getElementById('wcard-ex-' + word);
+  if (!trEl) return;
+
+  // Уже переведено
+  if (_vocabCache[word]) {
+    const c = _vocabCache[word];
+    trEl.style.color = '#4f65ef';
+    trEl.textContent = c.translation + (c.transcription ? '  ' + c.transcription : '');
+    if (c.example) { exEl.textContent = c.example; exEl.style.display = 'block'; }
+    return;
+  }
+
+  // Показываем загрузку
+  trEl.textContent = '⏳ перевод...';
+  trEl.style.color = '#9aa0b4';
+
+  try {
+    const res = await fetch('/api/dictionary/translate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        user_id: userId,
+        word,
+        native_language: userNativeLang || 'ru',
+        target_language: userTargetLang || 'en',
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.translation) {
+      _vocabCache[word] = data;
+      trEl.style.color = '#4f65ef';
+      trEl.textContent = data.translation + (data.transcription ? '  ' + data.transcription : '');
+      if (data.context_example) { exEl.textContent = data.context_example; exEl.style.display = 'block'; }
+    } else {
+      trEl.textContent = 'не удалось получить перевод';
+      trEl.style.color = '#e34948';
+    }
+  } catch(e) {
+    trEl.textContent = 'ошибка соединения';
+    trEl.style.color = '#e34948';
+  }
+}
+
+function speakVocabWord(word) {
+  const audio = new Audio('/api/tts/word?word=' + encodeURIComponent(word));
+  audio.play().catch(() => {});
+}
+
+async function addVocabToNotebook(word) {
+  const btn = document.getElementById('wcard-add-' + word);
+  if (!btn) return;
+  const cached = _vocabCache[word];
+  if (!cached) {
+    await translateVocabCard(word);
+  }
+  const c = _vocabCache[word];
+  if (!c) return;
+  try {
+    const res = await fetch('/api/dictionary/add', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        user_id: userId,
+        word,
+        translation: c.translation || '',
+        transcription: c.transcription || '',
+        context_example: c.context_example || '',
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      btn.style.background = '#dcfce7';
+      btn.querySelector('.material-symbols-outlined').textContent = 'bookmark';
+      btn.querySelector('.material-symbols-outlined').style.color = '#16a34a';
+      btn.title = 'Добавлено в блокнот';
+      showToast('✅ ' + word + ' добавлено в блокнот');
+    }
+  } catch(e) {}
 }
 
 function renderGrammarTab(lesson) {
@@ -513,10 +669,15 @@ async function sendLessonMessage() {
   try {
     const lesson = window._currentLesson || {};
     const context = `You are an AI language tutor helping a student practice the lesson "${lesson.title||''}". Level: ${currentLevel}. Keep responses concise and encouraging.`;
-    const fd = new FormData();
-    fd.append('user_id', userId); fd.append('text', text); fd.append('level', currentLevel);
-    fd.append('situation', context); fd.append('native_language', userNativeLang); fd.append('target_language', userTargetLang);
-    const data = await (await fetch('/api/web-club/text', {method:'POST', body:fd})).json();
+    const data = await (await fetch('/api/web-club/text', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: userId, text, level: currentLevel,
+        situation: context || '', native_language: userNativeLang, target_language: userTargetLang,
+        history: _clubHistory.slice(-20)
+      })
+    })).json();
+    if (data.ai_text) _clubHistory.push({role:'assistant', content:data.ai_text});
     box.removeChild(typing);
     addLessonMsg('ai', data.ai_text, box);
     if (data.audio_url) new Audio(data.audio_url).play().catch(()=>{});
@@ -964,13 +1125,23 @@ function renderFlashcard() {
   if (vfIdx >= vfCards.length) { renderFlashcardCompletion(); return; }
   vfCard = vfCards[vfIdx]; vfFlipped=false;
   const gradMap = {A1:'linear-gradient(135deg,#4ade80,#2dd4bf)',A2:'linear-gradient(135deg,#60a5fa,#818cf8)',B1:'linear-gradient(135deg,#fb923c,#f59e0b)',B2:'linear-gradient(135deg,#f472b6,#fb7185)',C1:'linear-gradient(135deg,#f87171,#a855f7)',C2:'linear-gradient(135deg,#71717a,#374151)'};
-  let emoji='📖'; try{emoji=String.fromCodePoint(parseInt(vfCard.emoji_code,16));}catch(e){}
+  // Конвертируем emoji_code в символ (может быть hex, текст или emoji)
+  let emojiChar = vfCard.emoji_code || '📖';
+  if (/^[0-9A-Fa-f]{4,6}$/.test(emojiChar)) {
+    try { emojiChar = String.fromCodePoint(parseInt(emojiChar,16)); } catch(e) {}
+  }
+  const _t2e = {'cat':'🐱','dog':'🐶','bird':'🐦','fish':'🐟','horse':'🐴','cow':'🐄','pig':'🐷','sheep':'🐑','rabbit':'🐰','duck':'🦆','bear':'🐻','lion':'🦁','elephant':'🐘','monkey':'🐒','snake':'🐍','frog':'🐸','tiger':'🐯','wolf':'🐺','fox':'🦊','mouse':'🐭','chicken':'🐔','penguin':'🐧','dolphin':'🐬','turtle':'🐢','bee':'🐝','butterfly':'🦋','ant':'🐜','spider':'🕷','deer':'🦌','hamster':'🐹','apple':'🍎','banana':'🍌','bread':'🍞','egg':'🥚','rice':'🍚','soup':'🍲','pizza':'🍕','burger':'🍔','cake':'🎂','salad':'🥗','cheese':'🧀','butter':'🧈','milk':'🥛','orange':'🍊','lemon':'🍋','tomato':'🍅','potato':'🥔','carrot':'🥕','onion':'🧅','garlic':'🧄','pasta':'🍝','sandwich':'🥪','ice-cream':'🍦','chocolate':'🍫','cookie':'🍪','honey':'🍯','strawberry':'🍓','grapes':'🍇','watermelon':'🍉','mushroom':'🍄','corn':'🌽','pepper':'🌶','cucumber':'🥒','meat':'🥩','water':'💧','coffee':'☕','juice':'🧃','drink':'🥤','beer':'🍺','wine':'🍷','champagne':'🍾','house':'🏠','door':'🚪','kitchen':'🍳','bed':'🛏','bath':'🛁','window':'🪟','chair':'🪑','sofa':'🛋','lamp':'💡','clock':'🕐','mirror':'🪞','stairs':'🪜','ice':'🧊','tv':'📺','phone':'📱','pc':'💻','books':'📚','key':'🔑','bag':'👜','box':'📦','cup':'☕','plate':'🍽','spoon':'🥄','red':'🔴','blue':'🔵','green':'🟢','yellow':'🟡','purple':'🟣','pink':'🩷','black':'⚫','white':'⚪','grey':'🩶','brown':'🟫','gold':'🌟','silver':'⭐','woman':'👩','man':'👨','girl':'👧','boy':'👦','granny':'👵','grandpa':'👴','bride':'👰','groom':'🤵','baby':'👶','child':'🧒','parents':'👨‍👩‍👦','family':'👨‍👩‍👧‍👦','head':'🗣','hair':'💇','eye':'👁','ear':'👂','nose':'👃','mouth':'👄','tooth':'🦷','tongue':'👅','arm':'💪','hand':'🤚','finger':'☝','leg':'🦵','foot':'🦶','heart':'❤','face':'😊','thumbs-up':'👍','nail':'💅','shirt':'👕','pants':'👖','dress':'👗','jacket':'🧥','shoes':'👟','boots':'👢','socks':'🧦','hat':'🎩','scarf':'🧣','gloves':'🧤','sweater':'🧶','suit':'👔','sun':'☀','rain':'🌧','snow':'❄','cloud':'☁','wind':'💨','storm':'⛈','lightning':'⚡','fog':'🌫','rainbow':'🌈','hot':'🥵','cold':'🥶','warm':'🌤','morning':'🌅','evening':'🌆','night':'🌙','date':'📅','week':'📆','month':'🗓','hour':'⏰','minute':'⏱','holiday':'🎉','tree':'🌳','flower':'🌸','grass':'🌿','river':'🏞','sea':'🌊','mountain':'⛰','forest':'🌲','beach':'🏖','moon':'🌕','earth':'🌍','island':'🏝','desert':'🏜','rock':'🪨','leaf':'🍃','plant':'🌱','school':'🏫','teacher':'👩‍🏫','student':'🧑‍🎓','book':'📖','pen':'🖊','pencil':'✏','paper':'📄','notebook':'📓','homework':'📝','word':'💬','question':'❓','car':'🚗','bus':'🚌','train':'🚂','plane':'✈','bike':'🚲','taxi':'🚕','boat':'⛵','ship':'🚢','moto':'🏍','truck':'🚛','tram':'🚃','subway':'🚇','heli':'🚁','station':'🚉','ticket':'🎫','city':'🏙','village':'🏡','shop':'🏪','market':'🛒','hospital':'🏥','bank':'🏦','park':'🌳','restaurant':'🍽','hotel':'🏨','museum':'🏛','cinema':'🎬','church':'⛪','office':'🏢','factory':'🏭','farm':'🚜','gym':'🏋','wave':'👋','pray':'🙏','yes':'✅','no':'❌','help':'🆘','smile':'😊','handshake':'🤝','eat':'🍴','sleep':'😴','walk':'🚶','run':'🏃','sit':'🪑','stand':'🧍','speak':'🗣','buy':'🛒','make':'🛠','like':'❤','want':'💭','work':'💼','play':'🎮','read':'📖','write':'✍','watch':'📺','cook':'🍳','clean':'🧹','big':'🔵','small':'🔹','new':'✨','old':'🏚','sad':'😢','fast':'⚡','slow':'🐢','beautiful':'🌸','free':'🆓','busy':'💼','understand':'🧠'};
+  if (_t2e[emojiChar]) emojiChar = _t2e[emojiChar];
+  // Twemoji URL
+  const _cp = [...emojiChar].map(c=>c.codePointAt(0).toString(16)).join('-');
+  const _twUrl = `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${_cp}.png`;
+  const _emojiImg = `<img src="${_twUrl}" style="width:56px;height:56px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"/><span style="font-size:48px;display:none">${emojiChar}</span>`;
   const pct = vfCards.length>0?Math.round(vfIdx/vfCards.length*100):0;
   document.getElementById('flashcard-content').innerHTML = `
     <div class="mb-3"><div class="flex justify-between text-xs text-outline font-label mb-1"><span>${vfIdx}/${vfCards.length}</span><span>${vfKnown.length} знаю · ${vfLearning.length} учу</span></div>
     <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary-container rounded-full transition-all" style="width:${pct}%"></div></div></div>
     <div id="vf-card" onclick="flipCard()" class="cursor-pointer bg-surface-container-lowest border-2 border-surface-variant rounded-3xl p-6 mb-4 text-center min-h-[240px] flex flex-col items-center justify-center card-enter transition-all">
-      <div id="vf-emoji-bg" class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mb-3" style="background:${gradMap[vfCard.level]||gradMap.A1}">${emoji}</div>
+      <div id="vf-emoji-bg" class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mb-3" style="background:${gradMap[vfCard.level]||gradMap.A1}">${_emojiImg}</div>
       <div class="font-headline font-extrabold text-2xl text-on-surface mb-1">${vfCard.word}</div>
       <span class="text-xs bg-surface-container text-outline px-2 py-0.5 rounded-full font-label">${vfCard.level}</span>
       <div id="vf-tap-hint" class="text-xs text-outline mt-3 font-label">Нажмите, чтобы открыть</div>
@@ -1056,6 +1227,7 @@ async function toggleWordStatus(word, status) {
 
 // ── РАЗГОВОРНЫЙ КЛУБ ──
 function initClubGreeting() {
+  _clubHistory = [];  // сбрасываем историю при новом разговоре
   const box = document.getElementById('chat-box');
   if (!box) return;
   box.innerHTML='';
@@ -1087,10 +1259,17 @@ function autoResizeClubInput(el) {
 async function sendClubMessage() {
   const inp=document.getElementById('chat-input'); const text=inp.value.trim(); if(!text)return;
   inp.value=''; inp.style.height='auto'; const box=document.getElementById('chat-box');
+  _clubHistory.push({role:'user', content:text});
   addChatMsg('user',text,box);
   try {
-    const fd=new FormData(); fd.append('user_id',userId); fd.append('text',text); fd.append('level',currentLevel); fd.append('native_language',userNativeLang); fd.append('target_language',userTargetLang);
-    const data=await (await fetch('/api/web-club/text',{method:'POST',body:fd})).json();
+    const data=await (await fetch('/api/web-club/text',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: userId, text, level: currentLevel,
+        situation: '', native_language: userNativeLang, target_language: userTargetLang,
+        history: []
+      })
+    })).json();
     addChatMsg('ai',data.ai_text,box);
     if(data.audio_url)new Audio(data.audio_url).play().catch(()=>{});
   } catch(e){addChatMsg('ai','Connection error.',box);}
@@ -1335,25 +1514,30 @@ async function saveLangSettings() {
 // ── ОНБОРДИНГ ──
 function obSelectTarget(lang) {
   obTarget=lang;
-  document.querySelectorAll('.ob-lang').forEach(b=>{const a=b.dataset.lang===lang;b.classList.toggle('border-primary-container',a);b.classList.toggle('border-surface-variant',!a);});
+  document.querySelectorAll('.ob-lang').forEach(b=>{
+    b.style.outline = b.dataset.lang===lang ? '3px solid #4f65ef' : '';
+  });
   setTimeout(()=>{
-    document.getElementById('ob-step-0').classList.add('hidden');
+    document.getElementById('ob-step-0').style.display='none';
     document.getElementById('ob-native-grid').innerHTML = Object.keys(LANG_NATIVE_NAMES)
       .filter(l=>l!==lang)
-      .map(l=>`<button onclick="obSelectNative('${l}')" class="elevated-card rounded-[1.25rem] p-md text-center active:scale-95 transition-transform"><div class="text-3xl mb-xs">${LANG_FLAGS[l]}</div><div class="font-headline font-bold text-sm">${LANG_NATIVE_NAMES[l]}</div></button>`)
+      .map(l=>`<button onclick="obSelectNative('${l}')" style="background:#fff;border:1px solid rgba(195,198,215,0.4);border-radius:16px;padding:14px;text-align:center;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform=''"><div style="font-size:28px;margin-bottom:4px">${LANG_FLAGS[l]}</div><div style="font-size:13px;font-weight:700;color:#191c1e">${LANG_NATIVE_NAMES[l]}</div></button>`)
       .join('');
-    document.getElementById('ob-step-1').classList.remove('hidden');
-  },280);
+    document.getElementById('ob-step-1').style.display='block';
+  },200);
 }
 function obSelectNative(lang) {
   obNative=lang;
-  setTimeout(()=>{document.getElementById('ob-step-1').classList.add('hidden');document.getElementById('ob-step-2').classList.remove('hidden');},280);
+  setTimeout(()=>{
+    document.getElementById('ob-step-1').style.display='none';
+    document.getElementById('ob-step-2').style.display='block';
+  },200);
 }
 function obSelectLevel(level) {
   obLevel=level;
-  document.getElementById('ob-step-2').classList.add('hidden');
+  document.getElementById('ob-step-2').style.display='none';
   document.getElementById('ob-ready-msg').textContent=`Язык: ${obTarget.toUpperCase()}, уровень ${level}`;
-  document.getElementById('ob-step-3').classList.remove('hidden');
+  document.getElementById('ob-step-3').style.display='block';
 }
 async function finishOnboarding() {
   try {
@@ -1456,3 +1640,62 @@ window.onload = async () => {
     await initApp();
   }
 };
+
+// ── FORMAT LESSON TEXT ──
+function formatLessonText(raw) {
+  if (!raw) return '';
+  var NEWLINE = '\n', BULLET = '\u2022', EM_DASH = '\u2014';
+  var lines = raw.split(NEWLINE);
+  // Если текст одной строкой — разбиваем по bullet
+  if (lines.length <= 2 && raw.indexOf(BULLET) !== -1) {
+    var parts = raw.split(BULLET);
+    var out = '';
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k].trim();
+      if (!p) continue;
+      if (k === 0 && p.length < 80) {
+        out += '<div style="font-weight:700;font-size:15px;color:#191c1e;margin-bottom:12px">' + makeClickable(p) + '</div>';
+      } else if (p.indexOf(EM_DASH) !== -1 && p.length < 100) {
+        var sp = p.split(EM_DASH);
+        out += '<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(195,198,215,0.2)">' +
+          '<span style="font-weight:600;color:#191c1e;min-width:110px;flex-shrink:0">' + makeClickable(sp[0].trim()) + '</span>' +
+          '<span style="color:#9aa0b4;flex-shrink:0"> — </span>' +
+          '<span style="color:#4f65ef;font-weight:500">' + makeClickable(sp.slice(1).join(EM_DASH).trim()) + '</span></div>';
+      } else {
+        out += '<div style="display:flex;gap:8px;padding:4px 0;font-size:14px;color:#434655;line-height:1.6">' +
+          '<span style="color:#4f65ef;flex-shrink:0">\u2022</span><span>' + makeClickable(p) + '</span></div>';
+      }
+    }
+    return out;
+  }
+  // Многострочный текст
+  var html = '';
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) { html += '<div style="height:6px"></div>'; continue; }
+    var firstChar = line.charCodeAt(0);
+    var isBullet = firstChar === 0x2022 || firstChar === 0x2013 || firstChar === 0x2014 || line[0] === '-';
+    if (isBullet) {
+      var item = line.replace(/^[\u2022\u2013\u2014\-]\s*/, '');
+      if (item.indexOf(EM_DASH) !== -1 && item.length < 100) {
+        var parts2 = item.split(EM_DASH);
+        html += '<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(195,198,215,0.2)">' +
+          '<span style="font-weight:600;color:#191c1e;min-width:110px;flex-shrink:0">' + makeClickable(parts2[0].trim()) + '</span>' +
+          '<span style="color:#9aa0b4;flex-shrink:0"> — </span>' +
+          '<span style="color:#4f65ef;font-weight:500">' + makeClickable(parts2.slice(1).join(EM_DASH).trim()) + '</span></div>';
+      } else {
+        html += '<div style="display:flex;gap:8px;padding:4px 0;font-size:14px;color:#434655;line-height:1.6">' +
+          '<span style="color:#4f65ef;flex-shrink:0">\u2022</span><span>' + makeClickable(item) + '</span></div>';
+      }
+    } else if (line.indexOf(EM_DASH) !== -1 && line.length < 100 && !line.match(/[.!?]$/)) {
+      var sp2 = line.split(EM_DASH);
+      html += '<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(195,198,215,0.2)">' +
+        '<span style="font-weight:600;color:#191c1e;min-width:110px;flex-shrink:0">' + makeClickable(sp2[0].trim()) + '</span>' +
+        '<span style="color:#9aa0b4;flex-shrink:0"> — </span>' +
+        '<span style="color:#4f65ef;font-weight:500">' + makeClickable(sp2.slice(1).join(EM_DASH).trim()) + '</span></div>';
+    } else {
+      html += '<p style="font-size:14px;color:#434655;line-height:1.8;margin:3px 0">' + makeClickable(line) + '</p>';
+    }
+  }
+  return html || makeClickable(raw);
+}
