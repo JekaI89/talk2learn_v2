@@ -427,10 +427,21 @@ async def get_questions_by_level_and_type(level: str, task_type: str):
     async with pool.acquire() as db:
         return await db.fetch("""
             SELECT id, question_text, option_1, option_2, option_3, correct_option
-            FROM questions 
+            FROM questions
             WHERE level = $1 AND task_type = $2
             ORDER BY order_num, id
         """, level, task_type)
+
+
+async def get_questions_by_lesson(lesson_id: int):
+    pool = await get_pool()
+    async with pool.acquire() as db:
+        return await db.fetch("""
+            SELECT id, question_text, option_1, option_2, option_3, correct_option, task_type
+            FROM questions
+            WHERE lesson_id = $1
+            ORDER BY order_num, id
+        """, lesson_id)
 
 
 # ==================== АДМИН ====================

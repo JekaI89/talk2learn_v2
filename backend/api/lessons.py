@@ -15,6 +15,7 @@ from database.db import (
     start_new_session,
     get_current_session,
     get_level_sessions_count,
+    get_questions_by_lesson,
 )
 
 router = APIRouter()
@@ -153,6 +154,25 @@ async def random_question(
     except Exception as e:
         traceback.print_exc()
         return {"error": "server_error"}
+
+
+@router.get("/api/lesson_questions")
+async def lesson_questions(lesson_id: int = Query(...)):
+    try:
+        rows = await get_questions_by_lesson(lesson_id)
+        result = []
+        for r in rows:
+            result.append({
+                "question_id": r["id"],
+                "task_type": r["task_type"],
+                "question": r["question_text"],
+                "options": [r["option_1"], r["option_2"], r["option_3"]],
+                "correct_option": r["correct_option"],
+            })
+        return {"questions": result}
+    except Exception as e:
+        traceback.print_exc()
+        return {"questions": []}
 
 
 @router.post("/api/check_answer")

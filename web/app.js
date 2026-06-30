@@ -761,7 +761,108 @@ function completeLessonFromHeader() {
   const btn = document.getElementById('lesson-complete-btn');
   const t = btn.dataset.lessonType || 'lesson';
   const id = parseInt(btn.dataset.lessonId || '0');
-  if (id) completeLesson(t, id);
+  if (id) completeLessonAndQuiz(t, id);
+}
+
+async function completeLessonAndQuiz(type, id) {
+  const btn = document.getElementById('lesson-complete-btn');
+  if (btn) { btn.disabled = true; btn.querySelector('.lesson-complete-label').textContent = 'Сохранение...'; }
+  try {
+    const res = await fetch('/api/progress/complete', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: parseInt(userId), content_type: type, content_id: id})
+    });
+    const data = await res.json();
+    if (data.xp_earned > 0) showToast(`🎉 +${data.xp_earned} XP!`);
+    await loadUserData();
+
+    // Загружаем вопросы к уроку
+    const qRes = await fetch(`/api/lesson_questions?lesson_id=${id}`);
+    const qData = await qRes.json();
+    if (qData.questions && qData.questions.length > 0) {
+      showLessonQuiz(qData.questions);
+    } else {
+      await loadNextLesson();
+    }
+  } catch(e) {
+    showToast('Ошибка', 'neutral');
+    if (btn) { btn.disabled = false; btn.querySelector('.lesson-complete-label').textContent = 'Прочитал · +5 XP'; }
+  }
+}
+
+let _quizQuestions = [], _quizIndex = 0, _quizCorrect = 0;
+
+function showLessonQuiz(questions) {
+  _quizQuestions = questions;
+  _quizIndex = 0;
+  _quizCorrect = 0;
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = _quizQuestions[_quizIndex];
+  const total = _quizQuestions.length;
+  const panel = document.getElementById('lesson-tab-content');
+
+  panel.innerHTML = `
+    <div style="padding:20px 16px 32px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+        <div style="flex:1;height:4px;background:#eef0f8;border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${Math.round((_quizIndex/total)*100)}%;background:linear-gradient(90deg,#4f65ef,#7c3aed);transition:width 0.3s"></div>
+        </div>
+        <span style="font-size:12px;color:#9aa0b4;white-space:nowrap">${_quizIndex + 1} / ${total}</span>
+      </div>
+      <p style="font-size:16px;font-weight:700;color:#191c1e;line-height:1.4;margin:0 0 20px">${q.question}</p>
+      <div style="display:flex;flex-direction:column;gap:10px" id="quiz-options">
+        ${q.options.map((opt, i) => `
+          <button onclick="selectQuizAnswer(${i+1}, ${q.correct_option})" data-idx="${i+1}"
+            style="text-align:left;padding:14px 16px;border-radius:14px;border:2px solid rgba(195,198,215,0.5);background:#fff;font-size:14px;font-weight:600;color:#191c1e;cursor:pointer;transition:all 0.15s"
+            onmouseenter="if(!this.dataset.done)this.style.borderColor='#4f65ef'" onmouseleave="if(!this.dataset.done)this.style.borderColor='rgba(195,198,215,0.5)'">
+            ${opt}
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function selectQuizAnswer(chosen, correct) {
+  const btns = document.querySelectorAll('#quiz-options button');
+  btns.forEach(b => {
+    b.dataset.done = '1';
+    b.style.cursor = 'default';
+    const idx = parseInt(b.dataset.idx);
+    if (idx === correct) {
+      b.style.borderColor = '#16a34a'; b.style.background = '#f0fdf4'; b.style.color = '#15803d';
+    } else if (idx === chosen && chosen !== correct) {
+      b.style.borderColor = '#dc2626'; b.style.background = '#fef2f2'; b.style.color = '#dc2626';
+    }
+  });
+  if (chosen === correct) _quizCorrect++;
+
+  setTimeout(() => {
+    _quizIndex++;
+    if (_quizIndex < _quizQuestions.length) {
+      renderQuizQuestion();
+    } else {
+      showQuizResult();
+    }
+  }, 900);
+}
+
+async function showQuizResult() {
+  const total = _quizQuestions.length;
+  const pct = Math.round((_quizCorrect / total) * 100);
+  const emoji = pct === 100 ? '🏆' : pct >= 70 ? '✅' : '💪';
+  const panel = document.getElementById('lesson-tab-content');
+  panel.innerHTML = `
+    <div style="text-align:center;padding:48px 16px">
+      <div style="font-size:56px;margin-bottom:12px">${emoji}</div>
+      <h3 style="font-size:20px;font-weight:800;color:#191c1e;margin:0 0 8px">${_quizCorrect} из ${total} верно</h3>
+      <div style="font-size:32px;font-weight:800;color:${pct>=70?'#4f65ef':'#f97316'};margin-bottom:20px">${pct}%</div>
+      <button onclick="loadNextLesson()" style="width:100%;background:linear-gradient(135deg,#4f65ef,#7c3aed);color:#fff;border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(79,101,239,0.3)">
+        Следующий урок →
+      </button>
+    </div>`;
 }
 
 function autoResizeTA(el) {
