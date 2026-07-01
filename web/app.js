@@ -254,7 +254,8 @@ async function loadUserData() {
     const name = p.name || userEmail.split('@')[0] || 'Ученик';
     const streak = p.streak ?? 0;
     const xp = p.xp ?? 0;
-    currentLevel = p.level || 'A1';
+    // Only update level from profile on initial load, not during active lesson session
+    if (!window._levelLockedBySession) currentLevel = p.level || 'A1';
     isAdmin = !!p.is_admin;
 
     document.getElementById('sidebar-name').textContent = name;
@@ -367,6 +368,7 @@ function renderLevelsGrid() {
 
 function selectLevel(level) {
   currentLevel = level;
+  window._levelLockedBySession = true;
   document.getElementById('club-level').textContent = level;
   if (currentCategory === 'practice') { showPage('practice-mode'); return; }
   loadNextLesson();
